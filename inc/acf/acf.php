@@ -31,6 +31,12 @@
                 'menu_title'    => 'Meldingen',
                 'parent_slug'   => 'Mediakanjers',
             ));
+            // Submenu 4 - 404
+            acf_add_options_sub_page(array(
+                'page_title'    => '404',
+                'menu_title'    => '404',
+                'parent_slug'   => 'Mediakanjers',
+            ));
         }
     });
 ?>

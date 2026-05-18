@@ -1,7 +1,22 @@
 <?php get_header(); ?>
 
-	<div id="main-content" class="<?php if(is_front_page()) { echo "voorpagina"; } else { echo "vervolgpagina"; } ?>">
-		<p>De pagina die u zocht kon niet gevonden worden. Probeer uw zoekopdracht te verfijnen of gebruik de bovenstaande navigatie om deze post te vinden.</p>
-	</div> <!-- #main-content -->
+<?php
+    $error_title         = get_field('titel' , 'options');
+    $error_txt           = get_field('tekst' , 'options');
+    $error_illustration  = get_field('afbeelding' , 'options');
+?>
+
+<div id="main-content" class="error-page error-page--404">
+    <div class="error-page__container">
+        <div class="error-page__content">
+            <h1><?php echo esc_html($error_title);?></h1>
+            <p><?php echo esc_html($error_txt);?></p>
+            <a class="mk-button mk-button--primary" href="<?php echo esc_url(home_url('/')); ?>">Terug naar homepage</a>
+        </div>
+        <div class="error-page__illustration">
+            <img src="<?php echo esc_url($error_illustration);?>">
+        </div>
+    </div>
+</div>
 
 <?php get_footer(); ?>

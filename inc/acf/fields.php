@@ -383,5 +383,106 @@
             ),
             'active' => true,
         ));
+
+        /**
+         * ====================================
+         * 404
+         * ====================================
+         */
+        acf_add_local_field_group( array(
+        'key' => 'group_69f0a9ec6e104',
+        'title' => '404',
+        'fields' => array(
+            array(
+                'key' => 'field_69f0a9ed41264',
+                'label' => 'Titel',
+                'name' => 'titel',
+                'aria-label' => '',
+                'type' => 'text',
+                'instructions' => '',
+                'required' => 0,
+                'conditional_logic' => 0,
+                'wrapper' => array(
+                    'width' => '50',
+                    'class' => '',
+                    'id' => '',
+                ),
+                'default_value' => '',
+                'maxlength' => '',
+                'allow_in_bindings' => 0,
+                'placeholder' => '',
+                'prepend' => '',
+                'append' => '',
+            ),
+            array(
+                'key' => 'field_69f0aa1541265',
+                'label' => 'Tekst',
+                'name' => 'tekst',
+                'aria-label' => '',
+                'type' => 'textarea',
+                'instructions' => '',
+                'required' => false,
+                'conditional_logic' => 0,
+                'wrapper' => array(
+                    'width' => '50',
+                    'class' => '',
+                    'id' => '',
+                ),
+                'default_value' => '',
+                'new_lines' => '',
+                'maxlength' => '',
+                'placeholder' => '',
+                'rows' => '',
+            ),
+            array(
+                'key' => 'field_69f0aa2a41266',
+                'label' => 'Afbeelding',
+                'name' => 'afbeelding',
+                'aria-label' => '',
+                'type' => 'image',
+                'instructions' => '',
+                'required' => 0,
+                'conditional_logic' => 0,
+                'wrapper' => array(
+                    'width' => '',
+                    'class' => '',
+                    'id' => '',
+                ),
+                'return_format' => 'url',
+                'library' => 'all',
+                'min_width' => '',
+                'min_height' => '',
+                'min_size' => '',
+                'max_width' => '',
+                'max_height' => '',
+                'max_size' => '',
+                'mime_types' => '',
+                'allow_in_bindings' => 0,
+                'preview_size' => 'medium',
+            ),
+        ),
+        'location' => array(
+            array(
+                array(
+                    'param' => 'options_page',
+                    'operator' => '==',
+                    'value' => 'acf-options-404',
+                ),
+            ),
+        ),
+        'menu_order' => 0,
+        'position' => 'normal',
+        'style' => 'default',
+        'label_placement' => 'top',
+        'instruction_placement' => 'label',
+        'hide_on_screen' => '',
+        'active' => true,
+        'description' => '',
+        'show_in_rest' => 0,
+        'display_title' => '',
+        'allow_ai_access' => false,
+        'ai_description' => '',
+    ) );
+
     });
 ?>

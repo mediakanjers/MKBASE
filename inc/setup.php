@@ -39,4 +39,7 @@
             echo '<link rel="apple-touch-icon" href="' . esc_url($favicon['url']) . '">' . "\n";
         }
     }
+
+    // Remove CSS GF
+    add_filter( 'gform_disable_css', '__return_true' );
 ?>
