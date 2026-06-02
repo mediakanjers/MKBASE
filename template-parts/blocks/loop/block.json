@@ -1,0 +1,14 @@
+{
+  "name": "mk/loop",
+  "title": "Post type loop",
+  "description": "Post type loop",
+  "category": "mediakanjers",
+  "icon": "list-view",
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "render.php"
+  },
+  "supports": {
+    "align": ["full"]
+  }
+}

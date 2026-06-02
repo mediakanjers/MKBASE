@@ -1,0 +1,429 @@
+#mkbase-changelog-content {
+    max-width: 860px;
+    margin-top: 32px;
+    font-size: 14px;
+    color: #1d2327;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Pagina-navigatie */
+.mkbase-page-nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 28px;
+    border-bottom: 2px solid #e2e4e7;
+    padding-bottom: 0;
+}
+
+.mkbase-page-nav__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #50575e;
+    text-decoration: none !important;
+    border-radius: 4px 4px 0 0;
+    margin-bottom: -2px;
+    border: 2px solid transparent;
+    border-bottom: none;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.mkbase-page-nav__tab:hover {
+    color: #1d2327;
+    background: #f6f7f7;
+}
+
+.mkbase-page-nav__tab.is-active {
+    color: #1d2327;
+    background: #fff;
+    border-color: #e2e4e7;
+    border-bottom-color: #fff;
+}
+
+.mkbase-page-nav__tab .dashicons {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    color: inherit;
+}
+
+/* Notice */
+.mkbase-notice {
+    gap: 10px;
+    background: #fff8e5;
+    border-left: 4px solid #f0b429;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: #3d2e00;
+    line-height: 1.6;
+}
+
+.mkbase-notice .dashicons {
+    color: #f0b429;
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* Samenvatting */
+#mkbase-changelog-summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.mkbase-summary-stat {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e2e4e7;
+    border-radius: 8px;
+    padding: 14px 20px;
+    min-width: 120px;
+}
+
+.mkbase-summary-number {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1d2327;
+    line-height: 1.2;
+}
+
+.mkbase-summary-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8c8f94;
+    margin-top: 4px;
+}
+
+/* Update-melding in samenvatting */
+.mkbase-summary-update {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fef8ec;
+    border: 1px solid #f0b849;
+    border-radius: 8px;
+    padding: 12px 18px;
+}
+
+.mkbase-update-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #3c2800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mkbase-update-text .dashicons {
+    color: #f0b849;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.mkbase-update-btn {
+    display: inline-block;
+    background: #f0b849;
+    color: #3c2800 !important;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none !important;
+    padding: 5px 14px;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+    white-space: nowrap;
+}
+
+.mkbase-update-btn:hover {
+    background: #e0a030;
+}
+
+/* Filterstabs */
+#mkbase-changelog-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 24px;
+}
+
+.mkbase-filter-tab {
+    appearance: none;
+    background: #f6f7f7;
+    border: 1px solid #e2e4e7 !important;
+    box-shadow: none !important;
+    border-radius: 20px;
+    padding: 4px 14px !important;
+    font-size: 12px;
+    font-weight: 600;
+    color: #50575e;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.mkbase-filter-tab:hover {
+    border-color: #8c8f94 !important;
+    color: #1d2327;
+}
+
+.mkbase-filter-tab.is-active {
+    background: #1d2327;
+    border-color: #1d2327 !important;
+    color: #fff;
+}
+
+/* Oudere versies toggle */
+#mkbase-older-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 32px 0 16px;
+    background: none;
+    border: 1px solid #e2e4e7;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #50575e;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+    width: fit-content;
+}
+
+#mkbase-older-toggle:hover {
+    border-color: #8c8f94;
+    color: #1d2327;
+}
+
+#mkbase-older-toggle .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Versie accordion */
+.mkbase-version-block {
+    margin: 24px 0 0;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mkbase-version-block:first-of-type {
+    margin-top: 0;
+}
+
+.mkbase-version-header {
+    display: inline-flex;
+    align-items: center;
+    background: #1d2327;
+    border-radius: 6px;
+    overflow: hidden;
+    width: fit-content;
+}
+
+.mkbase-version-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 8px 12px 8px 16px !important;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff !important;
+    text-align: left;
+}
+
+.mkbase-version-header:hover {
+    background: #2c3338;
+}
+
+.mkbase-version-toggle-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
+    margin-left: 2px;
+}
+
+.mkbase-version-body {
+    width: 100%;
+    margin-top: 8px;
+}
+
+
+.mkbase-version-title {
+    line-height: 1;
+}
+
+.mkbase-version-date {
+    font-size: 11px;
+    font-weight: 400;
+    opacity: 0.65;
+    letter-spacing: 0.02em;
+}
+
+.mkbase-badge-latest {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: #00a32a;
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 20px;
+    line-height: 1.6;
+}
+
+.mkbase-badge-outdated {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: #f0b849;
+    color: #3c2800;
+    padding: 2px 7px;
+    border-radius: 20px;
+    line-height: 1.6;
+}
+
+/* Sectie label */
+#mkbase-changelog-content h3 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #00a32a;
+    margin: 24px 0 6px;
+    padding-left: 2px;
+}
+
+/* Lijst */
+#mkbase-changelog-content ul {
+    margin: 0 0 8px 0;
+    padding: 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid #e2e4e7;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#mkbase-changelog-content li {
+    position: relative;
+    padding: 10px 14px 10px 36px;
+    border-bottom: 1px solid #f0f0f1;
+    line-height: 1.6;
+    font-size: 13px;
+    align-items: baseline;
+    gap: 8px;
+}
+
+#mkbase-changelog-content li:last-child {
+    border-bottom: none;
+}
+
+#mkbase-changelog-content li::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 18px;
+    width: 6px;
+    height: 6px;
+    background: #00a32a;
+    border-radius: 50%;
+}
+
+/* Type badges */
+.mkbase-type-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-right: 5px;
+}
+
+.mkbase-type-new {
+    background: #d8f5e1;
+    color: #006b1e;
+}
+
+.mkbase-type-fix {
+    background: #fdecea;
+    color: #9e1c10;
+}
+
+.mkbase-type-improvement {
+    background: #e8f0fd;
+    color: #1a4699;
+}
+
+.mkbase-type-change {
+    background: #fef3cd;
+    color: #7a5300;
+}
+
+.mkbase-type-update {
+    background: #f0f0f1;
+    color: #3c434a;
+}
+
+/* Code */
+#mkbase-changelog-content code {
+    background: #f0f6ff;
+    border: 1px solid #c5d9f0;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #2271b1;
+    font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+#mkbase-changelog-content pre {
+    background: #1d2327;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 8px 0 16px;
+    overflow-x: auto;
+}
+
+#mkbase-changelog-content pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #a8d8a8;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre;
+}
+
+#mkbase-changelog-content strong {
+    font-weight: 600;
+    color: #1d2327;
+}
+
+#mkbase-changelog-content p {
+    line-height: 1.6;
+    margin: 6px 0;
+    color: #50575e;
+}

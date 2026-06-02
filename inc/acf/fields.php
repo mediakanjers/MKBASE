@@ -169,56 +169,29 @@
                     'type' => 'tab',
                 ),
                 array(
-                    'key' => 'field_68ff77975dd89',
-                    'label' => 'Waar zichtbaar',
-                    'name' => 'waar_zichtbaar',
-                    'aria-label' => '',
-                    'type' => 'post_object',
-                    'instructions' => '',
-                    'required' => 0,
-                    'conditional_logic' => 0,
-                    'wrapper' => array(
-                        'width' => '',
-                        'class' => '',
-                        'id' => '',
-                    ),
-                    'post_type' => array(0 => 'page',),
-                    'post_status' => array(0 => 'publish',),
-                    'taxonomy' => '',
+                    'key'           => 'field_68ff77975dd89',
+                    'label'         => 'Waar zichtbaar',
+                    'name'          => 'waar_zichtbaar',
+                    'type'          => 'post_object',
+                    'post_type'     => array('page'),
+                    'post_status'   => array('publish'),
                     'return_format' => 'object',
-                    'multiple' => 1,
-                    'allow_null' => 1,
-                    'allow_in_bindings' => 0,
-                    'bidirectional' => 0,
-                    'ui' => 1,
-                    'bidirectional_target' => array(
-                    ),
+                    'multiple'      => 1,
+                    'allow_null'    => 1,
+                    'ui'            => 1,
                 ),
                 array(
-                    'key' => 'field_6981bd824bb51',
-                    'label' => 'Melding tonen',
-                    'name' => 'melding_tonen',
-                    'aria-label' => '',
-                    'type' => 'radio',
+                    'key'          => 'field_6981bd824bb51',
+                    'label'        => 'Melding tonen',
+                    'name'         => 'melding_tonen',
+                    'type'         => 'radio',
                     'instructions' => 'Deze moet op \'Ja\' staan om de meldingen aan te tonen!',
-                    'required' => 0,
-                    'conditional_logic' => 0,
-                    'wrapper' => array(
-                        'width' => '',
-                        'class' => '',
-                        'id' => '',
-                    ),
-                    'choices' => array(
-                        'Ja' => 'Ja',
+                    'choices'      => array(
+                        'Ja'  => 'Ja',
                         'Nee' => 'Nee',
                     ),
                     'default_value' => 'Nee',
-                    'return_format' => 'value',
-                    'allow_null' => 0,
-                    'other_choice' => 0,
-                    'allow_in_bindings' => 0,
-                    'layout' => 'horizontal',
-                    'save_other_choice' => 0,
+                    'layout'        => 'horizontal',
                 ),
                 array(
                     'key' => 'field_6977204293692',
@@ -226,30 +199,29 @@
                     'type' => 'tab',
                 ),
                 array(
-                    'key' => 'field_6977205593693',
-                    'label' => 'CSS overschrijven',
-                    'name' => 'css_overschrijven',
-                    'aria-label' => '',
-                    'type' => 'radio',
+                    'key'          => 'field_6977205593693',
+                    'label'        => 'CSS overschrijven',
+                    'name'         => 'css_overschrijven',
+                    'type'         => 'radio',
                     'instructions' => 'Alleen gebruiken voor medewerkers van Mediakanjers!',
-                    'required' => 0,
-                    'conditional_logic' => 0,
-                    'wrapper' => array(
-                        'width' => '',
-                        'class' => '',
-                        'id' => '',
-                    ),
-                    'choices' => array(
-                        'Ja' => 'Ja',
+                    'choices'      => array(
+                        'Ja'  => 'Ja',
                         'Nee' => 'Nee',
                     ),
                     'default_value' => 'Nee',
-                    'return_format' => 'value',
-                    'allow_null' => 0,
-                    'other_choice' => 0,
-                    'allow_in_bindings' => 0,
-                    'layout' => 'horizontal',
-                    'save_other_choice' => 0,
+                    'layout'        => 'horizontal',
+                ),
+                array(
+                    'key' => 'field_voorbeeld_tab',
+                    'label' => 'Voorbeeld',
+                    'type' => 'tab',
+                ),
+                array(
+                    'key' => 'field_voorbeeld_preview',
+                    'label' => 'Notificatie voorbeeld',
+                    'name' => '',
+                    'type' => 'message',
+                    'message' => '',
                 ),
             ),
             'location' => array(
@@ -261,13 +233,6 @@
                     ),
                 ),
             ),
-            'menu_order' => 0,
-            'position' => 'normal',
-            'style' => 'default',
-            'label_placement' => 'top',
-            'instruction_placement' => 'label',
-            'active' => true,
-            'description' => '',
             'active' => true,
         ));
 
@@ -386,103 +351,276 @@
 
         /**
          * ====================================
+         * BLOK: LOOP
+         * ====================================
+         */
+        acf_add_local_field_group(array(
+            'key'    => 'group_mk_loop_block',
+            'title'  => 'Loop blok',
+            'fields' => array(
+                array(
+                    'key'           => 'field_mk_loop_query_loop',
+                    'label'         => 'Post type',
+                    'name'          => 'query_loop',
+                    'type'          => 'select',
+                    'choices'       => array('post' => 'Berichten'),
+                    'default_value' => 'post',
+                    'allow_null'    => 0,
+                    'ui'            => 1,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
+                    'key'           => 'field_mk_loop_number_of_posts',
+                    'label'         => 'Aantal berichten',
+                    'name'          => 'number_of_posts',
+                    'type'          => 'number',
+                    'default_value' => -1,
+                    'min'           => -1,
+                    'max'           => 100,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
+                    'key'           => 'field_mk_loop_bericht_object',
+                    'label'         => 'Handmatige selectie',
+                    'name'          => 'bericht_object',
+                    'type'          => 'post_object',
+                    'instructions'  => 'Optioneel: selecteer specifieke berichten. Overschrijft het post type en het aantal.',
+                    'post_type'     => array(),
+                    'post_status'   => array('publish'),
+                    'return_format' => 'object',
+                    'multiple'      => 1,
+                    'allow_null'    => 1,
+                    'ui'            => 1,
+                ),
+                array(
+                    'key'           => 'field_mk_loop_grid',
+                    'label'         => 'Kolommen',
+                    'name'          => 'grid',
+                    'type'          => 'select',
+                    'choices'       => array(
+                        '1' => '1 kolom',
+                        '2' => '2 kolommen',
+                        '3' => '3 kolommen',
+                        '4' => '4 kolommen',
+                    ),
+                    'default_value' => '3',
+                    'allow_null'    => 0,
+                    'ui'            => 1,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
+                    'key'           => 'field_mk_loop_breedte',
+                    'label'         => 'Breedte',
+                    'name'          => 'breedte',
+                    'type'          => 'select',
+                    'choices'       => array(
+                        'contained' => 'Ingesloten',
+                        'full'      => 'Volledige breedte',
+                    ),
+                    'default_value' => 'contained',
+                    'allow_null'    => 0,
+                    'ui'            => 1,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
+                    'key'           => 'field_mk_loop_toon_knop',
+                    'label'         => 'Toon knop',
+                    'name'          => 'toon_knop',
+                    'type'          => 'true_false',
+                    'default_value' => 0,
+                    'ui'            => 1,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
+                    'key'               => 'field_mk_loop_knop_tekst',
+                    'label'             => 'Knoptekst',
+                    'name'              => 'knop_tekst',
+                    'type'              => 'text',
+                    'default_value'     => 'Meer lezen',
+                    'wrapper'           => array('width' => '50'),
+                    'conditional_logic' => array(
+                        array(
+                            array(
+                                'field'    => 'field_mk_loop_toon_knop',
+                                'operator' => '==',
+                                'value'    => '1',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            'location' => array(
+                array(
+                    array(
+                        'param'    => 'block',
+                        'operator' => '==',
+                        'value'    => 'mk/loop',
+                    ),
+                ),
+            ),
+            'active' => true,
+        ));
+
+        /**
+         * ====================================
+         * BLOK: IMAGE SLIDER
+         * ====================================
+         */
+        acf_add_local_field_group(array(
+            'key'    => 'group_mk_image_slider_block',
+            'title'  => 'Image Slider blok',
+            'fields' => array(
+                array(
+                    'key'           => 'field_mk_slider_items_desktop',
+                    'label'         => 'Items desktop',
+                    'name'          => 'items_desktop',
+                    'type'          => 'select',
+                    'choices'       => array('1'=>'1','2'=>'2','3'=>'3','4'=>'4'),
+                    'default_value' => 4,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
+                    'key'           => 'field_mk_slider_items_tablet',
+                    'label'         => 'Items tablet',
+                    'name'          => 'items_tablet',
+                    'type'          => 'select',
+                    'choices'       => array('1'=>'1','2'=>'2','3'=>'3'),
+                    'default_value' => 2,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
+                    'key'           => 'field_mk_slider_autoplay',
+                    'label'         => 'Autoplay',
+                    'name'          => 'autoplay',
+                    'type'          => 'true_false',
+                    'default_value' => 0,
+                    'ui'            => 1,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
+                    'key'           => 'field_mk_slider_aspect_ratio',
+                    'label'         => 'Aspect ratio',
+                    'name'          => 'aspect_ratio',
+                    'type'          => 'select',
+                    'choices'       => array(
+                        '1/1'  => 'Vierkant - 1:1',
+                        '4/3'  => 'Standaard - 4:3',
+                        '3/4'  => 'Portret - 3:4',
+                        '3/2'  => 'Klassiek - 3:2',
+                        '2/3'  => 'Klassiek portret - 2:3',
+                        '16/9' => 'Breed - 16:9',
+                        '9/16' => 'Groot - 9:16',
+                    ),
+                    'allow_null'    => 1,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
+                    'key'          => 'field_mk_slider_slides',
+                    'label'        => 'Slides',
+                    'name'         => 'slides',
+                    'type'         => 'repeater',
+                    'layout'       => 'block',
+                    'button_label' => 'Nieuwe rij',
+                    'sub_fields'   => array(
+                        array(
+                            'key'           => 'field_mk_slider_afbeelding',
+                            'label'         => 'Afbeelding',
+                            'name'          => 'afbeelding',
+                            'type'          => 'image',
+                            'return_format' => 'array',
+                            'preview_size'  => 'thumbnail',
+                            'wrapper'       => array('width' => '50'),
+                        ),
+                    ),
+                ),
+            ),
+            'location' => array(
+                array(
+                    array(
+                        'param'    => 'block',
+                        'operator' => '==',
+                        'value'    => 'mk/image-slider',
+                    ),
+                ),
+            ),
+            'active' => true,
+        ));
+
+        /**
+         * ====================================
          * 404
          * ====================================
          */
-        acf_add_local_field_group( array(
-        'key' => 'group_69f0a9ec6e104',
-        'title' => '404',
-        'fields' => array(
-            array(
-                'key' => 'field_69f0a9ed41264',
-                'label' => 'Titel',
-                'name' => 'titel',
-                'aria-label' => '',
-                'type' => 'text',
-                'instructions' => '',
-                'required' => 0,
-                'conditional_logic' => 0,
-                'wrapper' => array(
-                    'width' => '50',
-                    'class' => '',
-                    'id' => '',
-                ),
-                'default_value' => '',
-                'maxlength' => '',
-                'allow_in_bindings' => 0,
-                'placeholder' => '',
-                'prepend' => '',
-                'append' => '',
-            ),
-            array(
-                'key' => 'field_69f0aa1541265',
-                'label' => 'Tekst',
-                'name' => 'tekst',
-                'aria-label' => '',
-                'type' => 'textarea',
-                'instructions' => '',
-                'required' => false,
-                'conditional_logic' => 0,
-                'wrapper' => array(
-                    'width' => '50',
-                    'class' => '',
-                    'id' => '',
-                ),
-                'default_value' => '',
-                'new_lines' => '',
-                'maxlength' => '',
-                'placeholder' => '',
-                'rows' => '',
-            ),
-            array(
-                'key' => 'field_69f0aa2a41266',
-                'label' => 'Afbeelding',
-                'name' => 'afbeelding',
-                'aria-label' => '',
-                'type' => 'image',
-                'instructions' => '',
-                'required' => 0,
-                'conditional_logic' => 0,
-                'wrapper' => array(
-                    'width' => '',
-                    'class' => '',
-                    'id' => '',
-                ),
-                'return_format' => 'url',
-                'library' => 'all',
-                'min_width' => '',
-                'min_height' => '',
-                'min_size' => '',
-                'max_width' => '',
-                'max_height' => '',
-                'max_size' => '',
-                'mime_types' => '',
-                'allow_in_bindings' => 0,
-                'preview_size' => 'medium',
-            ),
-        ),
-        'location' => array(
-            array(
+        acf_add_local_field_group(array(
+            'key'    => 'group_69f0a9ec6e104',
+            'title'  => '404',
+            'fields' => array(
                 array(
-                    'param' => 'options_page',
-                    'operator' => '==',
-                    'value' => 'acf-options-404',
+                    'key'     => 'field_69f0a9ed41264',
+                    'label'   => 'Titel',
+                    'name'    => 'titel',
+                    'type'    => 'text',
+                    'wrapper' => array('width' => '50'),
+                ),
+                array(
+                    'key'     => 'field_69f0aa1541265',
+                    'label'   => 'Tekst',
+                    'name'    => 'tekst',
+                    'type'    => 'textarea',
+                    'wrapper' => array('width' => '50'),
+                ),
+                array(
+                    'key'           => 'field_69f0aa2a41266',
+                    'label'         => 'Afbeelding',
+                    'name'          => 'afbeelding',
+                    'type'          => 'image',
+                    'return_format' => 'url',
+                    'preview_size'  => 'medium',
                 ),
             ),
-        ),
-        'menu_order' => 0,
-        'position' => 'normal',
-        'style' => 'default',
-        'label_placement' => 'top',
-        'instruction_placement' => 'label',
-        'hide_on_screen' => '',
-        'active' => true,
-        'description' => '',
-        'show_in_rest' => 0,
-        'display_title' => '',
-        'allow_ai_access' => false,
-        'ai_description' => '',
-    ) );
+            'location' => array(
+                array(
+                    array(
+                        'param'    => 'options_page',
+                        'operator' => '==',
+                        'value'    => 'acf-options-404',
+                    ),
+                ),
+            ),
+            'active' => true,
+        ));
 
+    });
+
+    add_filter('acf/load_field/key=field_mk_loop_query_loop', function($field) {
+        $post_types = get_post_types(['public' => true], 'objects');
+        $choices = [];
+        foreach ($post_types as $pt) {
+            if ($pt->name === 'attachment') continue;
+            $choices[$pt->name] = $pt->labels->name;
+        }
+        $field['choices'] = $choices;
+        return $field;
+    });
+
+    add_filter('acf/load_field/key=field_voorbeeld_preview', function($field) {
+        $bgcolor          = get_field('achtergrondkleur', 'option') ?: '#ff0000';
+        $txtcolor         = get_field('tekstkleur', 'option') ?: '#ffffff';
+        $txt              = get_field('tekst_melding', 'option');
+        $shownotification = get_field('melding_tonen', 'option');
+
+        if (empty($txt)) {
+            $field['message'] = '<p><em>Er is nog geen meldingstekst ingesteld.</em></p>';
+        } else {
+            $field['message'] = '<div style="background:' . esc_attr($bgcolor) . '; color:' . esc_attr($txtcolor) . '; padding:12px 20px; border-radius:4px; font-size:14px;">'
+                . wp_kses_post($txt)
+                . '</div>';
+
+            if ($shownotification !== 'Ja') {
+                $field['message'] .= '<p style="color:#888; margin-top:8px; font-style:italic;">Let op: "Melding tonen" staat op Nee — de melding is niet zichtbaar op de website.</p>';
+            }
+        }
+
+        return $field;
     });
 ?>

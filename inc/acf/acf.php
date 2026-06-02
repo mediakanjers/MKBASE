@@ -37,6 +37,20 @@
                 'menu_title'    => '404',
                 'parent_slug'   => 'Mediakanjers',
             ));
+            // Submenu 5 - Changelog
+            acf_add_options_sub_page(array(
+                'page_title'    => 'Changelog',
+                'menu_title'    => 'Changelog',
+                'menu_slug'     => 'mkbase-changelog',
+                'parent_slug'   => 'Mediakanjers',
+            ));
+            // Submenu 6 - Documentatie
+            acf_add_options_sub_page(array(
+                'page_title'    => 'Documentatie',
+                'menu_title'    => 'Documentatie',
+                'menu_slug'     => 'mkbase-docs',
+                'parent_slug'   => 'Mediakanjers',
+            ));
         }
     });
 ?>

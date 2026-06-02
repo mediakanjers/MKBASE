@@ -1,0 +1,60 @@
+.mk-notices-wrapper {
+    margin-bottom: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.mk-notices-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #1d2327;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.mk-notices-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.01em;
+}
+
+.mk-notices-toggle {
+    appearance: none;
+    background: #00a32a !important;
+    color: #fff !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 4px !important;
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    box-shadow: none !important;
+    transition: background 0.15s ease;
+}
+
+.mk-notices-toggle:hover {
+    background: #007a1f !important;
+}
+
+.mk-notices-inner {
+    background: #fff;
+    border: 1px solid #e2e4e7;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.mk-notices-inner .notice {
+    margin: 0 !important;
+    border-left-width: 4px;
+    border-radius: 0;
+    box-shadow: none;
+    border-top: 1px solid #f0f0f1;
+}
+
+.mk-notices-inner .notice:first-child {
+    border-top: none;
+}

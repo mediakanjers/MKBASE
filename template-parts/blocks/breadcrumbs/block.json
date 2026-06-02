@@ -1,0 +1,15 @@
+{
+  "name": "mk/breadcrumbs",
+  "title": "Breadcrumbs",
+  "description": "Toont het navigatiepad van de huidige pagina.",
+  "category": "mediakanjers",
+  "icon": "arrow-right-alt",
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "render.php"
+  },
+  "supports": {
+    "align": false,
+    "mode": false
+  }
+}

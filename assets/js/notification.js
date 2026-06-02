@@ -1,6 +1,10 @@
 jQuery(document).ready(function($) {
 
     function adjustHeader() {
+        if (typeof mkbaseConfig !== 'undefined' && mkbaseConfig.cssOverschrijven === 'ja') {
+            return;
+        }
+
         var $notification = $('.mk-notification');
         var $header = $('.mk-header');
 
@@ -58,8 +62,6 @@ jQuery(document).ready(function($) {
             var today = d.getFullYear() +
                 ('0' + (d.getMonth() + 1)).slice(-2) +
                 ('0' + d.getDate()).slice(-2);
-
-            console.log('Today:', today, 'Begin:', beginDate, 'End:', endDate);
 
             $el.hide();
 

@@ -1,0 +1,14 @@
+{
+  "name": "mk/image-slider",
+  "title": "Image Slider",
+  "description": "Afbeeldingen slider met instelbaar aantal items",
+  "category": "mediakanjers",
+  "icon": "images-alt2",
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "render.php"
+  },
+  "supports": {
+    "align": ["full"]
+  }
+}

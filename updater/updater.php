@@ -4,7 +4,7 @@
     function mkbase_check_for_update($transient) {
         if (empty($transient->checked)) return $transient;
 
-        $remote = wp_remote_get('https://wordpress-1253021-5957184.cloudwaysapps.com/public_html/updater/mkbase-update.json', [
+        $remote = wp_remote_get(MKBASE_UPDATER_URL, [
             'timeout' => 30,
             'headers' => ['Accept' => 'application/json']
         ]);

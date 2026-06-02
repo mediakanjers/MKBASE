@@ -1,0 +1,165 @@
+/* Widget verplaatst naar boven de kolomstructuur via JS */
+.metabox-holder > #mkbase_docs_widget {
+    width: 100% !important;
+    float: none !important;
+    clear: both;
+    margin-bottom: 20px !important;
+}
+
+#mkbase_docs_widget {
+    box-sizing: border-box;
+}
+
+#mkbase_docs_widget .postbox-header {
+    display: none;
+}
+
+#mkbase_docs_widget .inside {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Widget wrapper */
+.mkbase-dash {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Header */
+.mkbase-dash__header {
+    background: #1d2327;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.mkbase-dash__logo {
+    height: 32px;
+    width: auto;
+    flex-shrink: 0;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+}
+
+.mkbase-dash__intro {
+    flex: 1;
+    min-width: 200px;
+}
+
+.mkbase-dash__intro h3 {
+    color: #fff !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    margin: 0 0 4px !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+.mkbase-dash__intro p {
+    color: rgba(255,255,255,0.65);
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.mkbase-dash__actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.mkbase-dash__btn {
+    display: inline-block;
+    padding: 7px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: opacity 0.15s ease;
+    white-space: nowrap;
+}
+
+.mkbase-dash__btn:hover {
+    opacity: 0.85;
+}
+
+.mkbase-dash__btn--primary {
+    background: #f0b849;
+    color: #3c2800 !important;
+}
+
+.mkbase-dash__btn--secondary {
+    background: rgba(255,255,255,0.12);
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Cards */
+.mkbase-dash__cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid #e2e4e7;
+}
+
+.mkbase-dash__card {
+    padding: 18px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #fff;
+}
+
+.mkbase-dash__card + .mkbase-dash__card {
+    border-left: 1px solid #e2e4e7;
+}
+
+.mkbase-dash__card .dashicons {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    color: #1d2327;
+    flex-shrink: 0;
+    margin-top: 2px;
+    opacity: 0.5;
+}
+
+.mkbase-dash__card-body strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1d2327;
+    margin-bottom: 3px;
+}
+
+.mkbase-dash__card-body p {
+    font-size: 12px;
+    color: #50575e;
+    margin: 0 0 8px;
+    line-height: 1.5;
+}
+
+.mkbase-dash__card-body a {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2271b1;
+    text-decoration: none;
+}
+
+.mkbase-dash__card-body a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+    .mkbase-dash__cards {
+        grid-template-columns: 1fr;
+    }
+
+    .mkbase-dash__card + .mkbase-dash__card {
+        border-left: none;
+        border-top: 1px solid #e2e4e7;
+    }
+}
