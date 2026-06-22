@@ -46,7 +46,7 @@ add_filter('mkbase_docs_extra_blocks', function($html) {
 ### Vereisten bijgewerkt
 - Minimale WordPress versie verhoogd naar **6.9**
 - Getest op WordPress **6.9**
-- Minimale PHP versie verhoogd naar **8.4**
+- Minimale PHP versie verhoogd naar **8.2**
 
 ### Notificatiebalk — CSS overschrijven
 - Opgelost: wanneer het ACF-optieveld `css_overschrijven` op **Ja** staat, werd de `margin-top` van `.mk-header` onterecht via JavaScript overschreven. Dit veroorzaakte onnodige stijlwijzigingen wanneer de notificatiebalk uitgeschakeld is.
