@@ -29,8 +29,7 @@
 
             if (
                 !is_wp_error($zip_check) &&
-                wp_remote_retrieve_response_code($zip_check) === 200 &&
-                strpos(wp_remote_retrieve_header($zip_check, 'content-type'), 'zip') !== false
+                wp_remote_retrieve_response_code($zip_check) === 200
             ) {
                 $transient->response[$theme_slug] = [
                     'theme' => $theme_slug,

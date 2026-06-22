@@ -1,5 +1,5 @@
 <?php
-    define('MKBASE_UPDATER_URL', 'https://wordpress-1253021-5957184.cloudwaysapps.com/updater/mkbase-update.json');
+    define('MKBASE_UPDATER_URL', 'https://raw.githubusercontent.com/mediakanjers/MKBASE/main/mkbase-update.json');
 
     require_once get_template_directory() . '/inc/compat.php';
 
