@@ -53,6 +53,23 @@
         <?php
     }
 
+    add_action('admin_menu', function() {
+        add_submenu_page(null, 'Mobiel testen', 'Mobiel testen', 'manage_options', 'mkbase-mobile-guide', function() {
+            if (!current_user_can('manage_options')) {
+                wp_die('Geen toegang.');
+            }
+            $file = get_template_directory() . '/mobile-testing-guide.html';
+            if (!file_exists($file)) {
+                wp_die('Bestand niet gevonden.');
+            }
+            $html = file_get_contents($file);
+            preg_match('/<style[^>]*>(.*?)<\/style>/s', $html, $style);
+            preg_match('/<body[^>]*>(.*?)<\/body>/s', $html, $body);
+            echo '<style>' . ($style[1] ?? '') . '</style>';
+            echo $body[1] ?? '';
+        });
+    });
+
     add_action('admin_enqueue_scripts', function($hook) {
         if ($hook !== 'index.php') return;
         $theme_dir = get_template_directory();
@@ -69,7 +86,9 @@
         if (!isset($_GET['page']) || $_GET['page'] !== 'mkbase-docs') return;
         $theme_dir = get_template_directory();
         $theme_uri = get_template_directory_uri();
-        wp_enqueue_style('mk-admin-docs', $theme_uri . '/assets/css/admin-docs.css', [], filemtime($theme_dir . '/assets/css/admin-docs.css'));
+        wp_enqueue_style('mk-inter-font', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap', [], null);
+        wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], filemtime($theme_dir . '/assets/css/admin-shared.css'));
+        wp_enqueue_style('mk-admin-docs', $theme_uri . '/assets/css/admin-docs.css', ['mk-admin-shared'], filemtime($theme_dir . '/assets/css/admin-docs.css'));
         wp_enqueue_script('mk-admin-docs', $theme_uri . '/assets/js/admin-docs.js', [], filemtime($theme_dir . '/assets/js/admin-docs.js'), true);
     });
 
@@ -106,7 +125,22 @@
     }
 
     function mkbase_get_docs_html() {
-        $html = mkbase_admin_page_nav('mkbase-docs');
+        $html  = '<div class="mk-cover">';
+        $html .= '<div class="mk-cover__eyebrow">MKBase Theme &nbsp;·&nbsp; Mediakanjers</div>';
+        $html .= '<div class="mk-cover__title">Documentatie</div>';
+        $html .= '<div class="mk-cover__sub">Uitleg over alle instellingen, blokken en mogelijkheden van het MKBase thema — rechtstreeks in je WordPress admin.</div>';
+        $html .= '<div class="mk-cover__tags">';
+        $html .= '<span class="mk-cover__tag">Website instellingen</span>';
+        $html .= '<span class="mk-cover__tag">Menu\'s</span>';
+        $html .= '<span class="mk-cover__tag">Blokken</span>';
+        $html .= '<span class="mk-cover__tag">Afbeeldingen</span>';
+        if (class_exists('GFForms'))      $html .= '<span class="mk-cover__tag">Gravity Forms</span>';
+        if (defined('WP_ROCKET_VERSION')) $html .= '<span class="mk-cover__tag">WP Rocket</span>';
+        if (defined('WPSEO_VERSION'))     $html .= '<span class="mk-cover__tag">Yoast SEO</span>';
+        $html .= '</div>';
+        $html .= '</div>';
+
+        $html .= mkbase_admin_page_nav('mkbase-docs');
 
         // Groepen voor de zijbalk
         $groups = [
@@ -129,12 +163,19 @@
         if (defined('WPSEO_VERSION'))     $plugins['yoast-seo']     = 'Yoast SEO';
         if (!empty($plugins))             $groups['Plugins']        = $plugins;
 
+        if (current_user_can('manage_options')) {
+            $groups['Developer'] = [
+                'mobiel-testen' => 'Mobiel testen',
+            ];
+        }
+
         // Zijbalk
         $html .= '<div id="mkbase-docs-layout">';
         $html .= '<nav id="mkbase-docs-sidebar">';
         $first = true;
         foreach ($groups as $group_label => $items) {
-            $html .= '<div class="mkbase-docs-group">';
+            $extra = $group_label === 'Developer' ? ' mkbase-docs-group--developer' : '';
+            $html .= '<div class="mkbase-docs-group' . $extra . '">';
             $html .= '<span class="mkbase-docs-group__label">' . esc_html($group_label) . '</span>';
             foreach ($items as $key => $label) {
                 $active = $first ? ' is-active' : '';
@@ -405,6 +446,23 @@
             $html .= mkbase_docs_section('yoast-social', 'Social media preview', 'dashicons-share', [
                 ['label' => 'Wat is het?', 'desc' => 'Wanneer iemand een pagina deelt op Facebook of X (Twitter), bepaal je hier welke afbeelding en tekst getoond worden.'],
                 ['label' => 'Instellen', 'desc' => 'Klik in het Yoast SEO-blok op het <strong>Facebook- of X-tabblad</strong>. Upload hier een afbeelding (aanbevolen: <strong>1200×630 pixels</strong>) en pas de titel en beschrijving aan indien gewenst.'],
+            ]);
+            $html .= '</div>';
+        }
+
+        /* ── MOBIEL TESTEN (developer only) ──────────────── */
+        if (current_user_can('manage_options')) {
+            $guide_url = admin_url('admin.php?page=mkbase-mobile-guide');
+            $html .= '<div class="mkbase-docs-panel" data-panel="mobiel-testen">';
+            $html .= '<p class="mkbase-docs-intro">Handleiding voor het testen van een lokale WordPress-omgeving op een fysiek mobiel apparaat via ngrok. Inclusief installatie, Apache-configuratie en wp-config.php snippet.</p>';
+            $html .= '<a href="' . esc_url($guide_url) . '" target="_blank" rel="noopener" class="mkbase-docs-settings-link">Open de handleiding &rarr;</a>';
+            $html .= mkbase_docs_section('mobiel-samenvatting', 'Wat staat erin?', 'dashicons-smartphone', [
+                ['label' => 'Wat is ngrok?', 'desc' => 'Uitleg over ngrok en waarom je het nodig hebt om een lokale site bereikbaar te maken op je telefoon.'],
+                ['label' => 'Installatie (1× per computer)', 'desc' => 'ngrok installeren via winget, account aanmaken, statisch domein reserveren en authtoken koppelen.'],
+                ['label' => 'Laragon & Apache (1× per computer)', 'desc' => 'Centrale <code>ngrok.conf</code>, <code>ngrok-prepend.php</code> en <code>ngrok-site</code> script installeren in <code>C:\laragon\</code>.'],
+                ['label' => 'Per project (geen actie)', 'desc' => 'Niets te doen — de centrale setup dekt elk project automatisch. Geen wp-config.php aanpassen.'],
+                ['label' => 'Dagelijks gebruik', 'desc' => 'Twee stappen per testsessie: Laragon starten → <code>ngrok-site &lt;sitenaam&gt;</code> typen → vaste URL openen op telefoon.'],
+                ['label' => 'Problemen oplossen', 'desc' => 'Veelvoorkomende fouten: redirect loop, afbeeldingen die niet laden, "command not found", versiefouten.'],
             ]);
             $html .= '</div>';
         }

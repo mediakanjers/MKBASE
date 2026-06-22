@@ -285,6 +285,339 @@
     color: #3c434a;
 }
 
+/* Developer-groep */
+.mkbase-docs-group--developer {
+    background: #1d2327;
+    border-top: none !important;
+    margin-top: 8px;
+}
+
+.mkbase-docs-group--developer .mkbase-docs-group__label {
+    color: #72aee6;
+    letter-spacing: 0.12em;
+}
+
+.mkbase-docs-group--developer .mkbase-docs-nav-item {
+    color: #c3c4c7;
+}
+
+.mkbase-docs-group--developer .mkbase-docs-nav-item:hover {
+    background: #2c3338;
+    color: #fff;
+}
+
+.mkbase-docs-group--developer .mkbase-docs-nav-item.is-active {
+    background: #2c3338;
+    color: #72aee6;
+    box-shadow: inset 3px 0 0 #72aee6 !important;
+}
+
+/* ════════════════════════════════════════ PREMIUM STYLING */
+
+/* Inter font + betere typografie */
+#mkbase-docs-content {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    max-width: 1100px;
+}
+
+/* Layout */
+#mkbase-docs-layout {
+    border-radius: 22px;
+    border-color: #dde3ec;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 8px 28px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+/* Sidebar */
+#mkbase-docs-sidebar {
+    background: #0b1120;
+    border-right: 1px solid #1a2540;
+    border-radius: 22px 0 0 22px;
+    padding: 10px 0 16px;
+}
+
+.mkbase-docs-group + .mkbase-docs-group {
+    border-top-color: #1a2540;
+}
+
+.mkbase-docs-group__label {
+    color: #2d4060;
+    letter-spacing: 0.12em;
+    font-size: 9.5px;
+}
+
+.mkbase-docs-nav-item {
+    color: #4a6080;
+    transition: background 0.12s, color 0.12s, box-shadow 0.12s;
+    font-size: 12.5px;
+}
+
+.mkbase-docs-nav-item:hover {
+    background: rgba(255,255,255,0.05);
+    color: #94a3b8;
+}
+
+.mkbase-docs-nav-item.is-active {
+    background: rgba(59,130,246,0.14);
+    color: #60a5fa;
+    font-weight: 700;
+    box-shadow: inset 3px 0 0 #3b82f6 !important;
+}
+
+/* Developer group onderscheidt zich met blauwe tint */
+.mkbase-docs-group--developer {
+    background: rgba(59,130,246,0.06);
+    border-top: 1px solid #1a2540 !important;
+    margin-top: 0;
+}
+
+.mkbase-docs-group--developer .mkbase-docs-group__label {
+    color: #3b82f6;
+}
+
+.mkbase-docs-group--developer .mkbase-docs-nav-item {
+    color: #3b82f6;
+}
+
+.mkbase-docs-group--developer .mkbase-docs-nav-item:hover {
+    background: rgba(59,130,246,0.1);
+    color: #60a5fa;
+}
+
+.mkbase-docs-group--developer .mkbase-docs-nav-item.is-active {
+    background: rgba(59,130,246,0.2) !important;
+    color: #60a5fa;
+    box-shadow: inset 3px 0 0 #60a5fa !important;
+}
+
+/* Panel */
+#mkbase-docs-panels {
+    padding: 36px 40px;
+    background: #fff;
+    border-radius: 0 22px 22px 0;
+}
+
+@keyframes mkPanelIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.mkbase-docs-panel.is-active {
+    animation: mkPanelIn 0.25s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+/* Intro tekst — explain-blok stijl zoals mobile guide */
+.mkbase-docs-intro {
+    background: linear-gradient(135deg, #eff6ff, #f0f4ff);
+    border-left: 4px solid #3b82f6;
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    color: #1e3a5f;
+    font-size: 13.5px;
+    line-height: 1.75;
+    margin: 0 0 20px;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.06);
+}
+
+body.dark .mkbase-docs-intro {
+    background: linear-gradient(135deg, #0d1b2e, #0f1f3a);
+    border-left-color: #3b82f6;
+    color: #93c5fd;
+    box-shadow: none;
+}
+
+/* Settings link — gradient + hover shift */
+.mkbase-docs-settings-link {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-color: #bfdbfe;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.18s;
+}
+
+.mkbase-docs-settings-link:hover {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1d4ed8;
+    transform: translateX(2px);
+    box-shadow: 0 4px 12px rgba(37,99,235,0.15);
+}
+
+/* Accordion toggle — mobile guide sectie-header stijl */
+.mkbase-docs-toggle {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+    border-radius: 16px !important;
+    padding: 16px 20px 16px 16px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+    transition: background 0.15s, box-shadow 0.15s !important;
+    gap: 16px !important;
+    align-items: center !important;
+}
+
+.mkbase-docs-toggle:hover {
+    background: linear-gradient(135deg, #2c3e50 0%, #1e293b 100%) !important;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.28) !important;
+}
+
+.mkbase-docs-toggle[aria-expanded="true"] {
+    border-radius: 16px 16px 0 0 !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06), 0 3px 0 rgba(37,99,235,0.5) !important;
+}
+
+/* Icon badge — zelfde grootte en stijl als mobile guide sectienummers (44px) */
+.mkbase-docs-toggle__icon {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+    border: none !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 18px !important;
+    flex-shrink: 0 !important;
+    opacity: 1 !important;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+}
+
+/* Titel — zelfde schaal als mobile guide sectietitels */
+.mkbase-docs-toggle__title {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.3px !important;
+    line-height: 1.2 !important;
+}
+
+/* Accordion body */
+.mkbase-docs-body {
+    border-radius: 0 0 10px 10px;
+    border-color: #e2e8f0;
+    border-top: none;
+}
+
+/* Definition list items — ruimer en leesbaarder */
+.mkbase-docs-item {
+    border-radius: 6px;
+    border-bottom-color: #f1f5f9;
+    transition: background 0.1s;
+    padding: 14px 18px;
+}
+
+.mkbase-docs-item:hover {
+    background: #f8fafc;
+}
+
+.mkbase-docs-item dt {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.1px;
+}
+
+.mkbase-docs-item dd {
+    font-size: 13.5px;
+    color: #475569;
+    line-height: 1.75;
+}
+
+.mkbase-docs-item dd code {
+    background: linear-gradient(135deg, #f0f6ff, #dbeafe);
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+    font-size: 11px;
+    border-radius: 5px;
+}
+
+/* Nav dark toggle + dark mode nav — zie admin-shared.css */
+
+/* Dark mode — docs pagina */
+body.dark #mkbase-docs-content { color: #c9d1d9; }
+body.dark #mkbase-docs-layout { border-color: #21262d; box-shadow: none; background: #0d1117; }
+body.dark #mkbase-docs-panels { background: #161b22; }
+body.dark .mkbase-docs-intro { color: #8b949e; }
+body.dark .mkbase-docs-intro strong { color: #e2e8f0; }
+body.dark .mkbase-docs-item { border-bottom-color: #21262d; }
+body.dark .mkbase-docs-item:hover { background: #1c2128; }
+body.dark .mkbase-docs-item dt { color: #e2e8f0; }
+body.dark .mkbase-docs-item dd { color: #8b949e; }
+body.dark .mkbase-docs-item dd strong { color: #e2e8f0; }
+body.dark .mkbase-docs-item dd code { background: linear-gradient(135deg,#0d1b2e,#0f2236); border-color: #1d3557; color: #79c0ff; }
+body.dark .mkbase-docs-body { background: #161b22; border-color: #21262d; }
+body.dark .mkbase-docs-settings-link { background: linear-gradient(135deg,#0d1b2e,#0f2236); border-color: #1d3557; color: #60a5fa; }
+body.dark .mkbase-docs-settings-link:hover { background: linear-gradient(135deg,#0f2236,#1a3a6e); }
+body.dark .mkbase-page-nav { border-bottom-color: #21262d; }
+body.dark .mkbase-page-nav__tab { color: #64748b; }
+body.dark .mkbase-page-nav__tab:hover { background: rgba(255,255,255,0.05); color: #94a3b8; }
+body.dark .mkbase-page-nav__tab.is-active { background: #161b22; border-color: #21262d; border-bottom-color: #161b22; color: #e2e8f0; }
+body.dark .mk-dark-toggle { background: #1e2d45; color: #93c5fd; border-color: #2d4060 !important; }
+
+/* ════════════════════════════════════════ PAGINA ACHTERGROND + DARK MODE */
+
+/* Pagina achtergrond + WP admin wrappers — zie admin-shared.css */
+
+#mkbase-docs-content { padding-bottom: 48px; }
+
+/* Layout zweeft op grijze achtergrond */
+#mkbase-docs-layout {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 12px 40px rgba(0,0,0,0.07);
+}
+
+body.dark #mkbase-docs-layout { background: #0d1117; border-color: #21262d; border-radius: 22px; }
+body.dark #mkbase-docs-sidebar { border-color: #1a2540; border-radius: 22px 0 0 22px; }
+body.dark #mkbase-docs-panels { background: #161b22; border-radius: 0 22px 22px 0; }
+
+/* Pagina-navigatie tabs */
+.mkbase-page-nav {
+    border-bottom-color: #e2e8f0;
+}
+
+.mkbase-page-nav__tab {
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.mkbase-page-nav__tab.is-active {
+    color: #1e293b;
+    border-color: #e2e8f0;
+    border-bottom-color: #fff;
+}
+
+.mkbase-page-nav__tab:hover {
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+/* Sectie-container */
+.mkbase-docs-section {
+    margin-bottom: 12px;
+}
+
+/* Sectie-teller badge */
+.mk-section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.65);
+    padding: 0 6px;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+/* Smooth accordion — body altijd in DOM, hoogte geanimeerd */
+.mkbase-docs-body {
+    overflow: hidden;
+}
+
 @media (max-width: 782px) {
     #mkbase-docs-layout {
         flex-direction: column;

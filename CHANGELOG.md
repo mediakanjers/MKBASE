@@ -34,6 +34,11 @@ add_filter('mkbase_docs_extra_blocks', function($html) {
 
 ## v1.1.0 — 2026-06-02
 
+### Developer guide — mobiel testen
+- `mobile-testing-guide.html` toegevoegd aan het core thema: complete handleiding voor lokaal mobiel testen via ngrok (installatie, Laragon/Apache-configuratie, wp-config.php snippet, dagelijks gebruik en probleemoplossing).
+- De guide is bereikbaar via **Mediakanjers → Documentatie → Developer → Mobiel testen** — uitsluitend zichtbaar en toegankelijk voor beheerders.
+- Directe URL-toegang tot het bestand geblokkeerd via `.htaccess` in de theme-map — de inhoud wordt uitsluitend via een beveiligde WordPress admin-pagina geserveerd.
+
 ### Documentatie-pagina — instellingenknoppen
 - Per documentatiesectie (Website instellingen, Menu's, Geavanceerd, Meldingen, 404, Gravity Forms, WP Rocket, Yoast SEO) staat er nu een directe knop onder de intro-tekst die naar de bijbehorende instellingenpagina navigeert.
 - Typefout gecorrigeerd in het codevoorbeeld bij het filter `mkbase_docs_extra_blocks`: parameter heette `$dashicon`, is nu correct `$icon`.
@@ -55,6 +60,9 @@ add_filter('mkbase_docs_extra_blocks', function($html) {
 - Blokken worden automatisch geregistreerd vanuit `template-parts/blocks/` in zowel het core thema als het child thema — een map met een `block.json` is voldoende.
 - De blok-categorie "Mediakanjers" wordt automatisch toegevoegd aan de WordPress blokeditor.
 - In het child thema is geen registratiecode meer nodig.
+- `mk_register_blocks()` en `mk_block_categories()` beveiligd met `function_exists()` guards — voorkomt fatal error als een child thema deze functies al zelf definieert.
+- `mk_register_blocks()` gebruikt nu `mkbase_check_duplicate()` in plaats van kale `function_exists()` — toont een admin notice als het child thema de functie overschrijft.
+- Blok-veldgroepen (Loop, Image Slider) worden niet meer geregistreerd als een child thema al een veldgroep heeft voor hetzelfde blok (`mkbase_block_has_fields()`). Voorkomt dubbele ACF-velden zonder bestaande blokdata te breken.
 
 ### ACF JSON-synchronisatie
 - ACF veldgroepen worden automatisch geladen vanuit `acf-json/` in het core thema en (indien aanwezig) vanuit `acf-json/` in het child thema.

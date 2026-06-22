@@ -1,0 +1,276 @@
+/* ════════════════════════════════════════════════════════════
+   admin-shared.css — gedeelde stijlen voor changelog + docs
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Cover / Hero animatie ───────────────────────────────── */
+@keyframes mkCoverIn {
+    from { opacity: 0; transform: translateY(-14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes mkFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Scroll progress ─────────────────────────────────────── */
+#scroll-progress {
+    position: fixed;
+    top: var(--wp-admin--admin-bar--height, 0px);
+    left: 0; right: 0; /* JS overschrijft left op basis van #wpcontent */
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #7c3aed, #60a5fa);
+    box-shadow: 0 0 10px rgba(96,165,250,0.7), 0 0 20px rgba(124,58,237,0.3);
+    z-index: 99998;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.1s linear;
+    border-radius: 0 2px 2px 0;
+}
+
+/* ── Mini-header ─────────────────────────────────────────── */
+#mini-header {
+    position: fixed;
+    top: var(--wp-admin--admin-bar--height, 0px);
+    left: 0; right: 0; /* JS overschrijft left op basis van #wpcontent */
+    height: 46px;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(226,228,233,0.8);
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 48px; z-index: 200;
+    transform: translateY(-100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+}
+#mini-header.is-visible { transform: translateY(0); }
+#mini-header__dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: linear-gradient(135deg,#2563eb,#7c3aed);
+    flex-shrink: 0; box-shadow: 0 0 8px rgba(124,58,237,0.5);
+}
+#mini-header__num { font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; }
+#mini-header__title { font-size: 13px; font-weight: 700; color: #1e293b; letter-spacing: -0.2px; }
+#mini-header__progress { margin-left: auto; font-size: 11px; font-weight: 600; color: #94a3b8; }
+
+body.dark #mini-header { background: rgba(13,17,23,0.92); border-bottom-color: #21262d; }
+body.dark #mini-header__title { color: #e2e8f0; }
+
+/* ── Back to top ─────────────────────────────────────────── */
+#mk-back-top {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    border: none !important;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.4) !important;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#mk-back-top.is-visible { opacity: 1; transform: translateY(0); }
+#mk-back-top:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(37,99,235,0.55) !important;
+}
+body.dark #mk-back-top { box-shadow: 0 4px 20px rgba(37,99,235,0.6) !important; }
+
+/* ── Cover / Hero ─────────────────────────────────────────── */
+.mk-cover {
+    background: linear-gradient(145deg, #020617 0%, #0f172a 25%, #1e1b4b 58%, #312e81 80%, #2563eb 100%);
+    border-radius: 20px;
+    padding: 52px 56px 48px;
+    color: #fff;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.06);
+    font-family: 'Inter', -apple-system, sans-serif;
+    animation: mkCoverIn 0.5s cubic-bezier(0.4,0,0.2,1) both;
+}
+
+.mk-cover::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.mk-cover::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: 80px;
+    width: 200px; height: 200px;
+    background: rgba(37,99,235,0.12);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.mk-cover__eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.mk-cover__title {
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 14px;
+    letter-spacing: -0.8px;
+    position: relative;
+}
+
+.mk-cover__sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.62);
+    max-width: 500px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.mk-cover__tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.mk-cover__tag {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    transition: background 0.15s;
+}
+
+.mk-cover__tag--alert {
+    background: rgba(234,88,12,0.25);
+    border-color: rgba(234,88,12,0.4);
+    color: #fdba74;
+}
+
+/* ── Dark mode nav knop ───────────────────────────────────── */
+.mkbase-page-nav { align-items: flex-end; }
+
+.mk-dark-toggle {
+    margin-left: auto;
+    margin-bottom: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0b1120;
+    border: 1px solid #1a2540 !important;
+    box-shadow: none !important;
+    border-radius: 8px;
+    padding: 5px 12px !important;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #60a5fa;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+}
+
+.mk-dark-toggle:hover { background: #1a2540; color: #93c5fd; }
+
+/* Dark mode nav toggle */
+body.dark .mk-dark-toggle { background: #1e2d45; color: #93c5fd; border-color: #2d4060 !important; }
+body.dark .mkbase-page-nav { border-bottom-color: #21262d; }
+body.dark .mkbase-page-nav__tab { color: #64748b; }
+body.dark .mkbase-page-nav__tab:hover { background: rgba(255,255,255,0.04); color: #94a3b8; }
+body.dark .mkbase-page-nav__tab.is-active { background: #161b22; border-color: #21262d; border-bottom-color: #161b22; color: #e2e8f0; }
+
+/* Cover blijft altijd donker */
+body.dark .mk-cover { box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3); }
+
+/* ── Gedeelde pagina achtergrond ─────────────────────────── */
+#wpbody-content,
+#wpwrap,
+#wpcontent,
+#wpbody { background: #eef2f7 !important; }
+
+body.dark #wpwrap,
+body.dark #wpcontent,
+body.dark #wpbody,
+body.dark #wpbody-content { background: #0d1117 !important; }
+
+body.dark #adminmenuback,
+body.dark #adminmenuwrap { background: #0a0f1a !important; }
+
+body.dark .wrap > h1 { color: #f0f6fc; }
+
+/* ── Code blokken — mac-stijl (gedeeld) ──────────────────── */
+.mk-pre {
+    background: #0d1117;
+    color: #e2e8f0;
+    border-radius: 0 0 10px 10px;
+    padding: 14px 18px;
+    font-family: 'SFMono-Regular', Consolas, 'Cascadia Code', monospace;
+    font-size: 12px;
+    line-height: 1.75;
+    overflow-x: auto;
+    margin: 12px 0;
+    border: 1px solid #21262d;
+    border-top: none;
+    position: relative;
+}
+
+/* ── Copy knop ───────────────────────────────────────────── */
+.mk-copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: #21262d;
+    border: 1px solid #30363d !important;
+    box-shadow: none !important;
+    border-radius: 6px;
+    color: #8b949e;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px !important;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'SFMono-Regular', monospace;
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    z-index: 1;
+}
+
+.mk-copy-btn:hover { background: #2d333b; color: #e6edf3; border-color: #444c56 !important; }
+.mk-copy-btn.copied { background: #0a2514; border-color: #238636 !important; color: #3fb950; }
+
+.mk-pre-wrap::before {
+    content: '● ● ●';
+    display: block;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 7px 14px;
+    font-size: 10px;
+    color: #484f58;
+    letter-spacing: 3px;
+}

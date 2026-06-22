@@ -1,9 +1,10 @@
 #mkbase-changelog-content {
-    max-width: 860px;
+    max-width: 980px;
     margin-top: 32px;
-    font-size: 14px;
+    font-size: 13.5px;
     color: #1d2327;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.75;
 }
 
 /* Pagina-navigatie */
@@ -149,13 +150,21 @@
     background: #e0a030;
 }
 
-/* Filterstabs */
+/* Filterstabs — sticky */
 #mkbase-changelog-filters {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: #eef2f7;
+    padding: 10px 0 8px;
+    margin-left: -2px;
 }
+
+body.dark #mkbase-changelog-filters { background: #0d1117; }
 
 .mkbase-filter-tab {
     appearance: none;
@@ -272,10 +281,16 @@
 }
 
 .mkbase-version-date {
-    font-size: 11px;
-    font-weight: 400;
-    opacity: 0.65;
-    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    opacity: 0.9;
 }
 
 .mkbase-badge-latest {
@@ -302,51 +317,74 @@
     line-height: 1.6;
 }
 
-/* Sectie label */
+/* Sectie label — chapter eyebrow stijl van mobile guide */
 #mkbase-changelog-content h3 {
-    font-size: 11px;
-    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10.5px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #00a32a;
-    margin: 24px 0 6px;
-    padding-left: 2px;
+    letter-spacing: 0.12em;
+    margin: 28px 0 10px;
+    padding-left: 0;
+    color: transparent;
+    background: linear-gradient(90deg, #2563eb, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* Lijst */
+#mkbase-changelog-content h3::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: linear-gradient(180deg, #2563eb, #7c3aed);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* Lijst — ruimer en scherper zoals mobile guide */
 #mkbase-changelog-content ul {
-    margin: 0 0 8px 0;
+    margin: 0 0 10px 0;
     padding: 0;
     list-style: none;
     background: #fff;
-    border: 1px solid #e2e4e7;
-    border-radius: 6px;
+    border: 1px solid #dde3ec;
+    border-radius: 14px;
     overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
 }
 
 #mkbase-changelog-content li {
     position: relative;
-    padding: 10px 14px 10px 36px;
-    border-bottom: 1px solid #f0f0f1;
-    line-height: 1.6;
-    font-size: 13px;
-    align-items: baseline;
-    gap: 8px;
+    padding: 13px 18px 13px 42px;
+    border-bottom: 1px solid #f1f5f9;
+    line-height: 1.7;
+    font-size: 13.5px;
+    transition: background 0.1s;
 }
 
 #mkbase-changelog-content li:last-child {
     border-bottom: none;
 }
 
+#mkbase-changelog-content li:hover {
+    background: #f8fafc;
+}
+
 #mkbase-changelog-content li::before {
     content: "";
     position: absolute;
-    left: 14px;
-    top: 18px;
-    width: 6px;
-    height: 6px;
-    background: #00a32a;
+    left: 17px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7px;
+    height: 7px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
     border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(37,99,235,0.3);
 }
 
 /* Type badges */
@@ -363,29 +401,39 @@
     margin-right: 5px;
 }
 
+.mkbase-type-badge {
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
 .mkbase-type-new {
-    background: #d8f5e1;
-    color: #006b1e;
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #15803d;
+    border-color: #86efac;
 }
 
 .mkbase-type-fix {
-    background: #fdecea;
-    color: #9e1c10;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #b91c1c;
+    border-color: #fca5a5;
 }
 
 .mkbase-type-improvement {
-    background: #e8f0fd;
-    color: #1a4699;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1d4ed8;
+    border-color: #93c5fd;
 }
 
 .mkbase-type-change {
-    background: #fef3cd;
-    color: #7a5300;
+    background: linear-gradient(135deg, #fef9c3, #fef08a);
+    color: #a16207;
+    border-color: #fde047;
 }
 
 .mkbase-type-update {
-    background: #f0f0f1;
-    color: #3c434a;
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+    color: #7c3aed;
+    border-color: #d8b4fe;
 }
 
 /* Code */
@@ -427,3 +475,405 @@
     margin: 6px 0;
     color: #50575e;
 }
+
+/* ════════════════════════════════════════ PREMIUM STYLING */
+
+/* Nav + dark toggle — zie admin-shared.css */
+
+/* Summary stats — floating cards */
+.mkbase-summary-stat {
+    border-radius: 12px;
+    border-color: #dde3ec;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.mkbase-summary-stat:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.mkbase-summary-number {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+}
+
+.mkbase-summary-label {
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.1em;
+}
+
+/* Filter tabs — gradient active */
+.mkbase-filter-tab {
+    font-family: 'Inter', sans-serif;
+    border-radius: 20px;
+    transition: all 0.15s;
+}
+
+.mkbase-filter-tab.is-active {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-color: #1e293b !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+}
+
+/* Versie header — gradient */
+.mkbase-version-header {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.mkbase-version-toggle {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.4px;
+    padding: 20px 24px !important;
+    gap: 16px !important;
+    align-items: center !important;
+}
+
+.mkbase-version-header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.mkbase-version-header:hover {
+    background: linear-gradient(135deg, #2c3e50 0%, #1e293b 100%);
+}
+
+/* Sectie-label — gradient tekst */
+#mkbase-changelog-content h3 {
+    background: linear-gradient(90deg, #16a34a, #2563eb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    margin: 28px 0 8px;
+}
+
+/* Lijst — betere cards */
+#mkbase-changelog-content ul {
+    border-radius: 12px;
+    border-color: #dde3ec;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+}
+
+#mkbase-changelog-content li {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    border-bottom-color: #f1f5f9;
+    transition: background 0.1s;
+}
+
+#mkbase-changelog-content li:hover {
+    background: #f8fafc;
+}
+
+/* Code blocks — mac style */
+#mkbase-changelog-content pre {
+    background: #0d1117;
+    border-radius: 0 0 10px 10px;
+    border: 1px solid #21262d;
+    border-top: none;
+    padding: 14px 18px;
+    position: relative;
+}
+
+#mkbase-changelog-content pre::before {
+    content: '● ● ●';
+    display: block;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 6px 14px;
+    font-size: 10px;
+    color: #484f58;
+    letter-spacing: 3px;
+    margin: -14px -18px 12px;
+}
+
+#mkbase-changelog-content code {
+    background: linear-gradient(135deg, #f0f6ff, #dbeafe);
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+    border-radius: 5px;
+    font-size: 11.5px;
+}
+
+/* Oudere versies knop */
+#mkbase-older-toggle {
+    font-family: 'Inter', sans-serif;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+#mkbase-older-toggle:hover {
+    background: #f0f4f8;
+    border-color: #94a3b8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* ════════════════════════════════════════ DARK MODE */
+
+body.dark #mkbase-changelog-content { color: #c9d1d9; }
+body.dark .mkbase-page-nav { border-bottom-color: #21262d; }
+body.dark .mkbase-page-nav__tab { color: #64748b; }
+body.dark .mkbase-page-nav__tab:hover { background: rgba(255,255,255,0.05); color: #94a3b8; }
+body.dark .mkbase-page-nav__tab.is-active { background: #161b22; border-color: #21262d; border-bottom-color: #161b22; color: #e2e8f0; }
+body.dark .mk-dark-toggle { background: #1e2d45; color: #93c5fd; border-color: #2d4060 !important; }
+
+body.dark .mkbase-summary-stat { background: #161b22; border-color: #21262d; box-shadow: none; }
+body.dark .mkbase-summary-number { color: #f0f6fc; }
+body.dark .mkbase-summary-label { color: #4a6080; }
+body.dark .mkbase-summary-update { background: #1a1000; border-color: #4d3000; }
+body.dark .mkbase-update-text { color: #fbbf24; }
+
+body.dark .mkbase-filter-tab { background: #161b22; border-color: #21262d !important; color: #64748b; }
+body.dark .mkbase-filter-tab:hover { border-color: #30363d !important; color: #94a3b8; }
+body.dark .mkbase-filter-tab.is-active { background: linear-gradient(135deg, #1e3a5f, #0d1b2e); border-color: #1d3a6e !important; color: #60a5fa; }
+
+body.dark .mkbase-version-block { }
+body.dark #mkbase-changelog-content ul { background: #161b22; border-color: #21262d; box-shadow: none; border-radius: 14px; }
+body.dark #mkbase-changelog-content li { border-bottom-color: #21262d; color: #8b949e; }
+body.dark #mkbase-changelog-content li:hover { background: #1c2128; }
+body.dark #mkbase-changelog-content li::before { background: #3fb950; }
+body.dark #mkbase-changelog-content h3 { -webkit-text-fill-color: transparent; }
+body.dark #mkbase-changelog-content strong { color: #f0f6fc; }
+body.dark #mkbase-changelog-content p { color: #8b949e; }
+body.dark #mkbase-changelog-content code { background: linear-gradient(135deg, #0d1b2e, #0f2236); border-color: #1d3557; color: #79c0ff; }
+body.dark #mkbase-changelog-content pre { background: #0d1117; border-color: #21262d; }
+body.dark #mkbase-changelog-content pre::before { background: #161b22; border-color: #21262d; }
+body.dark .mkbase-notice { background: #1a1000; border-left-color: #d97706; color: #fbbf24; }
+body.dark #mkbase-older-toggle { background: #161b22; border-color: #21262d; color: #64748b; }
+body.dark #mkbase-older-toggle:hover { background: #1c2128; border-color: #30363d; color: #94a3b8; }
+
+body.dark .mkbase-type-new        { background: #0a2514; color: #3fb950; }
+body.dark .mkbase-type-fix        { background: #1a0000; color: #f87171; }
+body.dark .mkbase-type-improvement{ background: #0d1b2e; color: #79c0ff; }
+body.dark .mkbase-type-change     { background: #1a1000; color: #fbbf24; }
+body.dark .mkbase-type-update     { background: #1c2128; color: #8b949e; }
+
+/* ════════════════════════════════════════ VERSIE BADGE (zoals mobile guide sectie-nummers) */
+
+.mk-version-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    height: 36px;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 0 12px;
+    border-radius: 10px;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+    flex-shrink: 0;
+    margin-right: 4px;
+}
+
+/* ════════════════════════════════════════ PAGINA ACHTERGROND */
+
+#mkbase-changelog-content { padding-bottom: 48px; }
+
+#mkbase-changelog-content {
+    padding-bottom: 48px;
+}
+
+/* ════════════════════════════════════════ VERSIE BLOKKEN ALS KAARTEN */
+
+/* Ruim de oude margin op en maak van elk blok een zwevende kaart */
+.mkbase-version-block {
+    background: #fff;
+    border: 1px solid #dde3ec;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.05);
+    margin: 0 0 16px !important;
+    gap: 0 !important;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.mkbase-version-block:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+
+/* Header loopt over volledige breedte van de kaart */
+.mkbase-version-header {
+    width: 100%;
+    border-radius: 0;
+    overflow: visible;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.mkbase-version-header:hover {
+    background: linear-gradient(135deg, #2c3e50 0%, #1e293b 100%);
+}
+
+.mkbase-version-toggle {
+    width: 100%;
+    padding: 18px 24px !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.3px;
+}
+
+/* Versie-inhoud — ruime padding zoals mobile guide cards */
+.mkbase-version-body {
+    padding: 28px 32px 32px !important;
+    margin-top: 0 !important;
+    width: auto;
+}
+
+/* Lijsten zitten al in de body — verwijder dubbele borders */
+.mkbase-version-body > ul:first-child {
+    margin-top: 0;
+}
+
+/* Sectielabel boven de lijst */
+.mkbase-version-body h3 {
+    margin-top: 20px;
+    padding-left: 0;
+}
+
+.mkbase-version-body h3:first-child {
+    margin-top: 4px;
+}
+
+/* Summary - grotere, duidelijkere stats */
+#mkbase-changelog-summary {
+    margin-bottom: 24px;
+    gap: 12px;
+}
+
+.mkbase-summary-stat {
+    padding: 18px 24px;
+    min-width: 130px;
+    background: #fff;
+}
+
+.mkbase-summary-number {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.8px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.mkbase-summary-label {
+    color: #64748b;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    margin-top: 6px;
+}
+
+/* Oudere versies toggle */
+#mkbase-older-toggle {
+    background: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Badge — groter en met meer contrast */
+.mkbase-badge-latest {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    box-shadow: 0 2px 6px rgba(22,163,74,0.3);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+}
+
+.mkbase-badge-outdated {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(245,158,11,0.3);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+}
+
+/* ════════════════════════════════════════ DARK MODE CHANGELOG */
+
+/* WP admin wrappers — zie admin-shared.css */
+
+/* Versie kaarten */
+body.dark .mkbase-version-block { background: #161b22; border-color: #21262d; box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 8px 28px rgba(0,0,0,0.2); }
+body.dark .mkbase-version-block:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 16px 40px rgba(0,0,0,0.25); }
+body.dark .mkbase-version-body { background: #161b22; }
+
+/* Summary */
+body.dark .mkbase-summary-stat { background: #161b22; border-color: #21262d; box-shadow: none; }
+body.dark .mkbase-summary-number { background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+body.dark .mkbase-summary-label { color: #4a6080; }
+
+/* Oudere versies */
+body.dark #mkbase-older-toggle { background: #161b22; border-color: #21262d; color: #64748b; }
+body.dark #mkbase-older-toggle:hover { background: #1c2128; color: #94a3b8; }
+
+/* Badges */
+body.dark .mkbase-badge-latest   { background: linear-gradient(135deg,#0a2514,#0d3318); box-shadow: none; color: #3fb950; }
+body.dark .mkbase-badge-outdated { background: linear-gradient(135deg,#1a1000,#2d1a00); box-shadow: none; color: #fbbf24; }
+
+/* ════════════════════════════════════════ FADE-IN VERSIE BLOKKEN */
+.mkbase-version-block.fade-ready {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1), transform 0.45s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s;
+}
+.mkbase-version-block.fade-ready.is-visible { opacity: 1; transform: translateY(0); }
+
+/* ════════════════════════════════════════ LEGE STAAT */
+.mk-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 56px 32px;
+    background: #fff;
+    border: 1px solid #dde3ec;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.05);
+    animation: mkFadeIn 0.3s ease;
+}
+.mk-empty-state__icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+.mk-empty-state__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
+}
+.mk-empty-state__sub {
+    font-size: 13px;
+    color: #64748b;
+}
+
+body.dark .mk-empty-state { background: #161b22; border-color: #21262d; }
+body.dark .mk-empty-state__title { color: #f0f6fc; }
+body.dark .mk-empty-state__sub { color: #4a6080; }
+
+/* Dark mode badge kleuren */
+body.dark .mkbase-type-new        { background: linear-gradient(135deg,#0a2514,#0d3318); border-color: #238636; color: #3fb950; }
+body.dark .mkbase-type-fix        { background: linear-gradient(135deg,#1a0000,#2d0000); border-color: #7f1d1d; color: #f87171; }
+body.dark .mkbase-type-improvement{ background: linear-gradient(135deg,#0d1b2e,#0f2236); border-color: #1d3557; color: #79c0ff; }
+body.dark .mkbase-type-change     { background: linear-gradient(135deg,#1a1400,#2d2200); border-color: #4d3800; color: #fbbf24; }
+body.dark .mkbase-type-update     { background: linear-gradient(135deg,#1a0a2e,#220d40); border-color: #4c1d95; color: #c084fc; }

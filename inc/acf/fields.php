@@ -3,6 +3,25 @@
      * ACF Local Field Groups
      * Geavanceerd – Meldingen – MK instellingen
      */
+
+    // Controleert of een child theme al een veldgroep heeft geregistreerd voor een blok.
+    // Als dat zo is, slaat de core zijn eigen registratie over — child theme wint.
+    function mkbase_block_has_fields($block) {
+        foreach (acf_get_field_groups() as $group) {
+            foreach ($group['location'] ?? [] as $rules) {
+                foreach ($rules as $rule) {
+                    if (isset($rule['param'], $rule['value'])
+                        && $rule['param']    === 'block'
+                        && $rule['value']    === $block
+                    ) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     add_action('acf/include_fields', function () {
         if (!function_exists('acf_add_local_field_group')) {
             return;
@@ -354,6 +373,7 @@
          * BLOK: LOOP
          * ====================================
          */
+        if (!mkbase_block_has_fields('mk/loop'))
         acf_add_local_field_group(array(
             'key'    => 'group_mk_loop_block',
             'title'  => 'Loop blok',
@@ -466,6 +486,7 @@
          * BLOK: IMAGE SLIDER
          * ====================================
          */
+        if (!mkbase_block_has_fields('mk/image-slider'))
         acf_add_local_field_group(array(
             'key'    => 'group_mk_image_slider_block',
             'title'  => 'Image Slider blok',

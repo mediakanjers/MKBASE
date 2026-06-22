@@ -3,7 +3,9 @@
         if (!isset($_GET['page']) || $_GET['page'] !== 'mkbase-changelog') return;
         $theme_dir = get_template_directory();
         $theme_uri = get_template_directory_uri();
-        wp_enqueue_style('mk-admin-changelog', $theme_uri . '/assets/css/admin-changelog.css', [], filemtime($theme_dir . '/assets/css/admin-changelog.css'));
+        wp_enqueue_style('mk-inter-font', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap', [], null);
+        wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], filemtime($theme_dir . '/assets/css/admin-shared.css'));
+        wp_enqueue_style('mk-admin-changelog', $theme_uri . '/assets/css/admin-changelog.css', ['mk-admin-shared'], filemtime($theme_dir . '/assets/css/admin-changelog.css'));
         wp_enqueue_script('mk-admin-changelog', $theme_uri . '/assets/js/admin-changelog.js', [], filemtime($theme_dir . '/assets/js/admin-changelog.js'), true);
     });
 
@@ -28,6 +30,7 @@
             $html .= esc_html($page['label']);
             $html .= '</a>';
         }
+        $html .= '<button id="mk-dark-toggle" class="mk-dark-toggle" type="button" title="Wissel dark/light mode">🌙 Dark</button>';
         $html .= '</nav>';
         return $html;
     }
@@ -102,6 +105,21 @@
                 }
             }
         }
+
+        $year = date('Y');
+        $html .= '<div class="mk-cover">';
+        $html .= '<div class="mk-cover__eyebrow">MKBase Theme &nbsp;·&nbsp; Mediakanjers &nbsp;·&nbsp; ' . esc_html($year) . '</div>';
+        $html .= '<div class="mk-cover__title">Changelog</div>';
+        $html .= '<div class="mk-cover__sub">Alle wijzigingen, verbeteringen en nieuwe features van het MKBase thema per versie.</div>';
+        $html .= '<div class="mk-cover__tags">';
+        $html .= '<span class="mk-cover__tag">v' . esc_html($installed_version) . ' geïnstalleerd</span>';
+        $html .= '<span class="mk-cover__tag">' . $version_count . ' release' . ($version_count !== 1 ? 's' : '') . '</span>';
+        if ($latest_date) $html .= '<span class="mk-cover__tag">Laatste: ' . mkbase_format_date($latest_date) . '</span>';
+        if ($new_version && version_compare($new_version, $installed_version, '>')) {
+            $html .= '<span class="mk-cover__tag mk-cover__tag--alert">v' . esc_html($new_version) . ' beschikbaar</span>';
+        }
+        $html .= '</div>';
+        $html .= '</div>';
 
         $html .= mkbase_admin_page_nav('mkbase-changelog');
 

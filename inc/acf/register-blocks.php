@@ -1,4 +1,5 @@
 <?php
+    if (!mkbase_check_duplicate('mk_register_blocks')):
     function mk_register_blocks() {
         $core_dir  = get_template_directory() . '/template-parts/blocks';
         $child_dir = get_stylesheet_directory() . '/template-parts/blocks';
@@ -52,7 +53,9 @@
         }
     }
     add_action('init', 'mk_register_blocks');
+    endif;
 
+    if (!mkbase_check_duplicate('mk_block_categories')):
     function mk_block_categories($categories) {
         return array_merge(
             $categories,
@@ -66,4 +69,5 @@
         );
     }
     add_filter('block_categories_all', 'mk_block_categories');
+    endif;
 ?>
