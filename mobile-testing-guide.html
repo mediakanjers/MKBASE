@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="nl" style="scroll-behavior:smooth">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lokaal mobiel testen — Developer Guide</title>
+<style>
+  :root {
+    --blue:    #2563eb;
+    --blue-lt: #eff6ff;
+    --blue-bd: #bfdbfe;
+    --dark:    #0f172a;
+    --mid:     #1e293b;
+    --green:   #16a34a;
+    --green-lt:#f0fdf4;
+    --green-bd:#bbf7d0;
+    --orange:  #ea580c;
+    --orange-lt:#fff7ed;
+    --orange-bd:#fed7aa;
+    --purple:  #7c3aed;
+    --purple-lt:#faf5ff;
+    --purple-bd:#e9d5ff;
+    --gray-50: #f8fafc;
+    --gray-100:#f1f5f9;
+    --gray-200:#e2e8f0;
+    --gray-300:#cbd5e1;
+    --gray-400:#94a3b8;
+    --gray-500:#64748b;
+    --gray-600:#475569;
+    --gray-700:#334155;
+    --gray-900:#0f172a;
+    --radius:  10px;
+    --font-mono:'SF Mono','Cascadia Code','Fira Code',Consolas,monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--gray-700);
+    background: #fff;
+  }
+
+  /* ── PAGE LAYOUT ── */
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 48px;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: linear-gradient(145deg, #0f172a 0%, #162040 45%, #1d3461 75%, #2563eb 100%);
+    border-radius: 20px;
+    padding: 60px 64px 56px;
+    color: #fff;
+    margin-bottom: 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: 80px;
+    width: 200px; height: 200px;
+    background: rgba(37,99,235,0.15);
+    border-radius: 50%;
+  }
+  .cover__eyebrow {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 20px;
+  }
+  .cover__title {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+  .cover__title em { color: #60a5fa; font-style: normal; }
+  .cover__sub {
+    font-size: 14.5px;
+    color: rgba(255,255,255,0.65);
+    max-width: 500px;
+    line-height: 1.65;
+    margin-bottom: 40px;
+  }
+  .cover__tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .cover__tag {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* ── TABLE OF CONTENTS ── */
+  .toc {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 56px;
+  }
+  .toc__head {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 18px;
+  }
+  .toc__list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 40px;
+  }
+  .toc__item {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--gray-200);
+    font-size: 12.5px;
+  }
+  .toc__num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue);
+    min-width: 18px;
+    flex-shrink: 0;
+  }
+  .toc__label { color: var(--gray-700); font-weight: 500; }
+  .toc__sub   { color: var(--gray-400); font-size: 11px; display: block; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 52px; }
+
+  .section__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .section__num {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 12px rgba(37,99,235,0.35);
+    margin-top: 2px;
+  }
+  .section__num--dark {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+  .section__num--red {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 4px 12px rgba(220,38,38,0.35);
+  }
+  .section__meta { flex: 1; }
+  .section__chapter {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+  .section__title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--dark);
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+  }
+  .section__desc {
+    font-size: 12.5px;
+    color: var(--gray-400);
+    margin-top: 4px;
+  }
+  .section__line {
+    height: 2px;
+    background: linear-gradient(to right, var(--gray-200), transparent);
+    margin-top: 16px;
+    border-radius: 2px;
+  }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 10px;
+    vertical-align: middle;
+    position: relative;
+    top: -2px;
+  }
+  .badge--green  { background: #dcfce7; color: #15803d; }
+  .badge--orange { background: #ffedd5; color: #c2410c; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 14px;
+  }
+  .card--blue   { background: var(--blue-lt);   border-color: var(--blue-bd); }
+  .card--green  { background: var(--green-lt);  border-color: var(--green-bd); }
+  .card--orange { background: var(--orange-lt); border-color: var(--orange-bd); }
+  .card--purple { background: var(--purple-lt); border-color: var(--purple-bd); }
+  .card--dark   { background: var(--dark); border-color: var(--mid); color: #e2e8f0; }
+
+  .card__label {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 10px;
+  }
+  .card--blue   .card__label { color: var(--blue); }
+  .card--green  .card__label { color: var(--green); }
+  .card--orange .card__label { color: var(--orange); }
+  .card--purple .card__label { color: var(--purple); }
+
+  /* ── STEP CARDS ── */
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+  }
+  .step--green { background: var(--green-lt); border-color: var(--green-bd); }
+  .step__num {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #1e293b, #334155);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    color: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step--green .step__num {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    box-shadow: 0 2px 6px rgba(22,163,74,0.3);
+  }
+  .step__body { flex: 1; min-width: 0; overflow: hidden; }
+  .step__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+
+  /* ── EXPLAIN ── */
+  .explain {
+    border-left: 3px solid var(--blue);
+    background: var(--blue-lt);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 13px;
+    color: #1e3a5f;
+    line-height: 1.7;
+  }
+  .explain__title {
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--blue);
+  }
+
+  /* ── TIP / WARNING ── */
+  .tip, .warning {
+    display: flex;
+    gap: 14px;
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .tip {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+  }
+  .warning {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-left: 4px solid #ef4444;
+  }
+  .tip__icon { font-size: 15px; flex-shrink: 0; margin-top: 2px; }
+
+  /* ── CODE ── */
+  pre {
+    background: #0d1117;
+    color: #e2e8f0;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 16px 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.75;
+    overflow-x: auto;
+    margin: 12px 0 12px;
+    border: 1px solid #21262d;
+    border-top: none;
+    position: relative;
+  }
+  pre::before {
+    content: '● ● ●';
+    display: block;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-bottom: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 7px 14px;
+    font-size: 10px;
+    color: #484f58;
+    letter-spacing: 3px;
+    margin: -12px -20px 14px;
+  }
+  pre .c { color: #334155; }   /* comment */
+  pre .s { color: #86efac; }   /* string */
+  pre .k { color: #93c5fd; }   /* keyword */
+  pre .v { color: #fde68a; }   /* value */
+  pre .t { color: #f9a8d4; }   /* tag */
+
+  code {
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--dark);
+  }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .flow__step {
+    flex: 1;
+    min-width: 100px;
+    padding: 16px 14px;
+    text-align: center;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .flow__step small {
+    font-weight: 400;
+    font-size: 10px;
+    opacity: 0.75;
+    display: block;
+  }
+  .flow__step--1 { background: #1e293b; }
+  .flow__step--2 { background: #7c3aed; }
+  .flow__step--3 { background: #2563eb; }
+  .flow__step--4 { background: #16a34a; }
+  .flow__arrow {
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gray-50);
+    color: var(--gray-300);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .flow__icon { font-size: 18px; margin-bottom: 2px; }
+
+  /* ── GRID ── */
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+
+  /* ── PROBLEM LIST ── */
+  .problems { display: flex; flex-direction: column; gap: 10px; }
+  .problem {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px 20px;
+    background: var(--orange-lt);
+    border: 1px solid var(--orange-bd);
+    border-left: 4px solid var(--orange);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .problem__num {
+    width: 24px;
+    height: 24px;
+    background: var(--orange);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .problem__title { font-weight: 700; font-size: 13px; color: var(--dark); margin-bottom: 4px; }
+  .problem__body  { font-size: 12.5px; }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 13px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '☐';
+    font-size: 15px;
+    color: var(--blue);
+    flex-shrink: 0;
+    line-height: 1.3;
+  }
+
+  /* ── SUMMARY TABLE ── */
+  .summary {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 16px;
+  }
+  .summary__row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .summary__row:last-child { border-bottom: none; }
+  .summary__when {
+    padding: 16px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--gray-50);
+    border-right: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+  }
+  .summary__when--green  { color: var(--green);  background: var(--green-lt); }
+  .summary__when--blue   { color: var(--blue);   background: var(--blue-lt); }
+  .summary__when--orange { color: var(--orange); background: var(--orange-lt); }
+  .summary__what {
+    padding: 16px 20px;
+    font-size: 12.5px;
+  }
+  .summary__what ul { padding-left: 16px; margin: 0; }
+  .summary__what li { margin-bottom: 4px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    margin: 48px 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gray-200) 20%, var(--gray-200) 80%, transparent);
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--gray-400);
+    padding: 24px 0 0;
+    line-height: 2;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  p { margin-bottom: 10px; }
+  strong { font-weight: 600; color: var(--gray-900); }
+  ul { padding-left: 20px; margin-bottom: 10px; }
+  li { margin-bottom: 5px; }
+
+  /* ── QUICK REFERENCE ── */
+  .qr {
+    border: 2px solid var(--blue);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 56px;
+  }
+  .qr__header {
+    background: var(--blue);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .qr__header-icon { font-size: 18px; }
+  .qr__header-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .qr__header-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-left: auto;
+  }
+  .qr__cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .qr__col {
+    padding: 20px 22px 24px;
+    border-right: 1px solid var(--gray-200);
+  }
+  .qr__col:last-child { border-right: none; }
+  .qr__col-head {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .qr__col--green .qr__col-head  { color: var(--green);  border-color: var(--green-bd); }
+  .qr__col--blue  .qr__col-head  { color: var(--blue);   border-color: var(--blue-bd); }
+  .qr__col--orange .qr__col-head { color: var(--orange); border-color: var(--orange-bd); }
+  .qr__badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: auto;
+  }
+  .qr__col--green  .qr__badge { background: var(--green-lt);  color: var(--green); }
+  .qr__col--blue   .qr__badge { background: var(--blue-lt);   color: var(--blue); }
+  .qr__col--orange .qr__badge { background: var(--orange-lt); color: var(--orange); }
+  .qr__steps { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .qr__step {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--gray-700);
+  }
+  .qr__step-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+  .qr__col--green  .qr__step-num { background: linear-gradient(135deg, #16a34a, #15803d); }
+  .qr__col--blue   .qr__step-num { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+  .qr__col--orange .qr__step-num { background: linear-gradient(135deg, #ea580c, #c2410c); }
+  .qr__step code {
+    display: block;
+    margin-top: 4px;
+    background: var(--dark);
+    color: #86efac;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 10.5px;
+    line-height: 1.5;
+  }
+
+  /* ── SCROLL PROGRESS ── */
+  #scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
+    z-index: 9999;
+    transition: width 0.1s linear;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ── GLOBAL POLISH ── */
+  html { scroll-behavior: smooth; }
+
+  .card {
+    transition: box-shadow 0.18s, transform 0.18s;
+  }
+  .card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+
+  /* ── DOC LAYOUT ── */
+  .doc-layout {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    margin-top: 40px;
+  }
+
+  .doc-sidebar {
+    width: 186px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 14px;
+    padding: 10px 0 14px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300) transparent;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  .doc-content { flex: 1; min-width: 0; }
+
+  .doc-sidebar__head {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    padding: 6px 14px 8px;
+  }
+
+  .doc-sidebar__link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-600);
+    text-decoration: none !important;
+    border-left: 3px solid transparent;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+    line-height: 1.35;
+  }
+
+  .doc-sidebar__link:hover {
+    background: var(--gray-100);
+    color: var(--dark);
+  }
+
+  .doc-sidebar__link.is-active {
+    color: var(--blue);
+    border-left-color: var(--blue);
+    background: var(--blue-lt);
+    font-weight: 700;
+  }
+
+  .doc-sidebar__link--quick {
+    font-weight: 700;
+    color: var(--blue);
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 4px;
+    padding-bottom: 10px;
+  }
+
+  .doc-sidebar__link--sum {
+    border-top: 1px solid var(--gray-200);
+    margin-top: 4px;
+    padding-top: 10px;
+    font-weight: 600;
+    color: var(--dark);
+  }
+
+  .doc-sidebar__num {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    background: var(--gray-200);
+    color: var(--gray-600);
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.1s, color 0.1s;
+  }
+
+  .doc-sidebar__link.is-active .doc-sidebar__num {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .doc-sidebar__link--sum .doc-sidebar__num {
+    background: var(--dark);
+    color: #fff;
+  }
+
+  /* ════════════════════════════════════════ PREMIUM REDESIGN */
+
+  body { background: #eef2f7; }
+  .page { background: transparent; }
+
+  /* Cover — deeper, more cinematic */
+  .cover {
+    background: linear-gradient(145deg, #020617 0%, #0f172a 25%, #1e1b4b 58%, #312e81 80%, #2563eb 100%);
+    border-radius: 28px;
+    padding: 76px 72px 68px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+    margin-bottom: 28px;
+  }
+  .cover__title { font-size: 44px; letter-spacing: -0.8px; }
+  .cover__eyebrow { letter-spacing: 3.5px; }
+
+  /* TOC as floating card */
+  .toc {
+    background: #fff;
+    border: 1px solid #dde3ec;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.04);
+    margin-bottom: 28px;
+  }
+
+  /* QR — glowing border */
+  .qr {
+    border: none;
+    border-radius: 22px;
+    box-shadow: 0 0 0 1px rgba(37,99,235,0.2), 0 8px 32px rgba(37,99,235,0.14), 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 32px;
+  }
+  .qr__header {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #7c3aed 100%);
+    padding: 16px 28px;
+  }
+  .qr__col { padding: 24px 24px 28px; }
+
+  /* Sections — white cards floating on gray */
+  .section {
+    background: #fff;
+    border: 1px solid #dde3ec;
+    border-radius: 22px;
+    padding: 40px 44px;
+    margin-bottom: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s;
+  }
+  .section:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05), 0 12px 40px rgba(0,0,0,0.08);
+  }
+
+  /* Remove dividers — sections are cards now */
+  .divider { display: none; }
+
+  /* Gap between section cards */
+  .doc-content { display: flex; flex-direction: column; gap: 16px; }
+
+  /* Section number — bigger, stronger */
+  .section__num {
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    font-size: 19px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 6px 18px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .section__num--dark {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .section__num--red {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    box-shadow: 0 6px 18px rgba(239,68,68,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+
+  /* Chapter eyebrow — gradient text */
+  .section__chapter {
+    background: linear-gradient(90deg, #2563eb, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    letter-spacing: 3px;
+  }
+
+  /* Section title — bigger, bolder */
+  .section__title {
+    font-size: 27px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+
+  /* Section line — gradient */
+  .section__line {
+    background: linear-gradient(to right, #2563eb, #7c3aed, transparent);
+    height: 2px;
+    opacity: 0.4;
+  }
+
+  /* Dark sidebar — premium feel */
+  .doc-sidebar {
+    background: #0b1120 !important;
+    border: 1px solid #1a2540 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  }
+  .doc-sidebar__head { color: #2d3f5c; letter-spacing: 2.5px; font-size: 8.5px; }
+  .doc-sidebar__link { color: #4a6080; transition: all 0.15s; }
+  .doc-sidebar__link:hover { background: rgba(255,255,255,0.05) !important; color: #94a3b8; }
+  .doc-sidebar__link.is-active {
+    background: rgba(59,130,246,0.14) !important;
+    color: #60a5fa;
+    border-left-color: #3b82f6;
+    font-weight: 700;
+  }
+  .doc-sidebar__link.is-active .doc-sidebar__num {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.25), 0 2px 6px rgba(59,130,246,0.4);
+  }
+  .doc-sidebar__num { background: #151f30; color: #3a4f6b; }
+  .doc-sidebar__link--quick { border-bottom-color: #1a2540 !important; color: #3b82f6; }
+  .doc-sidebar__link--quick:hover { color: #60a5fa; }
+  .doc-sidebar__link--sum { border-top-color: #1a2540 !important; color: #64748b; }
+  .doc-sidebar__link--sum .doc-sidebar__num { background: #1a2540; color: #64748b; }
+
+  /* Scroll progress — gradient + glow */
+  #scroll-progress {
+    background: linear-gradient(90deg, #2563eb 0%, #7c3aed 50%, #60a5fa 100%);
+    box-shadow: 0 0 10px rgba(96,165,250,0.7), 0 0 20px rgba(124,58,237,0.3);
+    height: 3px;
+  }
+
+  /* Cards — more polished */
+  .card {
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  }
+  .card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1), 0 12px 32px rgba(0,0,0,0.06);
+    transform: translateY(-3px);
+  }
+  .card--blue   { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #bfdbfe; }
+  .card--green  { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #bbf7d0; }
+  .card--orange { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-color: #fed7aa; }
+  .card--purple { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border-color: #e9d5ff; }
+
+  /* Steps */
+  .step { border-radius: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.06); }
+  .step--green { box-shadow: 0 2px 8px rgba(22,163,74,0.1), 0 4px 16px rgba(22,163,74,0.06); border-color: #bbf7d0; }
+
+  /* Explain boxes */
+  .explain { border-radius: 14px; border-left-width: 4px; box-shadow: 0 2px 10px rgba(37,99,235,0.07); }
+
+  /* Tip / Warning */
+  .tip    { border-radius: 14px; box-shadow: 0 2px 10px rgba(245,158,11,0.07); }
+  .warning{ border-radius: 14px; box-shadow: 0 2px 10px rgba(239,68,68,0.07); }
+
+  /* Problem items */
+  .problem { border-radius: 14px; box-shadow: 0 2px 10px rgba(234,88,12,0.07); }
+
+  /* Summary table */
+  .summary { border-radius: 18px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05); border-color: #dde3ec; }
+
+  /* Flow diagram */
+  .flow { border-radius: 16px; border-color: #dde3ec; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+  /* Footer */
+  .footer { border-top-color: #dde3ec; color: #9ca3af; margin-top: 32px; }
+
+  /* ════ FEATURES ═══════════════════════════════════════════ */
+
+  /* Mini-header */
+  #mini-header {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 46px;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(226,228,233,0.8);
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 48px; z-index: 200;
+    transform: translateY(-100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+  #mini-header.is-visible { transform: translateY(0); }
+  #mini-header__dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: linear-gradient(135deg,#2563eb,#7c3aed);
+    flex-shrink: 0; box-shadow: 0 0 8px rgba(124,58,237,0.5);
+  }
+  #mini-header__num { font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; }
+  #mini-header__title { font-size: 13px; font-weight: 700; color: #1e293b; letter-spacing: -0.2px; }
+  #mini-header__progress { margin-left: auto; font-size: 11px; font-weight: 600; color: #94a3b8; }
+
+  /* Fade-in on scroll */
+  .section.fade-ready { opacity: 0; transform: translateY(22px); transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s; }
+  .section.fade-ready.is-visible { opacity: 1; transform: translateY(0); }
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute; top: 36px; right: 10px;
+    background: #21262d; border: 1px solid #30363d; border-radius: 6px;
+    color: #8b949e; font-size: 10px; font-weight: 700;
+    padding: 3px 9px; cursor: pointer;
+    transition: all 0.15s; font-family: var(--font-mono); letter-spacing: 0.5px; line-height: 1.6;
+  }
+  .copy-btn:hover { background: #2d333b; color: #e6edf3; border-color: #444c56; }
+  .copy-btn.copied { background: #0a2514; border-color: #238636; color: #3fb950; }
+
+  /* Language label via data-lang */
+  pre[data-lang]::before { content: attr(data-lang); }
+
+  /* Next chapter link */
+  .next-ch { display: flex; justify-content: flex-end; margin-top: 32px; padding-top: 20px; border-top: 1px solid #eef2f7; }
+  .next-ch__link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12.5px; font-weight: 700; color: #2563eb;
+    text-decoration: none !important;
+    padding: 8px 16px 8px 14px; border: 1px solid #bfdbfe; border-radius: 10px;
+    background: linear-gradient(135deg,#eff6ff,#dbeafe);
+    transition: all 0.18s; letter-spacing: -0.2px;
+  }
+  .next-ch__link:hover { background: linear-gradient(135deg,#dbeafe,#bfdbfe); transform: translateX(4px); box-shadow: 0 4px 12px rgba(37,99,235,0.15); }
+  .next-ch__arrow { font-size: 14px; transition: transform 0.18s; }
+  .next-ch__link:hover .next-ch__arrow { transform: translateX(3px); }
+
+  /* Dark mode toggle */
+  #dark-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: calc(100% - 28px); margin: 10px 14px 4px;
+    padding: 7px 10px; background: #151f30; border: 1px solid #1e2d45; border-radius: 10px;
+    color: #4a6080; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    font-family: 'Inter', sans-serif; letter-spacing: 0.2px;
+  }
+  #dark-toggle:hover { background: #1e2d45; color: #94a3b8; border-color: #2d4060; }
+
+  /* Keyboard hint */
+  .kb-hint {
+    display: block; font-size: 9.5px; color: #2d3f5c; text-align: center;
+    padding: 0 14px 10px; letter-spacing: 0.5px;
+  }
+
+  /* ── Dark mode ── */
+  body.dark { background: #0d1117; color: #c9d1d9; }
+  body.dark .section { background: #161b22; border-color: #21262d; box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 8px 28px rgba(0,0,0,0.2); }
+  body.dark .section:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 12px 40px rgba(0,0,0,0.25); }
+  body.dark .section__title { color: #f0f6fc; }
+  body.dark .section__desc { color: #8b949e; }
+  body.dark .section__line { opacity: 0.2; }
+  body.dark .toc { background: #161b22; border-color: #21262d; box-shadow: none; }
+  body.dark .toc__label { color: #c9d1d9; }
+  body.dark .toc__sub { color: #8b949e; }
+  body.dark .toc__num { color: #3b82f6; }
+  body.dark .card { background: #1c2128 !important; border-color: #30363d !important; box-shadow: none !important; }
+  body.dark .card--blue   { background: linear-gradient(135deg,#0d1b2e,#0f2236) !important; border-color: #1d3557 !important; }
+  body.dark .card--green  { background: linear-gradient(135deg,#0a1f0f,#0d2b15) !important; border-color: #1a4d24 !important; }
+  body.dark .card--orange { background: linear-gradient(135deg,#1f0e00,#2d1600) !important; border-color: #5c3010 !important; }
+  body.dark .card__label { opacity: 0.85; }
+  body.dark .step  { background: #1c2128 !important; border-color: #30363d !important; box-shadow: none !important; }
+  body.dark .step--green { background: #0a1f0f !important; border-color: #1a4d24 !important; }
+  body.dark .explain { background: #0d1b2e; color: #93c5fd; border-left-color: #3b82f6; }
+  body.dark .explain__title { color: #60a5fa; }
+  body.dark .tip { background: #1a1600; border-color: #4d3c00; color: #fbbf24; border-left-color: #d97706; }
+  body.dark .warning { background: #1a0000; border-color: #4d0000; color: #f87171; border-left-color: #dc2626; }
+  body.dark .problem { background: #1a0e00; border-color: #4d2800; }
+  body.dark .problem__title { color: #f0f6fc; }
+  body.dark .problem__body { color: #8b949e; }
+  body.dark code { background: #1c2128; border-color: #30363d; color: #79c0ff; }
+  body.dark p, body.dark li, body.dark ul { color: #8b949e; }
+  body.dark strong { color: #f0f6fc; }
+  body.dark dt { color: #e2e8f0; }
+  body.dark dd { color: #8b949e; }
+  body.dark .summary { border-color: #21262d; }
+  body.dark .summary__row { border-bottom-color: #21262d; }
+  body.dark .summary__when { background: #1c2128 !important; border-right-color: #21262d; color: inherit; }
+  body.dark .summary__when--green  { background: #0a1f0f !important; }
+  body.dark .summary__when--blue   { background: #0d1b2e !important; }
+  body.dark .summary__when--orange { background: #1a0e00 !important; }
+  body.dark .summary__what { color: #8b949e; }
+  body.dark .flow { background: #1c2128; border-color: #30363d; }
+  body.dark .flow__arrow { background: #1c2128; color: #30363d; }
+  body.dark .checklist li { border-bottom-color: #21262d; }
+  body.dark .checklist li::before { color: #3b82f6; }
+  body.dark .footer { border-top-color: #21262d; }
+  body.dark .next-ch { border-top-color: #21262d; }
+  body.dark .next-ch__link { background: linear-gradient(135deg,#0d1b2e,#0f2236); border-color: #1d3a6e; color: #60a5fa; }
+  body.dark .next-ch__link:hover { background: linear-gradient(135deg,#0f2236,#1a3a6e); }
+  body.dark #mini-header { background: rgba(13,17,23,0.92); border-bottom-color: #21262d; }
+  body.dark #mini-header__title { color: #e2e8f0; }
+  body.dark #dark-toggle { background: #1e2d45 !important; color: #60a5fa !important; border-color: #2d4060 !important; }
+  body.dark .qr__col { border-right-color: #21262d; }
+  body.dark .qr__col-head { border-bottom-color: #21262d; }
+  body.dark .qr__step { color: #8b949e; }
+  body.dark .section__head { color: #f0f6fc; }
+
+  /* WordPress admin bar offset — left wordt via JS ingesteld */
+  .admin-bar #scroll-progress { top: 32px; }
+  .admin-bar #mini-header     { top: 32px; }
+  @media screen and (max-width: 782px) {
+    .admin-bar #scroll-progress,
+    .admin-bar #mini-header { top: 46px; }
+  }
+
+  @media print {
+    .doc-layout { display: block; }
+    .doc-sidebar { display: none; }
+
+    body { font-size: 12.5px; }
+    .page { padding: 0; }
+    .cover {
+      border-radius: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .flow__step, .card--blue, .card--green, .card--orange, .card--purple,
+    .tip, .warning, .explain, .problem, .summary__when,
+    .step--green, .step__num {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .section { page-break-inside: avoid; }
+    pre { white-space: pre-wrap; word-break: break-all; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; }
+    .section { border: 1px solid #e2e8f0; border-radius: 0; box-shadow: none; padding: 24px 0; margin-bottom: 24px; }
+    .divider { display: block; }
+    .doc-content { display: block; }
+  }
+</style>
+</head>
+<body>
+<div id="scroll-progress"></div>
+<div id="mini-header">
+  <div id="mini-header__dot"></div>
+  <span id="mini-header__num"></span>
+  <span id="mini-header__title"></span>
+  <span id="mini-header__progress"></span>
+</div>
+<div class="page">
+
+<!-- ════════════════════════════════════════ COVER -->
+<div class="cover">
+  <div class="cover__eyebrow">Developer Guide &nbsp;·&nbsp; Mediakanjers &nbsp;·&nbsp; Juni 2026</div>
+  <div class="cover__title">Lokaal mobiel testen<br>met <em>WordPress & ngrok</em></div>
+  <div class="cover__sub">Een complete handleiding om je lokale WordPress-omgeving bereikbaar te maken op een fysiek mobiel apparaat — via ngrok. Inclusief uitleg waarom elke stap nodig is en hoe alles technisch werkt.</div>
+  <div class="cover__tags">
+    <span class="cover__tag">Laragon</span>
+    <span class="cover__tag">Apache</span>
+    <span class="cover__tag">WordPress</span>
+    <span class="cover__tag">ngrok</span>
+    <span class="cover__tag">Windows 11</span>
+    <span class="cover__tag">iOS · Android</span>
+    <span class="cover__tag" id="reading-time">≈ laden...</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ TOC -->
+<div class="toc">
+  <div class="toc__head">Inhoud</div>
+  <ul class="toc__list">
+    <li class="toc__item"><span class="toc__num">1</span><span><span class="toc__label">Wat is ngrok?</span><span class="toc__sub">En waarom gebruik je het?</span></span></li>
+    <li class="toc__item"><span class="toc__num">2</span><span><span class="toc__label">Hoe werkt het?</span><span class="toc__sub">Technisch plaatje van begin tot eind</span></span></li>
+    <li class="toc__item"><span class="toc__num">3</span><span><span class="toc__label">Waarom is dit nodig?</span><span class="toc__sub">De problemen die ngrok oplost</span></span></li>
+    <li class="toc__item"><span class="toc__num">4</span><span><span class="toc__label">Installatie — ngrok</span><span class="toc__sub">Eenmalig per computer</span></span></li>
+    <li class="toc__item"><span class="toc__num">5</span><span><span class="toc__label">Configuratie — Laragon & Apache</span><span class="toc__sub">Eenmalig, alle projecten automatisch klaar</span></span></li>
+    <li class="toc__item"><span class="toc__num">6</span><span><span class="toc__label">Per project — geen actie</span><span class="toc__sub">Automatisch gedekt door centrale setup</span></span></li>
+    <li class="toc__item"><span class="toc__num">7</span><span><span class="toc__label">Dagelijks gebruik</span><span class="toc__sub">Elke testsessie starten</span></span></li>
+    <li class="toc__item"><span class="toc__num">8</span><span><span class="toc__label">Beveiliging</span><span class="toc__sub">Toegang beperken tijdens een sessie</span></span></li>
+    <li class="toc__item"><span class="toc__num">9</span><span><span class="toc__label">Problemen oplossen</span><span class="toc__sub">Veelvoorkomende fouten</span></span></li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════ QUICK REFERENCE -->
+<div class="qr" id="quick-ref">
+  <div class="qr__header">
+    <span class="qr__header-icon">⚡</span>
+    <span class="qr__header-title">Snel aan de slag</span>
+    <span class="qr__header-sub">Volledige uitleg per stap → Hoofdstukken 4 t/m 8</span>
+  </div>
+  <div class="qr__cols">
+
+    <div class="qr__col qr__col--green">
+      <div class="qr__col-head">
+        Eenmalig per computer
+        <span class="qr__badge">1×</span>
+      </div>
+      <ul class="qr__steps">
+        <li class="qr__step"><span class="qr__step-num">1</span><span>Account aanmaken op <strong>ngrok.com</strong>, statisch domein reserveren en authtoken kopiëren</span></li>
+        <li class="qr__step"><span class="qr__step-num">2</span><span>ngrok installeren (als Administrator):<code>winget install ngrok.ngrok</code></span></li>
+        <li class="qr__step"><span class="qr__step-num">3</span><span>Authtoken koppelen:<code>ngrok config add-authtoken &lt;token&gt;</code></span></li>
+        <li class="qr__step"><span class="qr__step-num">4</span><span>Centrale bestanden aanmaken in C:\laragon\ — zie Hoofdstuk 5 voor de volledige inhoud:<code>ngrok.conf · ngrok-prepend.php · ngrok-site.ps1 · ngrok-site.bat</code></span></li>
+        <li class="qr__step"><span class="qr__step-num">5</span><span>C:\laragon toevoegen aan Windows PATH via Systeem → Omgevingsvariabelen</span></li>
+        <li class="qr__step"><span class="qr__step-num">6</span><span>Apache herstarten via Laragon UI</span></li>
+      </ul>
+    </div>
+
+    <div class="qr__col qr__col--blue">
+      <div class="qr__col-head">
+        Eenmalig per project
+        <span class="qr__badge">1×</span>
+      </div>
+      <ul class="qr__steps">
+        <li class="qr__step"><span class="qr__step-num">✓</span><span><strong>Geen actie vereist.</strong> De centrale ngrok-prepend.php en ngrok.conf dekken elk project automatisch — ook nieuwe sites in Laragon.</span></li>
+      </ul>
+    </div>
+
+    <div class="qr__col qr__col--orange">
+      <div class="qr__col-head">
+        Elke testsessie
+        <span class="qr__badge">Dagelijks</span>
+      </div>
+      <ul class="qr__steps">
+        <li class="qr__step"><span class="qr__step-num">1</span><span>Laragon starten, controleer dat Apache actief is</span></li>
+        <li class="qr__step"><span class="qr__step-num">2</span><span>Wisselen van site — updatet config en herstart Apache:<code>ngrok-site mkbase</code></span></li>
+        <li class="qr__step"><span class="qr__step-num">3</span><span>ngrok starten in een aparte terminal:<code>ngrok http --domain=urchin-driller-bronchial.ngrok-free.dev 80</code></span></li>
+        <li class="qr__step"><span class="qr__step-num">4</span><span>Vaste URL openen op telefoon (sla op als bladwijzer):<code>https://urchin-driller-bronchial.ngrok-free.dev</code></span></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<div class="doc-layout">
+
+<nav class="doc-sidebar">
+  <div class="doc-sidebar__head">Navigatie</div>
+  <a class="doc-sidebar__link doc-sidebar__link--quick" href="#quick-ref" data-tip="Checklist & alle commands">
+    <span class="doc-sidebar__num">⚡</span>Snel aan de slag
+  </a>
+  <a class="doc-sidebar__link" href="#h1" data-tip="Wat het is en waarom">
+    <span class="doc-sidebar__num">1</span>Wat is ngrok?
+  </a>
+  <a class="doc-sidebar__link" href="#h2" data-tip="Technisch plaatje">
+    <span class="doc-sidebar__num">2</span>Hoe werkt het?
+  </a>
+  <a class="doc-sidebar__link" href="#h3" data-tip="5 problemen opgelost">
+    <span class="doc-sidebar__num">3</span>Waarom nodig?
+  </a>
+  <a class="doc-sidebar__link" href="#h4" data-tip="Eenmalig per computer">
+    <span class="doc-sidebar__num">4</span>Installatie ngrok
+  </a>
+  <a class="doc-sidebar__link" href="#h5" data-tip="Eenmalig per computer">
+    <span class="doc-sidebar__num">5</span>Laragon & Apache
+  </a>
+  <a class="doc-sidebar__link" href="#h6" data-tip="Eenmalig per project">
+    <span class="doc-sidebar__num">6</span>Per project
+  </a>
+  <a class="doc-sidebar__link" href="#h7" data-tip="Elke testsessie">
+    <span class="doc-sidebar__num">7</span>Dagelijks gebruik
+  </a>
+  <a class="doc-sidebar__link" href="#h8" data-tip="Basic auth & risico's">
+    <span class="doc-sidebar__num">8</span>Beveiliging
+  </a>
+  <a class="doc-sidebar__link" href="#h9" data-tip="Veelvoorkomende fouten">
+    <span class="doc-sidebar__num">9</span>Problemen oplossen
+  </a>
+  <a class="doc-sidebar__link doc-sidebar__link--sum" href="#summary" data-tip="Overzicht alle stappen">
+    <span class="doc-sidebar__num">∑</span>Samenvatting
+  </a>
+  <button id="dark-toggle">🌙  Dark mode</button>
+  <span class="kb-hint">Toets 1–9 springt naar hoofdstuk</span>
+</nav>
+
+<div class="doc-content">
+
+<!-- ════════════════════════════════════════ 1. WAT IS NGROK -->
+<div class="section" id="h1">
+  <div class="section__head">
+    <div class="section__num">1</div>
+    <div class="section__meta">
+      <div class="section__chapter">Hoofdstuk 1</div>
+      <div class="section__title">Wat is ngrok?</div>
+      <div class="section__desc">En waarom gebruik je het als developer?</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <p>ngrok is een <strong>tunneling-dienst</strong> — een klein programma dat je lokale server tijdelijk bereikbaar maakt voor de buitenwereld via een publieke HTTPS-URL. Het is de standaardtool in de industrie voor precies dit doel.</p>
+
+  <div class="cols-2">
+    <div class="card card--blue">
+      <div class="card__label">Zonder ngrok</div>
+      <p>Je lokale site (<code>projectnaam.test</code>) bestaat alleen op jouw laptop. Geen enkel ander apparaat kan hem bereiken — niet je telefoon, niet een collega, niet een klant.</p>
+    </div>
+    <div class="card card--green">
+      <div class="card__label">Met ngrok</div>
+      <p>Je krijgt een publieke HTTPS-URL zoals <code>https://abc123.ngrok-free.dev</code>. Elk apparaat ter wereld opent die URL en ziet exact jouw lokale site.</p>
+    </div>
+  </div>
+
+  <p style="margin-top:6px"><strong>Voordelen van ngrok:</strong></p>
+  <div class="cols-3">
+    <div class="card">
+      <div class="card__label">Werkt overal</div>
+      <p style="font-size:12.5px">Thuis, op kantoor, via mobiele data. Geen gedoe met routers of firewalls.</p>
+    </div>
+    <div class="card">
+      <div class="card__label">HTTPS inbegrepen</div>
+      <p style="font-size:12.5px">Automatisch beveiligde verbinding, ook al draait je lokale site op HTTP.</p>
+    </div>
+    <div class="card">
+      <div class="card__label">Gratis basisversie</div>
+      <p style="font-size:12.5px">Voor lokaal testen meer dan voldoende. Geen betaald abonnement nodig.</p>
+    </div>
+    <div class="card">
+      <div class="card__label">Niets op telefoon</div>
+      <p style="font-size:12.5px">Geen app installeren. Gewoon de URL in Safari of Chrome openen.</p>
+    </div>
+    <div class="card">
+      <div class="card__label">Eenmalige setup</div>
+      <p style="font-size:12.5px">Installeer ngrok één keer. Daarna werkt het voor elk project automatisch.</p>
+    </div>
+    <div class="card">
+      <div class="card__label">Ingebouwd dashboard</div>
+      <p style="font-size:12.5px">Via <code>localhost:4040</code> zie je alle verzoeken — handig voor debugging.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════ 2. HOE WERKT HET -->
+<div class="section" id="h2">
+  <div class="section__head">
+    <div class="section__num">2</div>
+    <div class="section__meta">
+      <div class="section__chapter">Hoofdstuk 2</div>
+      <div class="section__title">Hoe werkt het?</div>
+      <div class="section__desc">Het technische plaatje van begin tot eind</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <p>Als je <code>ngrok http 80</code> uitvoert, opent ngrok een <strong>uitgaande verbinding</strong> vanuit jouw laptop naar de ngrok-servers in de cloud. Wanneer je telefoon de publieke URL bezoekt, loopt het verzoek via die tunnel naar je laptop:</p>
+
+  <div class="flow">
+    <div class="flow__step flow__step--1"><div class="flow__icon">📱</div>iPhone<small>bezoekt URL</small></div>
+    <div class="flow__arrow">›</div>
+    <div class="flow__step flow__step--3"><div class="flow__icon">☁️</div>ngrok-servers<small>cloud</small></div>
+    <div class="flow__arrow">›</div>
+    <div class="flow__step flow__step--2"><div class="flow__icon">🔒</div>Beveiligde tunnel<small>versleuteld</small></div>
+    <div class="flow__arrow">›</div>
+    <div class="flow__step flow__step--4"><div class="flow__icon">💻</div>Apache op laptop<small>poort 80</small></div>
+  </div>
+
+  <div class="explain">
+    <div class="explain__title">Waarom hoef je geen poorten te openen in de router?</div>
+    Normaal gesproken moet je voor inkomende verbindingen een poort "doorsturen" in je router naar je laptop. Dat vereist toegang tot de router en werkt niet op elk netwerk. ngrok omzeilt dit volledig: jouw laptop maakt zelf de verbinding naar de ngrok-servers (uitgaand, altijd toegestaan). De router ziet alleen dat jouw laptop verbinding maakt met een server — niet dat er verkeer binnenkomt.
+  </div>
+
+  <p><strong>Wat moet er aan de kant van je laptop kloppen?</strong></p>
+  <div class="cols-3">
+    <div class="card card--blue">
+      <div class="card__label">Apache</div>
+      <p style="font-size:12.5px">Moet de ngrok-hostnaam herkennen en het verzoek doorsturen naar de juiste WordPress-installatie.</p>
+    </div>
+    <div class="card card--blue">
+      <div class="card__label">WordPress</div>
+      <p style="font-size:12.5px">Moet weten dat de site-URL tijdelijk de ngrok-URL is, anders verwijzen alle links naar <code>projectnaam.test</code>.</p>
+    </div>
+    <div class="card card--blue">
+      <div class="card__label">HTTPS-herkenning</div>
+      <p style="font-size:12.5px">ngrok handelt HTTPS af maar stuurt HTTP door naar Apache. WordPress moet weten dat het toch beveiligd is, anders ontstaat een redirect-loop.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════ 3. WAAROM NODIG -->
+<div class="section" id="h3">
+  <div class="section__head">
+    <div class="section__num">3</div>
+    <div class="section__meta">
+      <div class="section__chapter">Hoofdstuk 3</div>
+      <div class="section__title">Waarom is dit nodig?</div>
+      <div class="section__desc">De vijf problemen die ngrok oplost</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <p>Je zou denken: even het IP-adres van mijn laptop openen op mijn telefoon. In de praktijk zijn er minstens vijf lagen die dit blokkeren.</p>
+
+  <div class="problems">
+    <div class="problem">
+      <div class="problem__num">1</div>
+      <div>
+        <div class="problem__title">DNS — ".test" bestaat niet buiten je laptop</div>
+        <div class="problem__body">Laragon installeert een lokale DNS-server die <code>.test</code>-domeinen vertaalt naar <code>127.0.0.1</code>. Je telefoon kent die DNS-server niet. <strong>ngrok-oplossing:</strong> eigen publiek domein dat overal werkt.</div>
+      </div>
+    </div>
+    <div class="problem">
+      <div class="problem__num">2</div>
+      <div>
+        <div class="problem__title">Windows Firewall — blokkeert inkomende verbindingen op poort 80</div>
+        <div class="problem__body">Windows Firewall staat standaard geen inkomend verkeer toe van andere apparaten. <strong>ngrok-oplossing:</strong> verbinding loopt via de cloud, firewall ziet alleen uitgaand verkeer.</div>
+      </div>
+    </div>
+    <div class="problem">
+      <div class="problem__num">3</div>
+      <div>
+        <div class="problem__title">Router AP Isolation — apparaten kunnen elkaar niet bereiken</div>
+        <div class="problem__body">Veel routers isoleren wifi-apparaten van elkaar én van bedrade apparaten. Dit is een beveiligingsmaatregel van de router. <strong>ngrok-oplossing:</strong> verbinding loopt via het internet, niet via het lokale netwerk.</div>
+      </div>
+    </div>
+    <div class="problem">
+      <div class="problem__num">4</div>
+      <div>
+        <div class="problem__title">WordPress URL's — alle links verwijzen naar de verkeerde URL</div>
+        <div class="problem__body">WordPress slaat de site-URL op in de database. Alle links, afbeeldingen en scripts verwijzen daarnaar. Als dat <code>projectnaam.test</code> is, kan je telefoon die niet bereiken. <strong>ngrok-oplossing:</strong> wp-config.php snippet overschrijft de URL dynamisch.</div>
+      </div>
+    </div>
+    <div class="problem">
+      <div class="problem__num">5</div>
+      <div>
+        <div class="problem__title">HTTPS redirect loop — eindeloos doorsturen</div>
+        <div class="problem__body">ngrok biedt HTTPS aan maar stuurt HTTP door naar Apache. WordPress ziet geen HTTPS en stuurt door naar HTTPS — wat opnieuw als HTTP binnenkomt. Een eindeloze loop. <strong>ngrok-oplossing:</strong> wp-config.php snippet vertelt WordPress dat de verbinding al beveiligd is.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════ 4. INSTALLATIE -->
+<div class="section" id="h4">
+  <div class="section__head">
+    <div class="section__num">4</div>
+    <div class="section__meta">
+      <div class="section__chapter">Hoofdstuk 4</div>
+      <div class="section__title">Installatie — ngrok <span class="badge badge--green">1× per computer</span></div>
+      <div class="section__desc">Na deze stap hoef je hier nooit meer naar om te kijken</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain__title">Waarom eenmalig?</div>
+    ngrok is een globaal programma op je laptop, los van welk project je aan werkt. Je authtoken is gekoppeld aan jouw account en wordt opgeslagen in een globaal configuratiebestand. Installeer het één keer — het werkt daarna voor elk project.
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step__num">1</div>
+      <div class="step__body">
+        <div class="step__title">Account aanmaken op ngrok.com</div>
+        <p style="font-size:12.5px">Maak een gratis account aan en ga na inloggen naar:</p>
+        <pre>dashboard.ngrok.com/get-started/your-authtoken</pre>
+        <p style="font-size:12.5px;margin-top:6px">Kopieer je <strong>authtoken</strong> — nodig in stap 3.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step__num">2</div>
+      <div class="step__body">
+        <div class="step__title">ngrok installeren via PowerShell (als Administrator)</div>
+        <p style="font-size:12.5px">Open PowerShell als Administrator: klik met de <strong>rechtermuisknop op Start</strong> → <strong>Windows PowerShell (Administrator)</strong> of zoek op "PowerShell" in het Startmenu en kies <strong>"Als administrator uitvoeren"</strong>.</p>
+        <pre>winget install ngrok.ngrok --accept-source-agreements --accept-package-agreements</pre>
+        <p style="font-size:12.5px;margin-top:8px">Herstart daarna je terminal. Als <code>ngrok</code> niet herkend wordt, gebruik dan het volledige pad:</p>
+        <pre>C:\Users\<span class="v">&lt;gebruikersnaam&gt;</span>\AppData\Local\Microsoft\WinGet\Packages\Ngrok.Ngrok_Microsoft.Winget.Source_8wekyb3d8bbwe\ngrok.exe</pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step__num">3</div>
+      <div class="step__body">
+        <div class="step__title">Authtoken koppelen</div>
+        <pre>ngrok config add-authtoken <span class="v">&lt;jouw-authtoken&gt;</span></pre>
+        <p style="font-size:12.5px;margin-top:8px">Token wordt opgeslagen in <code>AppData\Local\ngrok\ngrok.yml</code>. Eenmalig — daarna werkt ngrok altijd.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step__num">4</div>
+      <div class="step__body">
+        <div class="step__title">Updaten (alleen als je een foutmelding krijgt over versie)</div>
+        <pre>ngrok update</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════ 5. LARAGON CONFIG -->
+<div class="section" id="h5">
+  <div class="section__head">
+    <div class="section__num">5</div>
+    <div class="section__meta">
+      <div class="section__chapter">Hoofdstuk 5</div>
+      <div class="section__title">Configuratie — Laragon & Apache <span class="badge badge--green">1× per computer</span></div>
+      <div class="section__desc">Alle huidige én toekomstige projecten worden automatisch klaargemaakt</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain__title">Hoe werkt de nieuwe aanpak?</div>
+    In plaats van elk project afzonderlijk te configureren, gebruik je drie centrale bestanden in <code>C:\laragon\</code>: een vaste Apache-vhost (<code>ngrok.conf</code>) die het ngrok-domein afhandelt, een PHP-prepend-bestand (<code>ngrok-prepend.php</code>) dat WordPress URL's automatisch corrigeert, en een script (<code>ngrok-site.ps1</code>) waarmee je met één commando van site wisselt.
+  </div>
+
+  <p><strong>Stap A — ngrok.conf aanmaken</strong> <span style="font-size:12px;color:var(--gray-400)">(vaste Apache-vhost voor ngrok)</span></p>
+  <p style="font-size:12.5px">Maak aan: <code>C:\laragon\etc\apache2\sites-enabled\ngrok.conf</code><br>Pas <code>NGROK_ROOT</code> aan naar de site die je wilt testen. Gebruik het script (Stap C) om dit automatisch te doen.</p>
+
+  <pre><span class="c"># Wijzig NGROK_ROOT om te wisselen van website</span>
+Define NGROK_ROOT <span class="s">"C:/laragon/www/mkbase"</span>
+Define NGROK_DOMAIN <span class="s">"jouw-domein.ngrok-free.dev"</span>
+
+&lt;<span class="t">VirtualHost</span> *:80&gt;
+    DocumentRoot <span class="s">"${NGROK_ROOT}"</span>
+    ServerName ${NGROK_DOMAIN}
+    php_value auto_prepend_file <span class="s">"C:/laragon/ngrok-prepend.php"</span>
+    &lt;<span class="t">Directory</span> <span class="s">"${NGROK_ROOT}"</span>&gt;
+        AllowOverride All
+        Require all granted
+    &lt;/<span class="t">Directory</span>&gt;
+&lt;/<span class="t">VirtualHost</span>&gt;
+
+&lt;<span class="t">VirtualHost</span> *:443&gt;
+    DocumentRoot <span class="s">"${NGROK_ROOT}"</span>
+    ServerName ${NGROK_DOMAIN}
+    php_value auto_prepend_file <span class="s">"C:/laragon/ngrok-prepend.php"</span>
+    &lt;<span class="t">Directory</span> <span class="s">"${NGROK_ROOT}"</span>&gt;
+        AllowOverride All
+        Require all granted
+    &lt;/<span class="t">Directory</span>&gt;
+    SSLEngine on
+    SSLCertificateFile      C:/laragon/etc/ssl/laragon.crt
+    SSLCertificateKeyFile   C:/laragon/etc/ssl/laragon.key
+&lt;/<span class="t">VirtualHost</span>&gt;</pre>
+
+  <p style="margin-top:20px"><strong>Stap B — ngrok-prepend.php aanmaken</strong> <span style="font-size:12px;color:var(--gray-400)">(centrale WordPress URL-fix, werkt voor elk project)</span></p>
+  <p style="font-size:12.5px">Maak aan: <code>C:\laragon\ngrok-prepend.php</code></p>
+
+  <pre>&lt;?<span class="k">php</span>
+<span class="k">if</span> ( ! defined(<span class="s">'WP_HOME'</span>) ) {
+    define(<span class="s">'WP_HOME'</span>,    <span class="s">'https://'</span> . $_SERVER[<span class="s">'HTTP_HOST'</span>]);
+    define(<span class="s">'WP_SITEURL'</span>, <span class="s">'https://'</span> . $_SERVER[<span class="s">'HTTP_HOST'</span>]);
+    $_SERVER[<span class="s">'HTTPS'</span>]       = <span class="s">'on'</span>;
+    $_SERVER[<span class="s">'SERVER_PORT'</span>] = <span class="s">'443'</span>;
+}</pre>
+
+  <div class="tip">
+    <span class="tip__icon">💡</span>
+    <span>Dit bestand wordt via <code>php_value auto_prepend_file</code> in <code>ngrok.conf</code> geladen vóórdat WordPress start. Het overschrijft de URL voor <em>elk</em> project automatisch — je hoeft nooit meer iets aan <code>wp-config.php</code> aan te passen.</span>
+  </div>
+
+  <p style="margin-top:20px"><strong>Stap C — ngrok-site script installeren</strong> <span style="font-size:12px;color:var(--gray-400)">(één commando om van site te wisselen)</span></p>
+  <p style="font-size:12.5px">Maak aan: <code>C:\laragon\ngrok-site.ps1</code> (pas <code>$user</code> en <code>$pass</code> aan naar jouw voorkeur)</p>
+
+  <pre><span class="k">param</span>(
+    [string]$site
+)
+<span class="k">if</span> (-not $site) { Write-Host <span class="s">"Gebruik: ngrok-site &lt;sitenaam&gt;"</span>; exit 1 }
+$sitePath = <span class="s">"C:\laragon\www\$site"</span>
+<span class="k">if</span> (-not (Test-Path $sitePath)) {
+    Write-Host <span class="s">"Site '$site' niet gevonden. Beschikbare sites:"</span> -ForegroundColor Red
+    Get-ChildItem <span class="s">"C:\laragon\www"</span> -Directory | ForEach-Object { Write-Host <span class="s">"  - $($_.Name)"</span> }
+    exit 1
+}
+$conf = <span class="s">"C:\laragon\etc\apache2\sites-enabled\ngrok.conf"</span>
+(Get-Content $conf -Raw) -replace <span class="s">'Define NGROK_ROOT ".*"'</span>, <span class="s">"Define NGROK_ROOT `"C:/laragon/www/$site`""</span> | Set-Content $conf -NoNewline
+Write-Host <span class="s">"Ngrok.conf bijgewerkt naar: $site"</span> -ForegroundColor Green
+$apache = Get-ChildItem <span class="s">"C:\laragon\bin\apache"</span> -Filter <span class="s">"httpd.exe"</span> -Recurse | Select-Object -First 1 -ExpandProperty FullName
+<span class="k">if</span> ($apache) {
+    Stop-Process -Name <span class="s">"httpd"</span> -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 1
+    Start-Process $apache -ArgumentList <span class="s">'-f "C:\laragon\etc\apache2\httpd.conf"'</span>
+    Write-Host <span class="s">"Apache herstart"</span> -ForegroundColor Green
+}
+<span class="c"># Start ngrok handmatig in een aparte terminal:</span>
+<span class="c"># ngrok http --domain=jouw-domein.ngrok-free.dev 80</span></pre>
+
+  <p style="font-size:12.5px">Maak ook een <code>.bat</code> wrapper aan zodat je geen <code>.ps1</code> hoeft te typen:</p>
+  <p style="font-size:12.5px">Bestand: <code>C:\laragon\ngrok-site.bat</code></p>
+  <pre>@echo off
+powershell -ExecutionPolicy Bypass -File <span class="s">"C:\laragon\ngrok-site.ps1"</span> %*</pre>
+
+  <div class="card card--green">
+    <div class="card__label">Stap D — PATH instellen &amp; Apache herstarten</div>
+    <p style="font-size:12.5px">Voeg <code>C:\laragon</code> eenmalig toe aan je Windows gebruikers-PATH zodat <code>ngrok-site</code> overal werkt. Herstart daarna Apache via Laragon UI. Vanaf nu type je alleen nog <code>ngrok-site mkbase</code> om te beginnen.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════ 6. WP-CONFIG -->
+<div class="section" id="h6">
+  <div class="section__head">
+    <div class="section__num">6</div>
+    <div class="section__meta">
+      <div class="section__chapter">Hoofdstuk 6</div>
+      <div class="section__title">Per project — geen actie vereist <span class="badge badge--green">Automatisch</span></div>
+      <div class="section__desc">De centrale setup dekt elk project automatisch</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <div class="card card--green">
+    <div class="card__label">Niets te doen</div>
+    <p style="font-size:12.5px">Dankzij de centrale <code>ngrok-prepend.php</code> en <code>ngrok.conf</code> (ingesteld in Hoofdstuk 5) hoef je <strong>niets aan te passen</strong> in een nieuw of bestaand WordPress-project. Geen snippet in <code>wp-config.php</code>, geen vhost-wijziging, geen Apache-restart.</p>
+  </div>
+
+  <div class="explain">
+    <div class="explain__title">Hoe werkt het automatisch?</div>
+    Apache laadt <code>ngrok-prepend.php</code> via <code>php_value auto_prepend_file</code> in <code>ngrok.conf</code> — dat bestand draait vóórdat WordPress start. Het overschrijft <code>WP_HOME</code> en <code>WP_SITEURL</code> dynamisch op basis van de Host-header, en markeert de verbinding als HTTPS. WordPress ziet de juiste URL en genereert alle links, afbeeldingen en scripts correct voor je telefoon.
+  </div>
+
+  <div class="cols-2">
+    <div class="card card--blue">
+      <div class="card__label">Nieuw project in Laragon</div>
+      <p style="font-size:12.5px">Maak de site aan zoals gewoonlijk. Typ daarna <code>ngrok-site &lt;sitenaam&gt;</code> in je terminal en test direct op je telefoon.</p>
+    </div>
+    <div class="card card--blue">
+      <div class="card__label">Bestaand project</div>
+      <p style="font-size:12.5px">Werkt direct. Als er nog een oud ngrok-snippet in <code>wp-config.php</code> staat kun je dat verwijderen — het is niet meer nodig.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════ 7. DAGELIJKS GEBRUIK -->
+<div class="section" id="h7">
+  <div class="section__head">
+    <div class="section__num">7</div>
+    <div class="section__meta">
+      <div class="section__chapter">Hoofdstuk 7</div>
+      <div class="section__title">Dagelijks gebruik <span class="badge badge--orange">Elke testsessie</span></div>
+      <div class="section__desc">Vier stappen, klaar in minder dan een minuut</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step step--green">
+      <div class="step__num">1</div>
+      <div class="step__body">
+        <div class="step__title">Laragon starten</div>
+        <p style="font-size:12.5px">Zorg dat Laragon draait en Apache actief is.</p>
+      </div>
+    </div>
+    <div class="step step--green">
+      <div class="step__num">2</div>
+      <div class="step__body">
+        <div class="step__title">Site wisselen met ngrok-site</div>
+        <p style="font-size:12.5px">Typ de sitenaam die je wilt testen. Het script updatet <code>ngrok.conf</code> en herstart Apache automatisch.</p>
+        <pre>ngrok-site <span class="v">mkbase</span></pre>
+        <p style="font-size:12.5px;margin-top:8px">Beschikbare sites zien? Typ <code>ngrok-site</code> zonder argument — het script toont alle opties.</p>
+      </div>
+    </div>
+    <div class="step step--green">
+      <div class="step__num">3</div>
+      <div class="step__body">
+        <div class="step__title">ngrok starten in een aparte terminal</div>
+        <p style="font-size:12.5px">Open een nieuwe terminal en start de tunnel. Laat dit venster open zolang je test.</p>
+        <pre>ngrok http --domain=<span class="v">urchin-driller-bronchial.ngrok-free.dev</span> 80</pre>
+        <p style="font-size:12.5px;margin-top:8px">Wil je wisselen van site? Typ <code>ngrok-site &lt;sitenaam&gt;</code> in een andere terminal — ngrok blijft draaien.</p>
+      </div>
+    </div>
+    <div class="step step--green">
+      <div class="step__num">4</div>
+      <div class="step__body">
+        <div class="step__title">Vaste URL openen op je telefoon</div>
+        <p style="font-size:12.5px">De URL is altijd hetzelfde — sla hem op als bladwijzer op je telefoon.</p>
+        <pre>https://<span class="v">urchin-driller-bronchial.ngrok-free.dev</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip" style="margin-top:16px">
+    <span class="tip__icon">💡</span>
+    <span>De URL is <strong>altijd hetzelfde</strong> dankzij het statische ngrok-domein. Sla hem op als bladwijzer — je hoeft hem nooit opnieuw te kopiëren. ngrok hoeft ook maar <strong>één keer gestart</strong> te worden per sessie; wisselen van site doe je alleen met <code>ngrok-site</code>.</span>
+  </div>
+
+  <p style="margin-top:20px"><strong>Checklist per sessie:</strong></p>
+  <ul class="checklist">
+    <li>Laragon draait en Apache is actief</li>
+    <li><code>ngrok-site &lt;sitenaam&gt;</code> getypt in terminal</li>
+    <li><code>ngrok http --domain=urchin-driller-bronchial.ngrok-free.dev 80</code> gestart in aparte terminal</li>
+    <li>Vaste ngrok-URL geopend op telefoon</li>
+  </ul>
+
+  <p style="margin-top:20px"><strong>Van site wisselen tijdens een sessie:</strong></p>
+  <ul class="checklist">
+    <li><code>ngrok-site &lt;nieuwesite&gt;</code> typen — Apache herstart automatisch</li>
+    <li>ngrok blijft draaien, URL blijft hetzelfde</li>
+    <li>Telefoon herladen — je ziet de nieuwe site</li>
+  </ul>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════ 8. BEVEILIGING -->
+<div class="section" id="h8">
+  <div class="section__head">
+    <div class="section__num">8</div>
+    <div class="section__meta">
+      <div class="section__chapter">Hoofdstuk 8</div>
+      <div class="section__title">Beveiliging <span class="badge badge--orange">Aanbevolen</span></div>
+      <div class="section__desc">Toegang beperken tijdens een testsessie</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <p>De ngrok-URL is publiek bereikbaar voor iedereen die hem kent. In de huidige setup staat basic auth <strong>uit</strong> — de URL is direct toegankelijk. Dit is prima voor lokaal testen, maar wees voorzichtig als je de URL deelt.</p>
+
+  <div class="explain">
+    <div class="explain__title">Basic auth optioneel toevoegen</div>
+    Wil je toch een inlogprompt? Start ngrok dan handmatig met de <code>--basic-auth</code> vlag in plaats van het gewone commando:
+  </div>
+
+  <pre>ngrok http --domain=<span class="v">urchin-driller-bronchial.ngrok-free.dev</span> --basic-auth=<span class="s">"gebruiker:wachtwoord"</span> 80</pre>
+
+  <div class="tip">
+    <span class="tip__icon">💡</span>
+    <span>ngrok onderschept de inlogprompt vóórdat het verzoek Apache bereikt — Apache en WordPress worden nooit bereikt als het wachtwoord fout is.</span>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════ 9. PROBLEMEN -->
+<div class="section" id="h9">
+  <div class="section__head">
+    <div class="section__num section__num--red">!</div>
+    <div class="section__meta">
+      <div class="section__chapter">Hoofdstuk 9</div>
+      <div class="section__title">Problemen oplossen</div>
+      <div class="section__desc">Veelvoorkomende fouten en oplossingen</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <div class="problems">
+    <div class="problem">
+      <div class="problem__num">?</div>
+      <div>
+        <div class="problem__title">"Te vaak doorverwezen" — redirect loop</div>
+        <div class="problem__body"><strong>Oorzaak:</strong> WordPress weet niet dat de verbinding al HTTPS is.<br><strong>Oplossing:</strong> Controleer of <code>C:\laragon\ngrok-prepend.php</code> bestaat en de regels <code>$_SERVER['HTTPS'] = 'on'</code> bevat. Controleer ook of <code>php_value auto_prepend_file</code> correct is ingesteld in <code>ngrok.conf</code> en of Apache is herstart.</div>
+      </div>
+    </div>
+    <div class="problem">
+      <div class="problem__num">?</div>
+      <div>
+        <div class="problem__title">Site laadt maar verwijst nog naar projectnaam.test</div>
+        <div class="problem__body"><strong>Oorzaak:</strong> De centrale prepend wordt niet geladen, of er staat nog een vaste <code>define('WP_HOME'...)</code> in wp-config.php die eerder wordt uitgevoerd.<br><strong>Oplossing A:</strong> Controleer of <code>ngrok-prepend.php</code> bestaat en of Apache is herstart na aanmaken van <code>ngrok.conf</code>.<br><strong>Oplossing B:</strong> Verwijder eventuele vaste <code>WP_HOME</code>/<code>WP_SITEURL</code> defines uit wp-config.php van het project.</div>
+      </div>
+    </div>
+    <div class="problem">
+      <div class="problem__num">?</div>
+      <div>
+        <div class="problem__title">"Server reageert niet" op telefoon</div>
+        <div class="problem__body"><strong>Oorzaak:</strong> ngrok draait niet, of de URL is verlopen na een herstart.<br><strong>Oplossing:</strong> Controleer of ngrok actief is in je terminal. Herstart ngrok en kopieer de nieuwe URL.</div>
+      </div>
+    </div>
+    <div class="problem">
+      <div class="problem__num">?</div>
+      <div>
+        <div class="problem__title">"ngrok: command not found"</div>
+        <div class="problem__body"><strong>Oplossing A:</strong> Herstart je terminal na installatie.<br><strong>Oplossing B:</strong> Gebruik het volledige pad:<br>
+        <code>C:\Users\&lt;naam&gt;\AppData\Local\Microsoft\WinGet\Packages\Ngrok.Ngrok_...\ngrok.exe http 80</code></div>
+      </div>
+    </div>
+    <div class="problem">
+      <div class="problem__num">?</div>
+      <div>
+        <div class="problem__title">"Authentication failed: version too old"</div>
+        <div class="problem__body">Voer uit: <code>ngrok update</code></div>
+      </div>
+    </div>
+    <div class="problem">
+      <div class="problem__num">?</div>
+      <div>
+        <div class="problem__title">Afbeeldingen en CSS laden niet op de telefoon</div>
+        <div class="problem__body"><strong>Oorzaak:</strong> WordPress genereert nog links naar <code>projectnaam.test</code> omdat de centrale prepend niet actief is.<br><strong>Oplossing:</strong> Controleer of <code>ngrok-prepend.php</code> bestaat, of <code>ngrok.conf</code> de juiste <code>php_value auto_prepend_file</code> bevat, en of Apache is herstart. Controleer ook of er geen vaste <code>WP_HOME</code> define in wp-config.php staat die de prepend overschrijft.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ════════════════════════════════════════ SAMENVATTING -->
+<div class="section" id="summary">
+  <div class="section__head">
+    <div class="section__num section__num--dark">∑</div>
+    <div class="section__meta">
+      <div class="section__title">Samenvatting — wat doe je wanneer?</div>
+      <div class="section__line"></div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="summary__row">
+      <div class="summary__when summary__when--green">Eenmalig<br>per computer</div>
+      <div class="summary__what">
+        <ul>
+          <li>ngrok account aanmaken op ngrok.com, statisch domein reserveren</li>
+          <li>ngrok installeren via winget, authtoken koppelen</li>
+          <li><code>ngrok.conf</code> aanmaken in <code>C:\laragon\etc\apache2\sites-enabled\</code></li>
+          <li><code>ngrok-prepend.php</code>, <code>ngrok-site.ps1</code> en <code>ngrok-site.bat</code> aanmaken in <code>C:\laragon\</code></li>
+          <li><code>C:\laragon</code> toevoegen aan PATH, Apache herstarten via Laragon UI</li>
+        </ul>
+      </div>
+    </div>
+    <div class="summary__row">
+      <div class="summary__when summary__when--blue">Eenmalig<br>per project</div>
+      <div class="summary__what">
+        <ul>
+          <li><strong>Geen actie vereist.</strong> De centrale ngrok-prepend.php en ngrok.conf dekken elk project automatisch.</li>
+        </ul>
+        <p style="font-size:12px;color:var(--gray-400);margin-top:6px;margin-bottom:0">Ook nieuwe Laragon-sites werken direct zonder extra configuratie.</p>
+      </div>
+    </div>
+    <div class="summary__row">
+      <div class="summary__when summary__when--orange">Elke<br>testsessie</div>
+      <div class="summary__what">
+        <p style="margin:0">Laragon starten → <code>ngrok-site &lt;sitenaam&gt;</code> typen → <code>ngrok http --domain=urchin-driller-bronchial.ngrok-free.dev 80</code> in aparte terminal → vaste URL openen op telefoon.</p>
+        <p style="font-size:12px;color:#94a3b8;margin:4px 0 0">Van site wisselen: alleen <code>ngrok-site &lt;sitenaam&gt;</code> opnieuw typen — ngrok blijft draaien, URL blijft hetzelfde.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /doc-content -->
+</div><!-- /doc-layout -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Mediakanjers &nbsp;·&nbsp; Lokaal mobiel testen met WordPress & ngrok &nbsp;·&nbsp; Juni 2026<br>
+  Opslaan als PDF: Ctrl+P → Opslaan als PDF → Papierformaat A4 · Marges Standaard
+</div>
+
+</div><!-- /page -->
+<script>
+(function() {
+
+  /* ── Leestijd ─────────────────────────────────────────── */
+  var content = document.querySelector('.doc-content');
+  if (content) {
+    var words = content.textContent.trim().split(/\s+/).length;
+    var mins  = Math.ceil(words / 200);
+    var rtEl  = document.getElementById('reading-time');
+    if (rtEl) rtEl.textContent = '≈ ' + mins + ' min lezen';
+  }
+
+  /* ── Taal-labels op code-blokken ────────────────────── */
+  document.querySelectorAll('pre').forEach(function(pre) {
+    var t = pre.textContent;
+    var lang = 'Terminal';
+    if (/Get-ChildItem|\$files|\$content|Set-Content|winget|Write-Host|foreach.*\$/.test(t)) lang = 'PowerShell';
+    else if (/define\s*\(|WP_HOME|\$_SERVER|\$host/.test(t))                                lang = 'PHP';
+    else if (/<VirtualHost|ServerAlias|DocumentRoot/.test(t))                               lang = 'Apache Config';
+    else if (/Forwarding\s+https/.test(t))                                                  lang = 'Output';
+    else if (/^dashboard\.ngrok/.test(t.trim()))                                            lang = 'URL';
+    pre.setAttribute('data-lang', lang);
+  });
+
+  /* ── Copy-knoppen ────────────────────────────────────── */
+  document.querySelectorAll('pre').forEach(function(pre) {
+    var btn = document.createElement('button');
+    btn.className   = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', function() {
+      var lines = pre.textContent.split('\n');
+      var text  = lines.filter(function(l) { return l.trim() !== '● ● ●'; }).join('\n').trim();
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = '✓ Gekopieerd';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      });
+    });
+    pre.appendChild(btn);
+  });
+
+  /* ── Volgende-hoofdstuk links ────────────────────────── */
+  var chapters = [
+    { id:'h1', next:'h2', num:'2', title:'Hoe werkt het?' },
+    { id:'h2', next:'h3', num:'3', title:'Waarom nodig?' },
+    { id:'h3', next:'h4', num:'4', title:'Installatie ngrok' },
+    { id:'h4', next:'h5', num:'5', title:'Laragon & Apache' },
+    { id:'h5', next:'h6', num:'6', title:'Per project' },
+    { id:'h6', next:'h7', num:'7', title:'Dagelijks gebruik' },
+    { id:'h7', next:'h8', num:'8', title:'Beveiliging' },
+    { id:'h8', next:'h9', num:'9', title:'Problemen oplossen' },
+    { id:'h9', next:'summary', num:'∑', title:'Samenvatting' },
+  ];
+  chapters.forEach(function(ch) {
+    var section = document.getElementById(ch.id);
+    if (!section) return;
+    var div = document.createElement('div');
+    div.className = 'next-ch';
+    div.innerHTML = '<a class="next-ch__link" href="#' + ch.next + '">' +
+      '<span>' + ch.num + '. ' + ch.title + '</span>' +
+      '<span class="next-ch__arrow">→</span></a>';
+    section.appendChild(div);
+  });
+
+  /* ── Fade-in bij inview ──────────────────────────────── */
+  var sections = document.querySelectorAll('.section');
+  sections.forEach(function(s) { s.classList.add('fade-ready'); });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.07 });
+    sections.forEach(function(s) { io.observe(s); });
+  } else {
+    sections.forEach(function(s) { s.classList.add('is-visible'); });
+  }
+
+  // Positioneer na WP admin sidebar als aanwezig
+  (function() {
+    var wc = document.getElementById('wpcontent');
+    if (!wc) return;
+    function align() {
+      var left = Math.round(wc.getBoundingClientRect().left + window.scrollX);
+      ['scroll-progress','mini-header'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.style.left = left + 'px';
+      });
+    }
+    align();
+    window.addEventListener('resize', align);
+  })();
+
+  /* ── Scroll: progress + spy + mini-header ────────────── */
+  var bar      = document.getElementById('scroll-progress');
+  var links    = document.querySelectorAll('.doc-sidebar__link[href^="#"]');
+  var targets  = Array.from(links).map(function(l) { return document.querySelector(l.getAttribute('href')); }).filter(Boolean);
+  var header   = document.getElementById('mini-header');
+  var hNum     = document.getElementById('mini-header__num');
+  var hTitle   = document.getElementById('mini-header__title');
+  var hProg    = document.getElementById('mini-header__progress');
+  var cover    = document.querySelector('.cover');
+  var numMap   = { 'quick-ref':'⚡',h1:'1',h2:'2',h3:'3',h4:'4',h5:'5',h6:'6',h7:'7',h8:'8',h9:'9',summary:'∑' };
+  var titleMap = { 'quick-ref':'Snel aan de slag',h1:'Wat is ngrok?',h2:'Hoe werkt het?',h3:'Waarom nodig?',h4:'Installatie ngrok',h5:'Laragon & Apache',h6:'Per project',h7:'Dagelijks gebruik',h8:'Beveiliging',h9:'Problemen oplossen',summary:'Samenvatting' };
+
+  function update() {
+    var scrollY   = window.scrollY;
+    var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    var pct       = maxScroll > 0 ? scrollY / maxScroll * 100 : 0;
+    if (bar) bar.style.width = pct + '%';
+
+    var active = targets[0];
+    targets.forEach(function(t) { if (t && t.offsetTop <= scrollY + 130) active = t; });
+    links.forEach(function(l) { l.classList.toggle('is-active', l.getAttribute('href') === '#' + (active && active.id)); });
+
+    if (header) {
+      var coverBottom = cover ? cover.offsetTop + cover.offsetHeight : 0;
+      header.classList.toggle('is-visible', scrollY > coverBottom + 60);
+      if (active) {
+        if (hNum)   hNum.textContent   = (numMap[active.id]   || '') + '.';
+        if (hTitle) hTitle.textContent = titleMap[active.id]  || '';
+      }
+      if (hProg) hProg.textContent = Math.round(pct) + '%';
+    }
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+
+  /* ── Dark mode ───────────────────────────────────────── */
+  var toggle = document.getElementById('dark-toggle');
+  function applyDark(dark) {
+    document.body.classList.toggle('dark', dark);
+    if (toggle) toggle.textContent = dark ? '☀️  Light mode' : '🌙  Dark mode';
+    localStorage.setItem('mkbase-dark', dark ? '1' : '0');
+  }
+  applyDark(localStorage.getItem('mkbase-dark') === '1');
+  if (toggle) toggle.addEventListener('click', function() { applyDark(!document.body.classList.contains('dark')); });
+
+  /* ── Toetsenbord-navigatie (1–9, 0, S) ──────────────── */
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = null;
+    if (e.key >= '1' && e.key <= '9') t = document.getElementById('h' + e.key);
+    if (e.key === '0') t = document.getElementById('quick-ref');
+    if (e.key === 's' || e.key === 'S') t = document.getElementById('summary');
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  /* ── JS-tooltips voor sidebar ────────────────────────── */
+  var tip = document.createElement('div');
+  tip.style.cssText = 'position:fixed;background:#1e293b;color:#e2e8f0;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:500;white-space:nowrap;z-index:1000;pointer-events:none;opacity:0;transition:opacity 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.35);';
+  document.body.appendChild(tip);
+  document.querySelectorAll('.doc-sidebar__link[data-tip]').forEach(function(link) {
+    link.addEventListener('mouseenter', function() {
+      var r = link.getBoundingClientRect();
+      tip.textContent = link.getAttribute('data-tip');
+      tip.style.left  = (r.right + 14) + 'px';
+      tip.style.top   = (r.top + r.height / 2 - 13) + 'px';
+      tip.style.opacity = '1';
+    });
+    link.addEventListener('mouseleave', function() { tip.style.opacity = '0'; });
+  });
+
+})();
+</script>
+</body>
+</html>
