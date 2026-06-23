@@ -24,20 +24,12 @@
             !empty($current_version) &&
             version_compare($response->version, $current_version, '>')
         ) {
-            // Controleer of het zipbestand bestaat en een geldig .zip-bestand is
-            $zip_check = wp_remote_head($response->download_url);
-
-            if (
-                !is_wp_error($zip_check) &&
-                wp_remote_retrieve_response_code($zip_check) === 200
-            ) {
-                $transient->response[$theme_slug] = [
-                    'theme' => $theme_slug,
-                    'new_version' => $response->version,
-                    'url' => $response->details_url ?? '',
-                    'package' => $response->download_url,
-                ];
-            }
+            $transient->response[$theme_slug] = [
+                'theme' => $theme_slug,
+                'new_version' => $response->version,
+                'url' => $response->details_url ?? '',
+                'package' => $response->download_url,
+            ];
         }
 
         return $transient;
