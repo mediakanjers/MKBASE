@@ -1,9 +1,9 @@
 {
     "name": "mkbase",
     "slug": "mkbase",
-    "version": "1.2.5",
+    "version": "1.2.6",
     "author": "Mediakanjers",
-    "download_url": "https://github.com/mediakanjers/MKBASE/releases/download/v1.2.5/mkbase.zip",
+    "download_url": "https://github.com/mediakanjers/MKBASE/releases/download/v1.2.6/mkbase.zip",
     "requires": "6.9",
     "tested": "6.9",
     "details_url": "https://github.com/mediakanjers/MKBASE/releases"
