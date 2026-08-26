@@ -374,6 +374,13 @@
  * Dit is bewust blok-agnostisch (elk `[data-type^="mk/"]`, ook toekomstige
  * blokken en blokken uit child-thema's) zodat een blok hier zelf niets voor
  * hoeft te regelen in zijn render.php — dit vangt het altijd af.
+ *
+ * Een <form> in een blok-preview (bijv. een zoekformulier) heeft hetzelfde
+ * navigatie-risico bij een submit (Enter in een veld, of een submit-knop) —
+ * href weghalen bestaat daar niet voor (een formulier zonder action verzendt
+ * gewoon naar de huidige pagina). Een submit-listener is hier wél
+ * betrouwbaar: verzenden kan alleen via het submit-event, er is geen
+ * "omweg" zoals bij klikken op een link.
  */
 (function () {
     function neutralizeLinks(doc) {
@@ -390,6 +397,12 @@
         iframe.dataset.mkLinkGuard = '1';
 
         neutralizeLinks(doc);
+
+        doc.addEventListener('submit', function (e) {
+            if (e.target.closest && e.target.closest('[data-type^="mk/"]')) {
+                e.preventDefault();
+            }
+        }, true);
 
         if (typeof MutationObserver !== 'undefined') {
             var observer = new MutationObserver(function () { neutralizeLinks(doc); });
@@ -414,4 +427,31 @@
 
     document.addEventListener('DOMContentLoaded', findAndGuard);
     findAndGuard();
+})();
+
+/**
+ * ACF's eigen link-veld (bijv. de knop van het Kolommen- of Hero-blok) toont
+ * de gekozen link als klikbare <a class="link-node"> in het uitklap-paneel
+ * zelf — dat paneel zit in het hoofd-adminvenster, niet in de canvas-iframe
+ * (zie class-acf-field-link.php in ACF Pro). Zonder dat de klant expliciet
+ * "open in nieuw tabblad" kiest, is target="" (dus hetzelfde als _self) — een
+ * klik daarop navigeert dan de hele wp-admin-pagina weg, met verlies van
+ * onopgeslagen wijzigingen. Forceert target="_blank" zodat de link nog
+ * gewoon te bekijken is, zonder de editor-sessie te verliezen.
+ */
+(function () {
+    function fixLinkFieldTargets(scope) {
+        scope.querySelectorAll('.acf-link .link-node').forEach(function (link) {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener');
+        });
+    }
+
+    if (typeof MutationObserver !== 'undefined') {
+        var observer = new MutationObserver(function () { fixLinkFieldTargets(document); });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () { fixLinkFieldTargets(document); });
+    fixLinkFieldTargets(document);
 })();

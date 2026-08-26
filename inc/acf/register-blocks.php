@@ -143,17 +143,31 @@
     add_filter('block_editor_settings_all', 'mk_lock_page_structure', 10, 2);
     endif;
 
-    // Sitebrede default voor ACF-blokken die zelf geen "blockVersion" opgeven in hun block.json
-    // (bijv. oudere child-theme-blokken van vóór ACF Blocks V3). ACF gebruikt dit als fallback
-    // (acf_handle_json_block_registration in pro/blocks.php) en promoot een blok automatisch naar
+    // Default voor mk/-blokken die zelf geen "blockVersion" opgeven in hun block.json (bijv.
+    // oudere child-theme-blokken van vóór ACF Blocks V3). ACF promoot een blok automatisch naar
     // apiVersion 3 zodra de opgeloste blokversie >=3 is — zonder dit staat de ACF-default op 2.
     // Een mix van V2- en V3-blokken in dezelfde editor-sessie kan de hele block-editor laten
-    // crashen (SecurityError bij het opruimen van de canvas-iframe), dus dwingt dit V3 sitebreed
-    // af, ook voor blokken buiten dit thema die hun eigen versie niet expliciet zetten.
+    // crashen (SecurityError bij het opruimen van de canvas-iframe), dus dwingt dit V3 af voor
+    // blokken met de mk/-naamgeving die hun eigen versie niet expliciet zetten.
+    //
+    // Bewust via block_type_metadata (i.p.v. het eerdere acf/blocks/default_block_version) omdat
+    // dié hook de al-opgebouwde ACF-settings doorkrijgt, niet de blok-naam zelf — waardoor een
+    // scoping op mk/-blokken daar niet mogelijk was en dit ongewild ook een toekomstige ACF-block
+    // van een andere plugin zou raken die zelf nooit voor V3 is gebouwd/getest. Deze hook krijgt
+    // wél de ruwe block.json-metadata (incl. naam) vóórdat ACF 'm verwerkt.
     if (!mkbase_check_duplicate('mk_default_acf_block_version')):
-    function mk_default_acf_block_version() {
-        return 3;
+    function mk_default_acf_block_version($metadata) {
+        if (empty($metadata['name']) || strpos($metadata['name'], 'mk/') !== 0) {
+            return $metadata;
+        }
+        if (!isset($metadata['acf']) || !is_array($metadata['acf'])) {
+            return $metadata;
+        }
+        if (!isset($metadata['acf']['blockVersion'])) {
+            $metadata['acf']['blockVersion'] = 3;
+        }
+        return $metadata;
     }
-    add_filter('acf/blocks/default_block_version', 'mk_default_acf_block_version');
+    add_filter('block_type_metadata', 'mk_default_acf_block_version');
     endif;
 ?>

@@ -529,28 +529,58 @@
     box-shadow: 0 2px 10px rgba(15,23,42,0.12);
 }
 
-/* ── Image Slider: statisch grid-voorbeeld in de canvas ──────
+/* ── Owl Carousel: statisch fallback-grid in de canvas ───────
    De echte slider-layout (pijltjes, naast-elkaar-schuiven) komt van
    owl.carousel.js + zijn eigen CSS, die alleen op de live site draaien
    — een interactieve carousel initialiseren binnen de editor-iframe is
    onnodig risicovol (extra DOM-herschrijving/JS naast Gutenberg's eigen
-   React-boom). Deze regels tonen in plaats daarvan gewoon de gekozen
-   afbeeldingen naast elkaar, zodat de kolom niet als een kale, verticaal
-   gestapelde lijst oogt. */
-[data-type="mk/image-slider"] .image-slider__track {
+   React-boom). Zonder die JS valt een `.owl-carousel`-container terug op
+   een kale, verticaal gestapelde lijst. Deze regel let bewust op de
+   `.owl-carousel`-class zelf — de gedeelde conventie die owl.carousel.js
+   in élk blok verwacht, ook in child-thema's (bijv. Team, Projects,
+   Maps-statistieken) — in plaats van op één specifieke blok-classname,
+   zodat elk blok dat deze library gebruikt hier automatisch van profiteert,
+   zonder dat daar per blok iets voor hoeft te gebeuren. Item-styling zelf
+   (afbeeldingen, tekst, hover) komt gewoon van de site-CSS, die al in de
+   canvas laadt — hier wordt alleen de container weer een rij i.p.v. een
+   gestapelde lijst. */
+[data-type^="mk/"] .owl-carousel {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px;
 }
 
-[data-type="mk/image-slider"] .image-slider__item {
-    flex: 1 1 200px;
-    max-width: 240px;
-    aspect-ratio: 4 / 3;
+[data-type^="mk/"] .owl-carousel > * {
+    flex: 1 1 220px;
+    min-width: 0;
 }
 
-[data-type="mk/image-slider"] .image-slider__item img {
-    height: 100%;
+/* Swiper wordt momenteel door geen enkel blok gebruikt, maar staat wel als
+   vendor-script geregistreerd (inc/enqueue/scripts.php) — dus beschikbaar
+   voor een toekomstig blok. Zelfde probleem, andere library-classnames
+   (.swiper-wrapper is de track, .swiper-slide de items), dus alvast dezelfde
+   generieke fallback. */
+[data-type^="mk/"] .swiper-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+[data-type^="mk/"] .swiper-slide {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+/* ── Ingesloten iframes (video-embeds) in de canvas ──────────
+   Blok-previews kunnen een écht ingesloten, extern iframe bevatten (bijv.
+   een Vimeo/YouTube-embed via een ACF oEmbed-veld) — dat is altijd
+   cross-origin, per definitie. Niet bevestigd als daadwerkelijke crash-
+   oorzaak, maar een risicoloze voorzorgsmaatregel: interactie ermee
+   uitschakelen in de canvas voorkomt sowieso elke mogelijke wisselwerking
+   met zo'n extern, niet door ons te beïnvloeden iframe. De video blijft
+   gewoon zichtbaar als preview, alleen niet aanklikbaar/afspeelbaar. */
+[data-type^="mk/"] iframe {
+    pointer-events: none;
 }
 
 /* ── True/false toggle ────────────────────────────────────── */
