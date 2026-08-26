@@ -1,1 +1,7 @@
 # MKBase Theme — Changelog
+
+## v1.2.1
+
+### Bugfixes
+- Blokkeneditor kon crashen (`SecurityError`) op sites waar het child thema eigen blokken heeft die nog op de oude ACF Blocks-vorm staan (vóór ACF Blocks V3) — een mix van oude en nieuwe blokstijl in dezelfde editor-sessie kon de hele editor (incl. het inserter-paneel) laten crashen, zoals eerder al opgelost voor het core Breadcrumbs-blok in v1.2.0.
+- Opgelost op thema-niveau in plaats van per blok: een nieuwe filter (`acf/blocks/default_block_version`) dwingt sitebreed ACF Blocks V3 af als default voor elk block.json-blok dat zelf geen `blockVersion` opgeeft — dus ook voor child-theme-blokken die dit nog niet expliciet declareren. Blokken die zelf al een versie zetten (zoals alle mkbase-blokken) zijn hier niet door beïnvloed; hun expliciete waarde blijft gewoon leidend.
