@@ -358,34 +358,52 @@
  * <iframe name="editor-canvas">; klik je daarin op een <a href> uit een
  * server-rendered blok (bijv. een kaart of knop met een link), dan navigeert
  * de iframe écht weg naar die URL. Dat maakt de pagina die je aan het
- * bewerken bent onbereikbaar én breekt Gutenberg's eigen opruim-logica
- * (SecurityError door cross-origin na de navigatie), wat de hele editor kan
- * laten crashen — inclusief het blokken-inserter-paneel.
+ * bewerken bent onbereikbaar én breekt Gutenberg's/ACF's eigen opruim- en
+ * inline-editing-logica (SecurityError door cross-origin na de navigatie),
+ * wat de hele editor kan laten crashen — inclusief het inserter-paneel.
+ *
+ * Eerdere aanpak was een click-listener met preventDefault(), maar die vangt
+ * alleen een náve muisklik af — ACF Pro's eigen "Auto Inline Editing" (in
+ * acf-pro-blocks.min.js) interacteert los van een click-event ook met de
+ * gerenderde preview en kan zo alsnog navigatie triggeren. In plaats van
+ * klikken te onderscheppen wordt het href-attribuut zelf verwijderd bij elke
+ * link binnen een mk/-blok in de canvas: zonder href is er domweg niets om
+ * naartoe te navigeren, via welk mechanisme dan ook. De originele URL blijft
+ * bewaard in data-mk-original-href, mocht die ooit nog nodig zijn.
  *
  * Dit is bewust blok-agnostisch (elk `[data-type^="mk/"]`, ook toekomstige
- * blokken) zodat een nieuw blok met een link hier niet apart tegen hoeft te
- * beschermen in zijn render.php — deze guard vangt het altijd af, ongeacht
- * of het blok zelf al voorzichtig is met $is_preview.
+ * blokken en blokken uit child-thema's) zodat een blok hier zelf niets voor
+ * hoeft te regelen in zijn render.php — dit vangt het altijd af.
  */
 (function () {
+    function neutralizeLinks(doc) {
+        doc.querySelectorAll('[data-type^="mk/"] a[href]').forEach(function (link) {
+            link.dataset.mkOriginalHref = link.getAttribute('href');
+            link.removeAttribute('href');
+        });
+    }
+
     function guardIframe(iframe) {
         if (!iframe || iframe.dataset.mkLinkGuard) return;
         var doc = iframe.contentDocument;
-        if (!doc) return;
+        if (!doc || !doc.body) return;
         iframe.dataset.mkLinkGuard = '1';
 
-        doc.addEventListener('click', function (e) {
-            var link = e.target.closest && e.target.closest('a[href]');
-            if (link && link.closest('[data-type^="mk/"]')) {
-                e.preventDefault();
-            }
-        }, true);
+        neutralizeLinks(doc);
+
+        if (typeof MutationObserver !== 'undefined') {
+            var observer = new MutationObserver(function () { neutralizeLinks(doc); });
+            observer.observe(doc.body, { childList: true, subtree: true });
+        }
     }
 
     function findAndGuard() {
         document.querySelectorAll('iframe[name="editor-canvas"]').forEach(function (iframe) {
             guardIframe(iframe);
-            iframe.addEventListener('load', function () { guardIframe(iframe); });
+            iframe.addEventListener('load', function () {
+                iframe.dataset.mkLinkGuard = '';
+                guardIframe(iframe);
+            });
         });
     }
 
