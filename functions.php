@@ -5,6 +5,7 @@
 
     require_once get_template_directory() . '/inc/enqueue/scripts.php';
     require_once get_template_directory() . '/inc/enqueue/styles.php';
+    require_once get_template_directory() . '/inc/enqueue/editor.php';
 
     require_once get_template_directory() . '/inc/acf/acf.php';
     require_once get_template_directory() . '/inc/acf/fields.php';

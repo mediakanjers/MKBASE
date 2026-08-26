@@ -1,11 +1,13 @@
 {
   "name": "mk/loop",
   "title": "Post type loop",
-  "description": "Post type loop",
+  "description": "Toont een lijst/grid van berichten of een ander post type, met instelbaar aantal, kolommen en een optionele knop",
   "category": "mediakanjers",
   "icon": "list-view",
+  "apiVersion": 3,
   "acf": {
-    "mode": "preview",
+    "blockVersion": 3,
+    "hideFieldsInSidebar": true,
     "renderTemplate": "render.php"
   },
   "supports": {

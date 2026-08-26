@@ -27,6 +27,13 @@
         . ' mk-loop--type-' . sanitize_html_class($query_loop)
         . ($breedte === 'full' ? ' mk-loop--full' : '')
     );
+
+    // In de block-editor (canvas én inserter-voorbeelden) mag de kaart geen
+    // echte link zijn: klikken navigeert dan de editor-iframe zelf weg naar de
+    // link-URL, wat de post die je aan het bewerken bent onbereikbaar maakt en
+    // een SecurityError in Gutenberg's cleanup veroorzaakt (cross-origin na
+    // navigatie). Op de website blijft het gewoon een <a>.
+    $card_tag = $is_preview ? 'div' : 'a';
 ?>
 
 <div class="<?php echo esc_attr($classes); ?>">
@@ -42,7 +49,7 @@
             $terms   = get_the_terms($id, 'category');
             $term    = (!empty($terms) && !is_wp_error($terms)) ? $terms[0]->name : '';
         ?>
-            <a href="<?php echo esc_url($link); ?>" class="mk-loop__card">
+            <<?php echo $card_tag; ?><?php echo $is_preview ? '' : ' href="' . esc_url($link) . '"'; ?> class="mk-loop__card">
                 <?php if ($img_url): ?>
                     <div class="mk-loop__image">
                         <img loading="lazy" src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($img_alt); ?>">
@@ -60,7 +67,7 @@
                         <span class="mk-button mk-button--primary"><?php echo esc_html($knop_tekst); ?></span>
                     <?php endif; ?>
                 </div>
-            </a>
+            </<?php echo $card_tag; ?>>
         <?php endforeach; ?>
     </div>
 </div>

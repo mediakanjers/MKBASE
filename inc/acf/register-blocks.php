@@ -70,4 +70,76 @@
     }
     add_filter('block_categories_all', 'mk_block_categories');
     endif;
+
+    // Namen van alle blokken die dit thema (en, indien aanwezig, het child thema) registreert.
+    if (!mkbase_check_duplicate('mkbase_theme_block_names')):
+    function mkbase_theme_block_names() {
+        static $names = null;
+        if ($names !== null) return $names;
+
+        $dirs = [
+            get_template_directory() . '/template-parts/blocks',
+        ];
+        if (get_template_directory() !== get_stylesheet_directory()) {
+            $dirs[] = get_stylesheet_directory() . '/template-parts/blocks';
+        }
+
+        $names = [];
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) continue;
+            foreach (scandir($dir) as $block) {
+                if ($block === '.' || $block === '..') continue;
+                $block_json = $dir . '/' . $block . '/block.json';
+                if (file_exists($block_json)) {
+                    $json = json_decode(file_get_contents($block_json), true);
+                    $names[] = $json['name'] ?? $block;
+                }
+            }
+        }
+
+        return $names = array_values(array_unique($names));
+    }
+    endif;
+
+    // Beperkt de blokkeneditor tot alleen de thema-blokken als de optie in "Geavanceerd" aanstaat.
+    if (!mkbase_check_duplicate('mk_restrict_to_theme_blocks')):
+    function mk_restrict_to_theme_blocks($allowed_blocks, $editor_context) {
+        // Alleen de post/pagina-editor beperken — widgets- en navigatie-editor gebruiken
+        // geen mk/-blokken en zouden anders leeg/onbruikbaar worden.
+        if (empty($editor_context->name) || $editor_context->name !== 'core/edit-post') {
+            return $allowed_blocks;
+        }
+
+        if (!function_exists('get_field') || !get_field('alleen_thema_blokken', 'option')) {
+            return $allowed_blocks;
+        }
+
+        $extra_blocks = get_field('extra_zichtbare_blokken', 'option');
+        $extra_blocks = is_array($extra_blocks) ? $extra_blocks : [];
+        return array_values(array_unique(array_merge(mkbase_theme_block_names(), $extra_blocks)));
+    }
+    add_filter('allowed_block_types_all', 'mk_restrict_to_theme_blocks', 10, 2);
+    endif;
+
+    // Vergrendelt de paginastructuur (toevoegen/verwijderen/verplaatsen van blokken) sitebreed
+    // als de optie "Volgorde vergrendeld" in Geavanceerd aanstaat — geldt voor iedereen, ongeacht
+    // rol. De inhoud van bestaande blokken blijft gewoon bewerkbaar; alleen de structuur zit op slot.
+    if (!mkbase_check_duplicate('mk_lock_page_structure')):
+    function mk_lock_page_structure($settings, $editor_context) {
+        if (empty($editor_context->post) || !function_exists('get_field')) {
+            return $settings;
+        }
+
+        if (get_field('volgorde_vergrendeld', 'option')) {
+            $settings['templateLock']   = 'all';
+            // Voorkomt dat iemand via het per-blok "Lock"-dialoog (rechtermuisknop/toolbar)
+            // movement/removal alsnog per blok expliciet aanzet — dat attribuut wint anders
+            // altijd van de pagina-brede templateLock hierboven.
+            $settings['canLockBlocks'] = false;
+        }
+
+        return $settings;
+    }
+    add_filter('block_editor_settings_all', 'mk_lock_page_structure', 10, 2);
+    endif;
 ?>

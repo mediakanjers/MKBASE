@@ -4,12 +4,13 @@
   "description": "Toont het navigatiepad van de huidige pagina.",
   "category": "mediakanjers",
   "icon": "arrow-right-alt",
+  "apiVersion": 3,
   "acf": {
-    "mode": "preview",
+    "blockVersion": 3,
+    "hideFieldsInSidebar": true,
     "renderTemplate": "render.php"
   },
   "supports": {
-    "align": false,
-    "mode": false
+    "align": false
   }
 }

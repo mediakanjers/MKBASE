@@ -1,12 +1,16 @@
 <?php
     if (!mkbase_check_duplicate('mk_breadcrumbs')):
-    function mk_breadcrumbs() {
+    function mk_breadcrumbs($is_preview = false) {
         if (is_front_page()) return;
 
         $sep = '<span class="mk-breadcrumbs-sep">›</span>';
 
+        // In de block-editor mogen dit geen echte links zijn — klikken navigeert anders
+        // de editor-iframe zelf weg (zie mk/loop render.php voor de uitleg).
+        $tag = $is_preview ? 'span' : 'a';
+
         echo '<nav class="mk-breadcrumbs">';
-        echo '<a href="' . esc_url(home_url()) . '">Home</a>';
+        echo '<' . $tag . ($is_preview ? '' : ' href="' . esc_url(home_url()) . '"') . '>Home</' . $tag . '>';
 
         if (is_singular()) {
             $post_type     = get_post_type();
@@ -16,17 +20,17 @@
                 global $post;
                 $ancestors = array_reverse(get_post_ancestors($post->ID));
                 foreach ($ancestors as $ancestor) {
-                    echo $sep . '<a href="' . esc_url(get_permalink($ancestor)) . '">' . esc_html(get_the_title($ancestor)) . '</a>';
+                    echo $sep . '<' . $tag . ($is_preview ? '' : ' href="' . esc_url(get_permalink($ancestor)) . '"') . '>' . esc_html(get_the_title($ancestor)) . '</' . $tag . '>';
                 }
             } elseif ($post_type === 'post') {
                 $category = get_the_category();
                 if (!empty($category)) {
-                    echo $sep . '<a href="' . esc_url(get_category_link($category[0]->term_id)) . '">' . esc_html($category[0]->name) . '</a>';
+                    echo $sep . '<' . $tag . ($is_preview ? '' : ' href="' . esc_url(get_category_link($category[0]->term_id)) . '"') . '>' . esc_html($category[0]->name) . '</' . $tag . '>';
                 }
             } elseif ($post_type_obj && $post_type_obj->has_archive) {
                 $archive_url = get_post_type_archive_link($post_type);
                 if ($archive_url) {
-                    echo $sep . '<a href="' . esc_url($archive_url) . '">' . esc_html($post_type_obj->labels->name) . '</a>';
+                    echo $sep . '<' . $tag . ($is_preview ? '' : ' href="' . esc_url($archive_url) . '"') . '>' . esc_html($post_type_obj->labels->name) . '</' . $tag . '>';
                 }
             }
 

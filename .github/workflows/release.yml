@@ -1,0 +1,109 @@
+name: Release Theme
+
+# Draait alleen als je op GitHub een Release publiceert.
+# Pushen naar main of dev triggert deze workflow NIET.
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      # ── 1. Thema-zip aanmaken ────────────────────────────────────────────
+      # Geen build-stap nodig — mkbase heeft geen eigen SCSS/JS-compilatie.
+      - name: Create zip
+        run: |
+          mkdir -p /tmp/build
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='DEVELOPMENT.md' \
+            ./ /tmp/build/mkbase/
+          cd /tmp/build
+          zip -r mkbase.zip mkbase/
+
+      # ── 2. Zip uploaden naar de GitHub Release ───────────────────────────
+      - name: Upload zip to release
+        run: gh release upload ${{ github.ref_name }} /tmp/build/mkbase.zip --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 3. Update-manifest bijwerken + changelog archiveren ──────────────
+      #
+      # mkbase-update.json krijgt de nieuwe versie + download-URL.
+      # CHANGELOG.md bevat altijd de nieuwste versie (kop zonder datum tot
+      # deze stap): de kop krijgt de releasedatum, de hele sectie verhuist
+      # naar changelog-archive/{tag}.md, en CHANGELOG.md wordt gereset
+      # (alleen de titel blijft staan) zodat de volgende ontwikkelronde
+      # met een schone lei begint.
+      - name: Update manifest and archive changelog
+        run: |
+          python3 - <<'EOF'
+          import json
+
+          tag     = '${{ github.ref_name }}'
+          version = tag.lstrip('v')
+          date    = '${{ github.event.release.published_at }}'[:10]
+
+          # -- mkbase-update.json --
+          with open('mkbase-update.json', 'r') as f:
+              data = json.load(f)
+
+          data['version']      = version
+          data['download_url'] = (
+              f'https://github.com/mediakanjers/MKBASE'
+              f'/releases/download/{tag}/mkbase.zip'
+          )
+
+          with open('mkbase-update.json', 'w') as f:
+              json.dump(data, f, indent=4, ensure_ascii=False)
+              f.write('\n')
+
+          print(f'mkbase-update.json bijgewerkt naar {version}')
+
+          # -- CHANGELOG.md archiveren --
+          with open('CHANGELOG.md', 'r') as f:
+              lines = f.read().split('\n')
+
+          heading_idx = next((i for i, l in enumerate(lines) if l.startswith('## ')), None)
+
+          if heading_idx is None:
+              print('Geen ## versiekop gevonden in CHANGELOG.md — archivering overgeslagen.')
+          else:
+              end_idx = next(
+                  (i for i in range(heading_idx + 1, len(lines)) if lines[i].startswith('## ')),
+                  len(lines)
+              )
+              section = lines[heading_idx:end_idx]
+
+              # Datum toevoegen aan de kop, tenzij er per ongeluk al een staat.
+              if '—' not in section[0]:
+                  section[0] = section[0].rstrip() + f' — {date}'
+
+              archive_path = f'changelog-archive/{tag}.md'
+              with open(archive_path, 'w') as f:
+                  f.write('\n'.join(section).rstrip() + '\n')
+              print(f'{archive_path} aangemaakt')
+
+              remaining = lines[:heading_idx]
+              with open('CHANGELOG.md', 'w') as f:
+                  f.write('\n'.join(remaining).rstrip() + '\n')
+              print('CHANGELOG.md gereset voor de volgende versie')
+          EOF
+
+      # ── 4. Wijzigingen committen naar main ────────────────────────────────
+      - name: Commit changes
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mkbase-update.json CHANGELOG.md changelog-archive/
+          git commit -m "chore: release ${{ github.ref_name }}"
+          git push origin HEAD:main

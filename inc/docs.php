@@ -137,6 +137,7 @@
         if (class_exists('GFForms'))      $html .= '<span class="mk-cover__tag">Gravity Forms</span>';
         if (defined('WP_ROCKET_VERSION')) $html .= '<span class="mk-cover__tag">WP Rocket</span>';
         if (defined('WPSEO_VERSION'))     $html .= '<span class="mk-cover__tag">Yoast SEO</span>';
+        if (class_exists('WooCommerce'))  $html .= '<span class="mk-cover__tag">WooCommerce</span>';
         $html .= '</div>';
         $html .= '</div>';
 
@@ -158,6 +159,7 @@
         ];
 
         $plugins = [];
+        if (class_exists('WooCommerce'))  $plugins['woocommerce']   = 'WooCommerce';
         if (class_exists('GFForms'))      $plugins['gravity-forms'] = 'Gravity Forms';
         if (defined('WP_ROCKET_VERSION')) $plugins['wp-rocket']     = 'WP Rocket';
         if (defined('WPSEO_VERSION'))     $plugins['yoast-seo']     = 'Yoast SEO';
@@ -369,6 +371,50 @@
         ]);
 
         $html .= '</div>';
+
+        /* ── WOOCOMMERCE ─────────────────────────────────── */
+        if (class_exists('WooCommerce')) {
+            $html .= '<div class="mkbase-docs-panel" data-panel="woocommerce">';
+            $html .= '<p class="mkbase-docs-intro">WooCommerce is de webshop-plugin van deze website. Hier beheer je producten, bestellingen, betaalmethoden en verzendopties.</p>';
+            $html .= mkbase_docs_settings_link(admin_url('admin.php?page=wc-admin'), 'Ga naar WooCommerce');
+
+            $html .= mkbase_docs_section('woo-producten', 'Producten beheren', 'dashicons-cart', [
+                ['label' => 'Waar vind je producten?', 'desc' => 'Ga naar <strong>Producten</strong> in het WordPress admin menu.'],
+                ['label' => 'Product toevoegen', 'desc' => 'Klik op <strong>"Nieuw product"</strong>. Vul de productnaam, beschrijving, prijs en afbeelding in. Sla op via <strong>"Publiceren"</strong>.'],
+                ['label' => 'Productafbeelding', 'desc' => 'Stel de hoofdafbeelding in via <em>"Productafbeelding"</em> rechtsonder. Voeg extra afbeeldingen toe via <em>"Productgalerij"</em>.'],
+                ['label' => 'Categorieën', 'desc' => 'Wijs het product toe aan een of meerdere categorieën via het paneel <em>"Productcategorieën"</em>. Categorieën kun je zelf aanmaken via <strong>Producten → Categorieën</strong>.'],
+                ['label' => 'Voorraad', 'desc' => 'Beheer de voorraad via het tabblad <strong>"Voorraad"</strong> op de productpagina. Schakel voorraadbeheer in en vul het huidige aantal in.'],
+            ]);
+
+            $html .= mkbase_docs_section('woo-bestellingen', 'Bestellingen', 'dashicons-clipboard', [
+                ['label' => 'Waar vind je bestellingen?', 'desc' => 'Ga naar <strong>WooCommerce → Bestellingen</strong>. Hier zie je een overzicht van alle bestellingen.'],
+                ['label' => 'Bestelstatus', 'desc' => 'Elke bestelling heeft een status: <em>In afwachting van betaling</em>, <em>Verwerken</em>, <em>Voltooid</em>, <em>Geannuleerd</em>, etc. Pas de status aan door op een bestelling te klikken en de status te wijzigen via het rechter paneel.'],
+                ['label' => 'Bestelling bekijken', 'desc' => 'Klik op een bestelling om de details te zien: klantgegevens, bestelde producten, betaling en verzending.'],
+                ['label' => 'Notities', 'desc' => 'Voeg interne notities toe onderaan een bestelling om bijzonderheden bij te houden. Je kunt ook een notitie sturen naar de klant via <em>"Klant notificeren"</em>.'],
+            ]);
+
+            $html .= mkbase_docs_section('woo-instellingen', 'Winkel instellingen', 'dashicons-admin-settings', [
+                ['label' => 'Waar vind je instellingen?', 'desc' => 'Ga naar <strong>WooCommerce → Instellingen</strong>.'],
+                ['label' => 'Algemeen', 'desc' => 'Stel hier het winkeladres, de valuta en de landen in waarnaar je verkoopt of verzendt.'],
+                ['label' => 'Winkelindeling', 'desc' => 'Kies hoeveel producten per rij en per pagina getoond worden via <strong>Instellingen → Producten → Weergave</strong>.'],
+                ['label' => 'E-mails', 'desc' => 'Pas de automatische e-mails aan via <strong>Instellingen → E-mails</strong>. Denk aan de bevestigingsmail, verzendinformatie en administratieve meldingen.'],
+            ]);
+
+            $html .= mkbase_docs_section('woo-betalen', 'Betaalmethoden', 'dashicons-money-alt', [
+                ['label' => 'Waar instellen?', 'desc' => 'Ga naar <strong>WooCommerce → Instellingen → Betalingen</strong>.'],
+                ['label' => 'Beschikbare methoden', 'desc' => 'WooCommerce biedt standaard directe bankoverschrijving en contant bij levering. Voor iDEAL, creditcard of andere methoden is een betaalprovider zoals <em>Mollie</em> of <em>Pay.</em> nodig (aparte plugin).'],
+                ['label' => 'Methode inschakelen', 'desc' => 'Klik op de schakelaar naast een betaalmethode om die in of uit te schakelen. Klik op <strong>"Beheren"</strong> voor de instellingen per methode.'],
+            ]);
+
+            $html .= mkbase_docs_section('woo-verzending', 'Verzending', 'dashicons-admin-site', [
+                ['label' => 'Waar instellen?', 'desc' => 'Ga naar <strong>WooCommerce → Instellingen → Verzending</strong>.'],
+                ['label' => 'Verzendzone', 'desc' => 'Maak verzendzone aan voor Nederland en/of België. Koppel hier de gewenste verzendmethoden aan (gratis verzending, vast tarief of lokaal ophalen).'],
+                ['label' => 'Gratis verzending', 'desc' => 'Stel een minimumbedrag in voor gratis verzending via <strong>"Gratis verzending"</strong> binnen een verzendzone. Bijv. gratis bij een bestelling van €50 of meer.'],
+                ['label' => 'Vast tarief', 'desc' => 'Voeg een vast verzendtarief toe en vul de kosten in. Je kunt meerdere tarieven per zone instellen.'],
+            ]);
+
+            $html .= '</div>';
+        }
 
         /* ── GRAVITY FORMS ────────────────────────────────── */
         if (class_exists('GFForms')) {

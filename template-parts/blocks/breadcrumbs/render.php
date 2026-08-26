@@ -1,1 +1,1 @@
-<?php if(function_exists('mk_breadcrumbs')) mk_breadcrumbs(); ?>
+<?php if(function_exists('mk_breadcrumbs')) mk_breadcrumbs($is_preview); ?>

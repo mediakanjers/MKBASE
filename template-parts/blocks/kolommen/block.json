@@ -1,9 +1,9 @@
 {
-  "name": "mk/image-slider",
-  "title": "Image Slider",
-  "description": "Afbeeldingen slider met instelbaar aantal items",
+  "name": "mk/kolommen",
+  "title": "Kolommen",
+  "description": "Flexibele kolommen met tekst, afbeeldingen, video, knoppen, iconen of cijfers",
   "category": "mediakanjers",
-  "icon": "images-alt2",
+  "icon": "columns",
   "apiVersion": 3,
   "acf": {
     "blockVersion": 3,
