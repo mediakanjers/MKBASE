@@ -73,18 +73,6 @@
     background: rgba(37, 99, 235, 0.08);
 }
 
-/* ── Smallere, gecentreerde schrijfruimte in de editor ───────
-   Geeft meer lucht links/rechts in plaats van de volle breedte
-   van het scherm te gebruiken. Scoped op de root-blokkenlijst
-   zelf (niet de hele writing-flow, die ook titel/toolbar omvat).
-   !important omdat WP-core dit via een even specifieke class-
-   selector zet. */
-.block-editor-block-list__layout.is-root-container {
-    max-width: 1000px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-}
-
 /* ── Veldenkaart binnen het uitklap-paneel ───────────────────── */
 .acf-block-form-modal .acf-block-fields,
 .acf-block-form-modal .acf-fields {
