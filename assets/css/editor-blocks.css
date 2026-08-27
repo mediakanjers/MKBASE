@@ -531,14 +531,21 @@
    zonder dat daar per blok iets voor hoeft te gebeuren. Item-styling zelf
    (afbeeldingen, tekst, hover) komt gewoon van de site-CSS, die al in de
    canvas laadt — hier wordt alleen de container weer een rij i.p.v. een
-   gestapelde lijst. */
-[data-type^="mk/"] .owl-carousel {
+   gestapelde lijst.
+
+   Gescoped op `.acf-block-preview` (i.p.v. `[data-type^="mk/"]`) — de class
+   die ACF zelf om élke server-side gerenderde blok-preview zet, ongeacht
+   naamgeving of registratiemethode (block.json of het oudere
+   acf_register_block_type()-PHP-array, dat namespaces buiten `mk/` om
+   registreert, bijv. `acf/hero`). Zie editor-blocks.js voor dezelfde
+   overweging bij de link-navigatie-fix. */
+.acf-block-preview .owl-carousel {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
 }
 
-[data-type^="mk/"] .owl-carousel > * {
+.acf-block-preview .owl-carousel > * {
     flex: 1 1 220px;
     min-width: 0;
 }
@@ -548,13 +555,13 @@
    voor een toekomstig blok. Zelfde probleem, andere library-classnames
    (.swiper-wrapper is de track, .swiper-slide de items), dus alvast dezelfde
    generieke fallback. */
-[data-type^="mk/"] .swiper-wrapper {
+.acf-block-preview .swiper-wrapper {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
 }
 
-[data-type^="mk/"] .swiper-slide {
+.acf-block-preview .swiper-slide {
     flex: 1 1 220px;
     min-width: 0;
 }
@@ -567,7 +574,7 @@
    uitschakelen in de canvas voorkomt sowieso elke mogelijke wisselwerking
    met zo'n extern, niet door ons te beïnvloeden iframe. De video blijft
    gewoon zichtbaar als preview, alleen niet aanklikbaar/afspeelbaar. */
-[data-type^="mk/"] iframe {
+.acf-block-preview iframe {
     pointer-events: none;
 }
 

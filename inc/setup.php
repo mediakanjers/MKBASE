@@ -127,6 +127,14 @@
         define('DISALLOW_FILE_EDIT', true);
     });
 
+    // Toont de mkbase core-thema-versie naast WordPress' eigen "Versie X.X" rechtsonder
+    // in wp-admin — get_template() i.p.v. get_stylesheet() zodat dit altijd het core
+    // thema is, ook wanneer een child thema actief is.
+    add_filter('update_footer', function($text) {
+        $theme = wp_get_theme(get_template());
+        return $text . ' | MKBase core thema versie: ' . esc_html($theme->get('Version'));
+    }, 11);
+
     // Admin notices samenvouwen — alleen laden op pagina's waar notices verwacht worden
     add_action('admin_enqueue_scripts', function($hook) {
         $relevant = ['index.php', 'plugins.php', 'plugin-install.php', 'themes.php', 'update-core.php', 'options-general.php'];

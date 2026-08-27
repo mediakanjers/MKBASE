@@ -71,6 +71,50 @@
     add_filter('block_categories_all', 'mk_block_categories');
     endif;
 
+    // Houdt bij welke blokken via de oudere acf_register_block_type()-PHP-registratie
+    // (dus zonder block.json) door dit thema (of het child thema) worden aangemaakt —
+    // zulke blokken zijn met geen enkele bestandsscan te vinden, want er is geen bestand
+    // om te scannen. In plaats daarvan wordt de locatie van de render_callback gecheckt:
+    // ligt die binnen de thema-map, dan hoort het blok bij dit thema, ongeacht de naam die
+    // ACF er automatisch aan geeft (altijd "acf/...", nooit "mk/..."). Puur bookkeeping —
+    // dit verandert niets aan hoe het blok zelf rendert of werkt.
+    if (!mkbase_check_duplicate('mkbase_track_legacy_theme_block')):
+    function mkbase_track_legacy_theme_block($block) {
+        global $mkbase_legacy_theme_block_names;
+        if (!isset($mkbase_legacy_theme_block_names)) {
+            $mkbase_legacy_theme_block_names = [];
+        }
+
+        $callback = $block['render_callback'] ?? null;
+        if (empty($callback) || !is_callable($callback)) {
+            return $block;
+        }
+
+        try {
+            $ref = is_array($callback)
+                ? new ReflectionMethod($callback[0], $callback[1])
+                : new ReflectionFunction($callback);
+            $file = $ref->getFileName();
+        } catch (\Throwable $e) {
+            return $block;
+        }
+        if (!$file) {
+            return $block;
+        }
+
+        $theme_dirs = array_unique([get_template_directory(), get_stylesheet_directory()]);
+        foreach ($theme_dirs as $dir) {
+            if (strpos($file, $dir) === 0) {
+                $mkbase_legacy_theme_block_names[] = $block['name'];
+                break;
+            }
+        }
+
+        return $block;
+    }
+    add_filter('acf/register_block_type_args', 'mkbase_track_legacy_theme_block');
+    endif;
+
     // Namen van alle blokken die dit thema (en, indien aanwezig, het child thema) registreert.
     if (!mkbase_check_duplicate('mkbase_theme_block_names')):
     function mkbase_theme_block_names() {
@@ -95,6 +139,11 @@
                     $names[] = $json['name'] ?? $block;
                 }
             }
+        }
+
+        global $mkbase_legacy_theme_block_names;
+        if (!empty($mkbase_legacy_theme_block_names)) {
+            $names = array_merge($names, $mkbase_legacy_theme_block_names);
         }
 
         return $names = array_values(array_unique($names));

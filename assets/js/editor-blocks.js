@@ -367,13 +367,19 @@
  * acf-pro-blocks.min.js) interacteert los van een click-event ook met de
  * gerenderde preview en kan zo alsnog navigatie triggeren. In plaats van
  * klikken te onderscheppen wordt het href-attribuut zelf verwijderd bij elke
- * link binnen een mk/-blok in de canvas: zonder href is er domweg niets om
- * naartoe te navigeren, via welk mechanisme dan ook. De originele URL blijft
- * bewaard in data-mk-original-href, mocht die ooit nog nodig zijn.
+ * link binnen een blok-preview in de canvas: zonder href is er domweg niets
+ * om naartoe te navigeren, via welk mechanisme dan ook. De originele URL
+ * blijft bewaard in data-mk-original-href, mocht die ooit nog nodig zijn.
  *
- * Dit is bewust blok-agnostisch (elk `[data-type^="mk/"]`, ook toekomstige
- * blokken en blokken uit child-thema's) zodat een blok hier zelf niets voor
- * hoeft te regelen in zijn render.php — dit vangt het altijd af.
+ * Scoping is bewust NIET op `[data-type^="mk/"]` (bleek te smal: een child
+ * thema kan blokken ook via het oudere acf_register_block_type()-PHP-array
+ * registreren, zonder block.json — ACF namespaced die dan automatisch als
+ * "acf/<naam>", niet als "mk/<naam>", waardoor zo'n scoping ze mist). In
+ * plaats daarvan op `.acf-block-preview`: de class die ACF zelf om élke
+ * server-side gerenderde blok-preview zet, ongeacht naamgeving, registratie-
+ * methode (block.json of PHP-array) of apiVersion — dus ook toekomstige
+ * blokken en blokken uit child-thema's, zonder dat een blok hier zelf iets
+ * voor hoeft te regelen in zijn render.php.
  *
  * Een <form> in een blok-preview (bijv. een zoekformulier) heeft hetzelfde
  * navigatie-risico bij een submit (Enter in een veld, of een submit-knop) —
@@ -384,7 +390,7 @@
  */
 (function () {
     function neutralizeLinks(doc) {
-        doc.querySelectorAll('[data-type^="mk/"] a[href]').forEach(function (link) {
+        doc.querySelectorAll('.acf-block-preview a[href]').forEach(function (link) {
             link.dataset.mkOriginalHref = link.getAttribute('href');
             link.removeAttribute('href');
         });
@@ -399,7 +405,7 @@
         neutralizeLinks(doc);
 
         doc.addEventListener('submit', function (e) {
-            if (e.target.closest && e.target.closest('[data-type^="mk/"]')) {
+            if (e.target.closest && e.target.closest('.acf-block-preview')) {
                 e.preventDefault();
             }
         }, true);
