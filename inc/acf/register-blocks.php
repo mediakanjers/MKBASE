@@ -102,9 +102,16 @@
             return $block;
         }
 
+        // wp_normalize_path() zet alles om naar forward slashes — op Windows geven
+        // get_template_directory()/get_stylesheet_directory() een gemengd pad terug
+        // (backslash voor het schijfgedeelte, forward slashes daarna), terwijl
+        // ReflectionFunction::getFileName() een volledig genormaliseerd backslash-pad
+        // teruggeeft. Zonder normalisatie matcht strpos() dan nooit, ook niet bij
+        // hetzelfde bestand.
+        $file_normalized = wp_normalize_path($file);
         $theme_dirs = array_unique([get_template_directory(), get_stylesheet_directory()]);
         foreach ($theme_dirs as $dir) {
-            if (strpos($file, $dir) === 0) {
+            if (strpos($file_normalized, wp_normalize_path($dir)) === 0) {
                 $mkbase_legacy_theme_block_names[] = $block['name'];
                 break;
             }

@@ -36,10 +36,9 @@
     }
 
     function mkbase_format_date($date_str) {
-        $months = ['01'=>'januari','02'=>'februari','03'=>'maart','04'=>'april','05'=>'mei','06'=>'juni','07'=>'juli','08'=>'augustus','09'=>'september','10'=>'oktober','11'=>'november','12'=>'december'];
-        $parts = explode('-', $date_str);
+        $parts = explode('-', trim($date_str));
         if (count($parts) !== 3) return $date_str;
-        return intval($parts[2]) . ' ' . ($months[$parts[1]] ?? $parts[1]) . ' ' . $parts[0];
+        return $parts[2] . '-' . $parts[1] . '-' . $parts[0];
     }
 
     function mkbase_get_item_badge($text) {
@@ -55,6 +54,70 @@
         if (preg_match('/\b(verhoogd|bijgewerkt|getest|geüpdatet|geupdated|uitgebreid)\b/', $lower))
             return '<span class="mkbase-type-badge mkbase-type-update">Update</span>';
         return '';
+    }
+
+    // Simpele, losstaande markdown-naar-HTML-omzetting voor één changelog-sectie
+    // (bijv. de tekst uit mkbase-update.json voor een nog niet geïnstalleerde
+    // update) — geen versie-blokken/inklap-UI zoals mkbase_get_changelog_html(),
+    // gewoon een leesbare weergave van koppen, lijsten en badges.
+    function mkbase_render_changelog_markdown($markdown) {
+        $lines       = explode("\n", str_replace("\r\n", "\n", (string) $markdown));
+        $html        = '';
+        $in_list     = false;
+        $in_code     = false;
+        $code_buffer = '';
+
+        foreach ($lines as $raw) {
+            $line = htmlspecialchars($raw, ENT_QUOTES, 'UTF-8');
+            $line = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $line);
+            $line = preg_replace('/`(.+?)`/', '<code>$1</code>', $line);
+
+            if (str_starts_with($raw, '```')) {
+                if (!$in_code) {
+                    if ($in_list) { $html .= '</ul>'; $in_list = false; }
+                    $in_code     = true;
+                    $code_buffer = '';
+                } else {
+                    $in_code = false;
+                    $html .= '<pre><code>' . htmlspecialchars($code_buffer, ENT_QUOTES, 'UTF-8') . '</code></pre>';
+                }
+                continue;
+            }
+            if ($in_code) { $code_buffer .= $raw . "\n"; continue; }
+
+            if (str_starts_with($raw, '## ')) {
+                if ($in_list) { $html .= '</ul>'; $in_list = false; }
+                preg_match('/##\s+(.+?)(?:\s+—\s+(\d{4}-\d{2}-\d{2}))?$/', $raw, $m);
+                $version = htmlspecialchars(trim($m[1] ?? substr($raw, 3)), ENT_QUOTES, 'UTF-8');
+                $date    = isset($m[2]) ? mkbase_format_date($m[2]) : '';
+                $html .= '<div class="mkbase-version-title">' . $version;
+                if ($date) $html .= ' <span class="mkbase-version-date">' . $date . '</span>';
+                $html .= '</div>';
+            } elseif (str_starts_with($raw, '### ')) {
+                if ($in_list) { $html .= '</ul>'; $in_list = false; }
+                $html .= '<h3>' . substr($line, 4) . '</h3>';
+            } elseif (str_starts_with($raw, '# ')) {
+                if ($in_list) { $html .= '</ul>'; $in_list = false; }
+            } elseif (str_starts_with($raw, '- ')) {
+                if (!$in_list) { $html .= '<ul>'; $in_list = true; }
+                $badge = mkbase_get_item_badge($raw);
+                $html .= '<li>' . $badge . substr($line, 2) . '</li>';
+            } elseif (str_starts_with($raw, '> ')) {
+                if ($in_list) { $html .= '</ul>'; $in_list = false; }
+                $notice = htmlspecialchars(substr($raw, 2), ENT_QUOTES, 'UTF-8');
+                $notice = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $notice);
+                $notice = preg_replace('/`(.+?)`/', '<code>$1</code>', $notice);
+                $html .= '<div class="mkbase-notice"><span class="dashicons dashicons-warning"></span>' . $notice . '</div>';
+            } elseif (trim($raw) === '') {
+                if ($in_list) { $html .= '</ul>'; $in_list = false; }
+            } else {
+                if ($in_list) { $html .= '</ul>'; $in_list = false; }
+                $html .= '<p>' . $line . '</p>';
+            }
+        }
+
+        if ($in_list) $html .= '</ul>';
+        return $html;
     }
 
     function mkbase_get_changelog_html() {
@@ -76,6 +139,11 @@
             }
         }
 
+        // Normaliseert CRLF (Windows-regeleinden) naar LF — anders blijft er een \r
+        // achter aan het eind van elke regel, wat de $-ankering in de datum-regex
+        // hieronder breekt (de datum valt dan in de versietitel i.p.v. in het aparte,
+        // Nederlands-opgemaakte datum-badge).
+        $content = str_replace("\r\n", "\n", $content);
         $lines             = explode("\n", $content);
         $html              = '';
         $in_list           = false;
@@ -134,6 +202,13 @@
             $html .= '<span class="mkbase-update-text"><span class="dashicons dashicons-update"></span> Versie <strong>' . esc_html($new_version) . '</strong> beschikbaar</span>';
             $html .= '<a href="' . esc_url($update_url) . '" class="mkbase-update-btn">Nu bijwerken</a>';
             $html .= '</div>';
+
+            $pending_changelog = $update_data->response[$theme_slug]['mkbase_changelog'] ?? '';
+            if ($pending_changelog) {
+                $html .= '<div class="mkbase-pending-changelog">';
+                $html .= mkbase_render_changelog_markdown($pending_changelog);
+                $html .= '</div>';
+            }
         }
         $html .= '</div>';
 

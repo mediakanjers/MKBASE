@@ -150,6 +150,48 @@
     background: #e0a030;
 }
 
+/* Changelog-tekst van de beschikbare update, onder de "beschikbaar"-melding */
+.mkbase-pending-changelog {
+    margin-top: 12px;
+    padding: 16px 18px;
+    background: #fff;
+    border: 1px solid #e2e4e9;
+    border-radius: 8px;
+}
+
+.mkbase-pending-changelog .mkbase-version-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1d2327;
+    margin-bottom: 8px;
+}
+
+.mkbase-pending-changelog .mkbase-version-date {
+    background: #f0f0f1;
+    border-color: #dcdcde;
+    color: #50575e;
+}
+
+.mkbase-pending-changelog h3 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #646970;
+    margin: 14px 0 6px;
+}
+
+.mkbase-pending-changelog ul {
+    margin: 0 0 4px;
+    padding-left: 20px;
+}
+
+.mkbase-pending-changelog li {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #3c434a;
+}
+
 /* Filterstabs — sticky */
 #mkbase-changelog-filters {
     display: flex;
@@ -635,6 +677,11 @@ body.dark .mkbase-summary-number { color: #f0f6fc; }
 body.dark .mkbase-summary-label { color: #4a6080; }
 body.dark .mkbase-summary-update { background: #1a1000; border-color: #4d3000; }
 body.dark .mkbase-update-text { color: #fbbf24; }
+body.dark .mkbase-pending-changelog { background: #161b22; border-color: #21262d; }
+body.dark .mkbase-pending-changelog .mkbase-version-title { color: #f0f6fc; }
+body.dark .mkbase-pending-changelog .mkbase-version-date { background: #21262d; border-color: #30363d; color: #8b949e; }
+body.dark .mkbase-pending-changelog h3 { color: #8b949e; }
+body.dark .mkbase-pending-changelog li { color: #c9d1d9; }
 
 body.dark .mkbase-filter-tab { background: #161b22; border-color: #21262d !important; color: #64748b; }
 body.dark .mkbase-filter-tab:hover { border-color: #30363d !important; color: #94a3b8; }

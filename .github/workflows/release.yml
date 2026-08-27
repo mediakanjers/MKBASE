@@ -38,7 +38,10 @@ jobs:
 
       # ── 3. Update-manifest bijwerken + changelog archiveren ──────────────
       #
-      # mkbase-update.json krijgt de nieuwe versie + download-URL.
+      # mkbase-update.json krijgt de nieuwe versie + download-URL + de
+      # changelog-tekst van déze release (zodat een site die nog op de oude
+      # versie draait, al kan tonen wat er in de update zit vóór hij 'm
+      # binnenhaalt — zie inc/changelog.php en updater/updater.php).
       # CHANGELOG.md bevat altijd de nieuwste versie (kop zonder datum tot
       # deze stap): de kop krijgt de releasedatum, de hele sectie verhuist
       # naar changelog-archive/{tag}.md, en CHANGELOG.md wordt gereset
@@ -53,27 +56,12 @@ jobs:
           version = tag.lstrip('v')
           date    = '${{ github.event.release.published_at }}'[:10]
 
-          # -- mkbase-update.json --
-          with open('mkbase-update.json', 'r') as f:
-              data = json.load(f)
-
-          data['version']      = version
-          data['download_url'] = (
-              f'https://github.com/mediakanjers/MKBASE'
-              f'/releases/download/{tag}/mkbase.zip'
-          )
-
-          with open('mkbase-update.json', 'w') as f:
-              json.dump(data, f, indent=4, ensure_ascii=False)
-              f.write('\n')
-
-          print(f'mkbase-update.json bijgewerkt naar {version}')
-
-          # -- CHANGELOG.md archiveren --
+          # -- CHANGELOG.md uitlezen en de sectie van deze release isoleren --
           with open('CHANGELOG.md', 'r') as f:
               lines = f.read().split('\n')
 
           heading_idx = next((i for i, l in enumerate(lines) if l.startswith('## ')), None)
+          changelog_text = ''
 
           if heading_idx is None:
               print('Geen ## versiekop gevonden in CHANGELOG.md — archivering overgeslagen.')
@@ -88,15 +76,34 @@ jobs:
               if '—' not in section[0]:
                   section[0] = section[0].rstrip() + f' — {date}'
 
+              changelog_text = '\n'.join(section).rstrip()
+
               archive_path = f'changelog-archive/{tag}.md'
               with open(archive_path, 'w') as f:
-                  f.write('\n'.join(section).rstrip() + '\n')
+                  f.write(changelog_text + '\n')
               print(f'{archive_path} aangemaakt')
 
               remaining = lines[:heading_idx]
               with open('CHANGELOG.md', 'w') as f:
                   f.write('\n'.join(remaining).rstrip() + '\n')
               print('CHANGELOG.md gereset voor de volgende versie')
+
+          # -- mkbase-update.json --
+          with open('mkbase-update.json', 'r') as f:
+              data = json.load(f)
+
+          data['version']      = version
+          data['download_url'] = (
+              f'https://github.com/mediakanjers/MKBASE'
+              f'/releases/download/{tag}/mkbase.zip'
+          )
+          data['changelog'] = changelog_text
+
+          with open('mkbase-update.json', 'w') as f:
+              json.dump(data, f, indent=4, ensure_ascii=False)
+              f.write('\n')
+
+          print(f'mkbase-update.json bijgewerkt naar {version}')
           EOF
 
       # ── 4. Wijzigingen committen naar main ────────────────────────────────
