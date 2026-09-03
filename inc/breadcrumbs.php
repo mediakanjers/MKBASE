@@ -10,7 +10,7 @@
         $tag = $is_preview ? 'span' : 'a';
 
         echo '<nav class="mk-breadcrumbs">';
-        echo '<' . $tag . ($is_preview ? '' : ' href="' . esc_url(home_url()) . '"') . '>Home</' . $tag . '>';
+        echo '<' . $tag . ($is_preview ? '' : ' href="' . esc_url(home_url()) . '"') . '>' . esc_html__('Home', 'mk') . '</' . $tag . '>';
 
         if (is_singular()) {
             $post_type     = get_post_type();
@@ -37,13 +37,14 @@
             echo $sep . '<strong>' . esc_html(get_the_title()) . '</strong>';
 
         } elseif (is_home()) {
-            echo $sep . '<span>Blog</span>';
+            echo $sep . '<span>' . esc_html__('Blog', 'mk') . '</span>';
 
         } elseif (is_category() || is_tax()) {
             echo $sep . '<span>' . esc_html(single_term_title('', false)) . '</span>';
 
         } elseif (is_search()) {
-            echo $sep . '<span>Zoekresultaten voor &ldquo;' . esc_html(get_search_query()) . '&rdquo;</span>';
+            /* translators: %s: zoekterm */
+            echo $sep . '<span>' . sprintf(esc_html__('Zoekresultaten voor "%s"', 'mk'), esc_html(get_search_query())) . '</span>';
 
         } elseif (is_404()) {
             echo $sep . '<span>404</span>';

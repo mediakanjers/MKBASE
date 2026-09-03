@@ -1,8 +1,9 @@
 # MKBase Theme — Changelog
 
-## v1.2.10
+## v1.3.0
 
 ### Nieuw
+- Het thema is voorbereid op vertalen met WPML (per website te installeren, niet meegeleverd in dit core-thema): een tekstdomein (`mk`), vertaalbare tekst in de templates (404-pagina, breadcrumbs, hoofdmenu-/footermenu-labels, "Meer lezen"-knoptekst), en een `wpml-config.xml` in de thema-root die per ACF-veld aangeeft of de waarde vertaald moet worden (bijv. meldingstekst, kolomtitels/-teksten, knopteksten) of gekopieerd (bijv. kleuren, media, technische instellingen, bedrijfsgegevens).
 - De update-melding in wp-admin (Updates-tab en Verschijning > Thema's) toont voortaan direct wat er in de beschikbare MKBase-update zit. Eerder linkte "Bekijk versie X.X details" naar de GitHub releases-pagina, die WordPress in een iframe-popup probeert te laden — GitHub blokkeert dat (X-Frame-Options), waardoor die popup altijd leeg bleef. De link wijst nu naar een eigen pagina die de changelog van de nieuwe versie netjes toont.
 - De changelog-pagina in het thema zelf toont bij een beschikbare update nu ook meteen de inhoud van die update, niet alleen het versienummer.
 

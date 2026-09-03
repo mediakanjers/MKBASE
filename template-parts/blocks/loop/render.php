@@ -5,7 +5,7 @@
     $grid            = get_field('grid') ?: '3';
     $breedte         = get_field('breedte') ?: 'contained';
     $toon_knop       = get_field('toon_knop');
-    $knop_tekst      = get_field('knop_tekst') ?: 'Meer lezen';
+    $knop_tekst      = get_field('knop_tekst') ?: __('Meer lezen', 'mk');
 
     if (!empty($bericht_object)) {
         $posts = array_filter(array_map(function($item) {

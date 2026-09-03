@@ -2,8 +2,8 @@
     // Menu-locaties registreren — draait bij elke pageload
     add_action('after_setup_theme', function() {
         register_nav_menus([
-            'main_menu'   => 'Hoofdmenu',
-            'footer_menu' => 'Footermenu',
+            'main_menu'   => __('Hoofdmenu', 'mk'),
+            'footer_menu' => __('Footermenu', 'mk'),
         ]);
     });
 

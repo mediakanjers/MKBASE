@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    WPML-configuratie voor het MKBase core thema.
+
+    WPML wordt per website geïnstalleerd (niet in deze core-repo). Dit bestand
+    wordt door WPML automatisch ingelezen zodra de plugin op een site actief is
+    en bepaalt per ACF-veld (op naam) of de waarde:
+    - translate:  per taal een eigen waarde krijgt (zichtbare tekst)
+    - copy:       automatisch wordt overgenomen uit de brontaal (styling/config/media)
+    - copy-once:  alleen bij het aanmaken van de vertaling wordt gekopieerd, daarna
+                  onafhankelijk bewerkbaar
+
+    Let op: dit is vooraf opgesteld zonder WPML lokaal te testen (bewust, zie
+    projectafspraak). Controleer bij de eerste live WPML-koppeling of ACF Options
+    Page-velden en block-velden door WPML's ACF-integratie worden herkend zoals
+    hieronder bedoeld, en stel zo nodig bij via WPML → Instellingen → Aangepaste
+    velden vertalen.
+-->
+<wpml-config>
+    <custom-fields>
+
+        <!-- ============================================================
+             OPTIONS PAGE: Geavanceerd
+             Uitsluitend techniek/config (scripts, editor-instellingen) —
+             identiek in elke taal.
+        ============================================================= -->
+        <custom-field action="copy">in_de_head</custom-field>
+        <custom-field action="copy">direct_na_body</custom-field>
+        <custom-field action="copy">voor_de_sluitende_body</custom-field>
+        <custom-field action="copy">alleen_op_de_homepage</custom-field>
+        <custom-field action="copy">alleen_in_de_footer</custom-field>
+        <custom-field action="copy">alleen_thema_blokken</custom-field>
+        <custom-field action="copy">extra_zichtbare_blokken</custom-field>
+        <custom-field action="copy">bestandseditor_mediakanjers</custom-field>
+        <custom-field action="copy">volgorde_vergrendeld</custom-field>
+
+        <!-- ============================================================
+             OPTIONS PAGE: Meldingen
+             Alleen de meldingstekst zelf is content — data, kleuren en
+             zichtbaarheidsinstellingen zijn config.
+        ============================================================= -->
+        <custom-field action="translate">tekst_melding</custom-field>
+        <custom-field action="copy">data_opgeven</custom-field>
+        <custom-field action="copy">begindatum</custom-field>
+        <custom-field action="copy">einddatum</custom-field>
+        <custom-field action="copy">achtergrondkleur</custom-field>
+        <custom-field action="copy">tekstkleur</custom-field>
+        <!-- Post-referentie (pagina's) — WPML kopieert het ID; koppel evt. via
+             WPML's relatie-instelling voor dit veld aan de vertaalde pagina. -->
+        <custom-field action="copy">waar_zichtbaar</custom-field>
+        <custom-field action="copy">melding_tonen</custom-field>
+        <custom-field action="copy">css_overschrijven</custom-field>
+
+        <!-- ============================================================
+             OPTIONS PAGE: MK instellingen
+             Bedrijfsgegevens — één bedrijf, dus identiek in elke taal.
+             (Adres/telefoon/e-mail veranderen niet per taalversie van de site.)
+        ============================================================= -->
+        <custom-field action="copy">logo</custom-field>
+        <custom-field action="copy">favicon</custom-field>
+        <custom-field action="copy">bedrijfsnaam</custom-field>
+        <custom-field action="copy">adres</custom-field>
+        <custom-field action="copy">postcode</custom-field>
+        <custom-field action="copy">telefoon</custom-field>
+        <custom-field action="copy">email</custom-field>
+        <custom-field action="copy">mobiel</custom-field>
+        <!-- Socials-repeater — rijstructuur volgt de brontaal, alleen de
+             platform/url-waarden zelf (ook copy, niet vertaalbaar). -->
+        <custom-field action="copy">socials</custom-field>
+        <custom-field action="copy">platform</custom-field>
+        <custom-field action="copy">url</custom-field>
+
+        <!-- ============================================================
+             BLOK: Loop
+        ============================================================= -->
+        <custom-field action="copy">query_loop</custom-field>
+        <custom-field action="copy">number_of_posts</custom-field>
+        <!-- Post-referentie(s) — zie opmerking bij waar_zichtbaar hierboven. -->
+        <custom-field action="copy">bericht_object</custom-field>
+        <custom-field action="copy">grid</custom-field>
+        <custom-field action="copy">breedte</custom-field>
+        <custom-field action="copy">toon_knop</custom-field>
+        <custom-field action="translate">knop_tekst</custom-field>
+
+        <!-- ============================================================
+             BLOK: Image Slider
+             Puur visuele instellingen + afbeeldingen, geen tekstvelden.
+        ============================================================= -->
+        <custom-field action="copy">items_desktop</custom-field>
+        <custom-field action="copy">items_tablet</custom-field>
+        <custom-field action="copy">autoplay</custom-field>
+        <custom-field action="copy">aspect_ratio</custom-field>
+        <!-- Slides-repeater — rijstructuur (aantal/volgorde slides) volgt de
+             brontaal, alleen de afbeelding zelf staat hieronder. -->
+        <custom-field action="copy">slides</custom-field>
+        <custom-field action="copy">afbeelding</custom-field>
+
+        <!-- ============================================================
+             BLOK: Kolommen
+        ============================================================= -->
+        <custom-field action="copy">verhouding</custom-field>
+        <!-- Kolommen-repeater — rijstructuur (aantal/volgorde kolommen) volgt
+             de brontaal; alleen de tekst/labels binnen elke kolom (hieronder)
+             zijn per taal vertaalbaar. -->
+        <custom-field action="copy">kolommen</custom-field>
+        <custom-field action="copy">type</custom-field>
+        <custom-field action="translate">titel_tekst</custom-field>
+        <custom-field action="copy">titel_niveau</custom-field>
+        <custom-field action="translate">tekst</custom-field>
+        <!-- oembed-video: standaard gelijk in elke taal. Zet dit veld op "translate"
+             als een klant per taal een eigen (ondertitelde) video wil tonen. -->
+        <custom-field action="copy">video</custom-field>
+        <!-- Link-veld (tekst + url) — de knoptekst moet per taal vertaald worden. -->
+        <custom-field action="translate">knop</custom-field>
+        <custom-field action="copy">knop_stijl</custom-field>
+        <custom-field action="copy">icoon</custom-field>
+        <custom-field action="translate">icoon_tekst</custom-field>
+        <custom-field action="copy">cijfer_waarde</custom-field>
+        <custom-field action="translate">cijfer_label</custom-field>
+        <custom-field action="copy">kolom_achtergrond</custom-field>
+        <custom-field action="copy">kolom_tekstkleur</custom-field>
+        <custom-field action="copy">kolom_afgerond</custom-field>
+        <custom-field action="copy">kolom_padding</custom-field>
+        <custom-field action="copy">kolom_uitlijning</custom-field>
+        <custom-field action="copy">verticale_uitlijning</custom-field>
+        <custom-field action="copy">achtergrond_breed</custom-field>
+        <custom-field action="copy">achtergrond_grid</custom-field>
+        <custom-field action="copy">padding</custom-field>
+        <custom-field action="copy">blok_afgerond</custom-field>
+
+        <!-- ============================================================
+             OPTIONS PAGE: 404
+        ============================================================= -->
+        <custom-field action="translate">titel</custom-field>
+        <!-- "tekst" en "afbeelding" hierboven (Kolommen resp. Image Slider)
+             dekken ook deze 404-velden, zelfde naam en zelfde gewenst gedrag
+             (translate resp. copy) — hier niet nogmaals gedeclareerd. -->
+
+    </custom-fields>
+</wpml-config>
