@@ -1,6 +1,1 @@
 # MKBase Theme — Changelog
-
-## v1.3.0
-
-### Nieuw
-- Het thema is voorbereid op vertalen met WPML (per website te installeren, niet meegeleverd in dit core-thema): een tekstdomein (`mk`), vertaalbare tekst in de templates (404-pagina, breadcrumbs, hoofdmenu-/footermenu-labels, "Meer lezen"-knoptekst), en een `wpml-config.xml` in de thema-root die per ACF-veld aangeeft of de waarde vertaald moet worden (bijv. meldingstekst, kolomtitels/-teksten, knopteksten) of gekopieerd (bijv. kleuren, media, technische instellingen, bedrijfsgegevens).
