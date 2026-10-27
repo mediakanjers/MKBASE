@@ -2,6 +2,7 @@
     define('MKBASE_UPDATER_URL', 'https://raw.githubusercontent.com/mediakanjers/MKBASE/main/mkbase-update.json');
 
     require_once get_template_directory() . '/inc/compat.php';
+    require_once get_template_directory() . '/inc/helpers/asset-version.php';
 
     require_once get_template_directory() . '/inc/enqueue/scripts.php';
     require_once get_template_directory() . '/inc/enqueue/styles.php';
@@ -16,6 +17,7 @@
     require_once get_template_directory() . '/inc/menu.php';
     require_once get_template_directory() . '/inc/changelog.php';
     require_once get_template_directory() . '/inc/docs.php';
+    require_once get_template_directory() . '/inc/diagnostics.php';
     require_once get_template_directory() . '/inc/setup.php';
     require_once get_template_directory() . '/inc/shortcodes.php';
 

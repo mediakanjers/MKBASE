@@ -1,4 +1,4 @@
-jQuery(window).ready(function ($) {
+jQuery(function ($) {
     (function ($) {
         $.fn.mk_zelfdehoogte = function (options) {
             if ($(this).length === 0) return;

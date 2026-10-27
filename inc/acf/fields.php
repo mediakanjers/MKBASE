@@ -535,6 +535,8 @@
             ),
             'active' => true,
         ));
+        else
+            mkbase_report_issue("De ACF-velden van blok 'mk/loop' worden overschreven door het child-theme.", 'info', false);
 
         /**
          * ====================================
@@ -591,6 +593,16 @@
                     'wrapper'       => array('width' => '50'),
                 ),
                 array(
+                    'key'           => 'field_mk_slider_lightbox',
+                    'label'         => 'Openen in lightbox',
+                    'name'          => 'lightbox',
+                    'type'          => 'true_false',
+                    'instructions'  => 'Klikken op een afbeelding opent deze groot, met bladeren door alle slides.',
+                    'default_value' => 0,
+                    'ui'            => 1,
+                    'wrapper'       => array('width' => '50'),
+                ),
+                array(
                     'key'          => 'field_mk_slider_slides',
                     'label'        => 'Slides',
                     'name'         => 'slides',
@@ -621,6 +633,8 @@
             ),
             'active' => true,
         ));
+        else
+            mkbase_report_issue("De ACF-velden van blok 'mk/image-slider' worden overschreven door het child-theme.", 'info', false);
 
         /**
          * ====================================
@@ -1005,6 +1019,8 @@
             ),
             'active' => true,
         ));
+        else
+            mkbase_report_issue("De ACF-velden van blok 'mk/kolommen' worden overschreven door het child-theme.", 'info', false);
 
         /**
          * ====================================

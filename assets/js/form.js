@@ -3,7 +3,7 @@ var documentloaded = false;
 document.addEventListener("DOMContentLoaded", function () { documentloaded = true; });
 
 //jquery
-jQuery(document).ready(function($) {
+jQuery(function($) {
     function toggleFloatingLabel(field) {
         var input = field.find('input, textarea');
         var value = input.val();

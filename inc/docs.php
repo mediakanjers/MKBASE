@@ -74,7 +74,7 @@
         if ($hook !== 'index.php') return;
         $theme_dir = get_template_directory();
         $theme_uri = get_template_directory_uri();
-        wp_enqueue_style('mk-admin-dashboard', $theme_uri . '/assets/css/admin-dashboard.css', [], filemtime($theme_dir . '/assets/css/admin-dashboard.css'));
+        wp_enqueue_style('mk-admin-dashboard', $theme_uri . '/assets/css/admin-dashboard.css', [], mkbase_asset_version($theme_dir . '/assets/css/admin-dashboard.css'));
     });
 
     add_action('admin_footer', function() {
@@ -87,9 +87,9 @@
         $theme_dir = get_template_directory();
         $theme_uri = get_template_directory_uri();
         wp_enqueue_style('mk-inter-font', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap', [], null);
-        wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], filemtime($theme_dir . '/assets/css/admin-shared.css'));
-        wp_enqueue_style('mk-admin-docs', $theme_uri . '/assets/css/admin-docs.css', ['mk-admin-shared'], filemtime($theme_dir . '/assets/css/admin-docs.css'));
-        wp_enqueue_script('mk-admin-docs', $theme_uri . '/assets/js/admin-docs.js', [], filemtime($theme_dir . '/assets/js/admin-docs.js'), true);
+        wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], mkbase_asset_version($theme_dir . '/assets/css/admin-shared.css'));
+        wp_enqueue_style('mk-admin-docs', $theme_uri . '/assets/css/admin-docs.css', ['mk-admin-shared'], mkbase_asset_version($theme_dir . '/assets/css/admin-docs.css'));
+        wp_enqueue_script('mk-admin-docs', $theme_uri . '/assets/js/admin-docs.js', [], mkbase_asset_version($theme_dir . '/assets/js/admin-docs.js'), true);
     });
 
     add_action('admin_footer', function() {
@@ -167,6 +167,7 @@
 
         if (current_user_can('manage_options')) {
             $groups['Developer'] = [
+                'lightbox'      => 'Lightbox',
                 'mobiel-testen' => 'Mobiel testen',
             ];
         }
@@ -334,6 +335,7 @@
             ['label' => 'Items tablet', 'desc' => 'Hoeveel afbeeldingen er tegelijk zichtbaar zijn op een tabletscherm (1–3). Op mobiel wordt altijd 1 item tegelijk getoond.'],
             ['label' => 'Autoplay', 'desc' => 'Schakel in om de slider automatisch door de afbeeldingen te laten scrollen. De gebruiker kan de slider altijd handmatig bedienen.'],
             ['label' => 'Aspect ratio', 'desc' => 'Bepaalt de verhouding van elke slide. Kies uit Vierkant (1:1), Standaard (4:3), Portret (3:4), Klassiek (3:2), Klassiek portret (2:3), Breed (16:9) of Groot (9:16). Laat leeg om de originele afmetingen van de afbeelding te gebruiken.'],
+            ['label' => 'Openen in lightbox', 'desc' => 'Schakel in om een afbeelding groot te openen als een bezoeker erop klikt. In de lightbox kan de bezoeker bladeren door alle afbeeldingen van deze slider.'],
             ['label' => 'Slides', 'desc' => 'Voeg afbeeldingen toe via de repeater. Klik op "Nieuwe rij" om een extra slide toe te voegen. Sleep de rijen om de volgorde te wijzigen.'],
         ]);
 
@@ -493,6 +495,36 @@
                 ['label' => 'Wat is het?', 'desc' => 'Wanneer iemand een pagina deelt op Facebook of X (Twitter), bepaal je hier welke afbeelding en tekst getoond worden.'],
                 ['label' => 'Instellen', 'desc' => 'Klik in het Yoast SEO-blok op het <strong>Facebook- of X-tabblad</strong>. Upload hier een afbeelding (aanbevolen: <strong>1200×630 pixels</strong>) en pas de titel en beschrijving aan indien gewenst.'],
             ]);
+            $html .= '</div>';
+        }
+
+        /* ── LIGHTBOX (developer only) ───────────────────── */
+        if (current_user_can('manage_options')) {
+            $html .= '<div class="mkbase-docs-panel" data-panel="lightbox">';
+            $html .= '<p class="mkbase-docs-intro">Het thema heeft een eigen lightbox-laag, <code>mk-lightbox</code>, voor foto\'s, video, iframes en eigen HTML-content. Gebruik in blokken en child themes <strong>alleen deze laag</strong> — nooit de library eronder (Tobii) zelf. Zo kan die library later vervangen worden zonder dat blokken of websites aangepast hoeven te worden.</p>';
+
+            $html .= mkbase_docs_section('lightbox-inladen', 'Inladen', 'dashicons-download', [
+                ['label' => 'Script', 'desc' => 'Laad de lightbox in met <code>wp_enqueue_script(\'mk-lightbox\');</code>, bij voorkeur in de <code>render.php</code> van het blok dat hem gebruikt. Zo laadt hij alleen op pagina\'s waar het blok staat.'],
+                ['label' => 'CSS', 'desc' => 'Hoeft niet apart ingeladen te worden: de CSS laadt automatisch mee met het script, en staat altijd vóór <code>style-main.css</code> van het child theme. Je eigen styling wint dus altijd.'],
+            ]);
+
+            $html .= mkbase_docs_section('lightbox-gebruik', 'Content openen', 'dashicons-format-gallery', [
+                ['label' => 'Foto', 'desc' => '<code>' . esc_html('<a href="foto.jpg" data-mk-lightbox>') . '</code> — <code>href</code> verwijst naar de grote afbeelding. Het bijschrift komt uit de <code>alt</code> van de <code>&lt;img&gt;</code> in de link.'],
+                ['label' => 'Video', 'desc' => '<code>' . esc_html('<a href="https://youtu.be/ID" data-mk-lightbox data-mk-lightbox-type="video">') . '</code> — werkt met YouTube-, Vimeo- en eigen videolinks (bijv. <code>.mp4</code>). YouTube opent via <code>youtube-nocookie.com</code> en Vimeo met <code>dnt=1</code>, voor zo min mogelijk tracking.'],
+                ['label' => 'Iframe', 'desc' => '<code>' . esc_html('<a href="https://..." data-mk-lightbox data-mk-lightbox-type="iframe">') . '</code> — bijv. een kaart of externe pagina.'],
+                ['label' => 'Eigen HTML', 'desc' => '<code>' . esc_html('<a href="#element-id" data-mk-lightbox data-mk-lightbox-type="html">') . '</code> — opent het element met dat id. Het element wordt verplaatst (niet gekopieerd), dus formulieren en scripts daarin blijven werken. Het verdwijnt daardoor ook van de pagina zelf.'],
+                ['label' => 'Galerij', 'desc' => 'Links met <strong>dezelfde waarde</strong> voor <code>data-mk-lightbox</code> vormen samen een galerij, bijv. <code>data-mk-lightbox="project-1"</code>. Zonder waarde opent een link los. Geef elk blok een eigen waarde, bijv. met <code>wp_unique_id()</code>.'],
+            ]);
+
+            $html .= mkbase_docs_section('lightbox-styling', 'Styling vanuit het child theme', 'dashicons-art', [
+                ['label' => 'CSS-variabelen', 'desc' => 'Zet deze variabelen in het child theme (bijv. op <code>:root</code>): <code>--mk-lightbox-background</code> (overlay), <code>--mk-lightbox-button-color</code> (sluiten, vorige/volgende), <code>--mk-lightbox-nav-background</code> (achtergrond vorige/volgende), <code>--mk-lightbox-caption-background</code>, <code>--mk-lightbox-caption-color</code>, <code>--mk-lightbox-counter-color</code> en <code>--mk-lightbox-z-index</code>. In het Mediakanjers child theme staan ze in <code>components/_lightbox.scss</code>.'],
+                ['label' => 'Detailstyling', 'desc' => 'Gebruik <code>.mk-lightbox</code> als basisselector. Gebruik niet Tobii\'s eigen <code>--tobii-*</code>-variabelen; die vallen weg als de library ooit vervangen wordt. Moet je toch een onderdeel van Tobii zelf stylen (bijv. <code>.mk-lightbox .tobii__btn--next</code>), houd dat dan beperkt — dat deel moet bij een overstap nagelopen worden.'],
+            ]);
+
+            $html .= mkbase_docs_section('lightbox-fancybox', 'Fancybox (verouderd)', 'dashicons-warning', [
+                ['label' => 'Bestaande websites', 'desc' => 'Fancybox (<code>fancybox-js</code>) blijft werken op websites die hem al gebruiken, maar wordt niet meer onderhouden en werkt niet met jQuery 4. Gebruik voor nieuwe blokken altijd <code>mk-lightbox</code>. Hetzelfde geldt voor Owl Carousel (<code>owl-carousel-js</code>): gebruik voor nieuwe sliders Swiper 14 (<code>swiper-v14-js</code>).'],
+            ]);
+
             $html .= '</div>';
         }
 

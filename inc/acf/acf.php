@@ -51,6 +51,13 @@
                 'menu_slug'     => 'mkbase-docs',
                 'parent_slug'   => 'Mediakanjers',
             ));
+            // Submenu 7 - Diagnose
+            acf_add_options_sub_page(array(
+                'page_title'    => 'Diagnose',
+                'menu_title'    => 'Diagnose',
+                'menu_slug'     => 'mkbase-diagnose',
+                'parent_slug'   => 'Mediakanjers',
+            ));
         }
     });
 ?>

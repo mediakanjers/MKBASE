@@ -65,8 +65,8 @@
                 echo '<p>Geen updategegevens beschikbaar.</p>';
             } else {
                 $theme_uri = get_template_directory_uri();
-                wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], filemtime(get_template_directory() . '/assets/css/admin-shared.css'));
-                wp_enqueue_style('mk-admin-changelog', $theme_uri . '/assets/css/admin-changelog.css', ['mk-admin-shared'], filemtime(get_template_directory() . '/assets/css/admin-changelog.css'));
+                wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], mkbase_asset_version(get_template_directory() . '/assets/css/admin-shared.css'));
+                wp_enqueue_style('mk-admin-changelog', $theme_uri . '/assets/css/admin-changelog.css', ['mk-admin-shared'], mkbase_asset_version(get_template_directory() . '/assets/css/admin-changelog.css'));
                 wp_print_styles(['mk-admin-shared', 'mk-admin-changelog']);
 
                 echo '<div class="mkbase-pending-changelog" style="margin:16px;">';
