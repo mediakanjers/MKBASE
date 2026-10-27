@@ -1,0 +1,16 @@
+/* Alleen slider-mechaniek, geen opmaak — die hoort in het child theme. */
+
+/* Lightbox-link om de afbeelding: zelfde maat als de slide, zodat de afbeelding blijft vullen */
+.image-slider__link {
+    display: block;
+    height: 100%;
+}
+
+/* Mobiel (< 600px, gelijk aan het eerste breakpoint in image-slider.js): de buurslides
+   30px in beeld laten, zoals voorheen Owl's stagePadding. Swiper rekent de padding
+   van de container zelf al af van de slide-breedte. */
+@media (max-width: 599px) {
+    .image-slider__track.swiper {
+        padding: 0 30px;
+    }
+}

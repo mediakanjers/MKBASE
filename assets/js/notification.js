@@ -1,4 +1,4 @@
-jQuery(document).ready(function($) {
+jQuery(function($) {
 
     function adjustHeader() {
         if (typeof mkbaseConfig !== 'undefined' && mkbaseConfig.cssOverschrijven === 'ja') {
@@ -16,7 +16,7 @@ jQuery(document).ready(function($) {
     }
     adjustHeader();
     setTimeout(adjustHeader, 100);
-    $(window).resize(adjustHeader);
+    $(window).on('resize', adjustHeader);
 
     // Check of melding al gesloten is deze sessie
     if (sessionStorage.getItem('notification_closed')) {

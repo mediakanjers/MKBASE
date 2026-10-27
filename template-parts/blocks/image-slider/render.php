@@ -4,13 +4,18 @@
     $itemsTablet  = get_field('items_tablet') ?: 2;
     $autoplay     = get_field('autoplay');
     $aspectRatio  = get_field('aspect_ratio') ?: '';
-
-    wp_enqueue_script('owl-carousel-js');
+    $lightbox     = get_field('lightbox');
+    $galleryId    = wp_unique_id('image-slider-');
 
     $theme_uri = get_template_directory_uri();
     $theme_dir = get_template_directory();
-    wp_register_script('mk-image-slider', $theme_uri . '/template-parts/blocks/image-slider/image-slider.js', ['jquery', 'owl-carousel-js'], filemtime($theme_dir . '/template-parts/blocks/image-slider/image-slider.js'), true);
+    wp_enqueue_style('mk-image-slider', $theme_uri . '/template-parts/blocks/image-slider/image-slider.css', ['swiper-v14-css'], mkbase_asset_version($theme_dir . '/template-parts/blocks/image-slider/image-slider.css'));
+    wp_register_script('mk-image-slider', $theme_uri . '/template-parts/blocks/image-slider/image-slider.js', ['swiper-v14-js'], mkbase_asset_version($theme_dir . '/template-parts/blocks/image-slider/image-slider.js'), true);
     wp_enqueue_script('mk-image-slider');
+
+    if ($lightbox) {
+        wp_enqueue_script('mk-lightbox');
+    }
 ?>
 
 <?php if ($slides): ?>
@@ -18,18 +23,26 @@
     data-items-desktop="<?php echo esc_attr($itemsDesktop); ?>"
     data-items-tablet="<?php echo esc_attr($itemsTablet); ?>"
     data-autoplay="<?php echo $autoplay ? 'true' : 'false'; ?>">
-    <div class="image-slider__track owl-carousel">
-        <?php foreach ($slides as $slide):
-            $afbeelding = $slide['afbeelding'];
-        ?>
-            <?php if ($afbeelding):
-                $style = $aspectRatio ? 'aspect-ratio:' . esc_attr($aspectRatio) . ';' : '';
+    <div class="image-slider__track swiper">
+        <div class="swiper-wrapper">
+            <?php foreach ($slides as $slide):
+                $afbeelding = $slide['afbeelding'];
             ?>
-                <div class="image-slider__item" <?php echo $style ? 'style="' . $style . '"' : ''; ?>>
-                    <img loading="lazy" src="<?php echo esc_url($afbeelding['url']); ?>" alt="<?php echo esc_attr($afbeelding['alt']); ?>">
-                </div>
-            <?php endif; ?>
-        <?php endforeach; ?>
+                <?php if ($afbeelding):
+                    $style = $aspectRatio ? 'aspect-ratio:' . esc_attr($aspectRatio) . ';' : '';
+                ?>
+                    <div class="image-slider__item swiper-slide" <?php echo $style ? 'style="' . $style . '"' : ''; ?>>
+                        <?php if ($lightbox): ?>
+                            <a class="image-slider__link" href="<?php echo esc_url($afbeelding['url']); ?>" data-mk-lightbox="<?php echo esc_attr($galleryId); ?>">
+                                <img loading="lazy" src="<?php echo esc_url($afbeelding['url']); ?>" alt="<?php echo esc_attr($afbeelding['alt']); ?>">
+                            </a>
+                        <?php else: ?>
+                            <img loading="lazy" src="<?php echo esc_url($afbeelding['url']); ?>" alt="<?php echo esc_attr($afbeelding['alt']); ?>">
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
     </div>
 </div>
 <?php endif; ?>

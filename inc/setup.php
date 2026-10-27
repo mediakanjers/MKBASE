@@ -143,7 +143,7 @@
 
         $theme_uri = get_template_directory_uri();
         $theme_dir = get_template_directory();
-        wp_enqueue_script('mk-admin-notices', $theme_uri . '/assets/js/admin-notices.js', [], filemtime($theme_dir . '/assets/js/admin-notices.js'), true);
-        wp_enqueue_style('mk-admin-notices', $theme_uri . '/assets/css/admin-notices.css', [], filemtime($theme_dir . '/assets/css/admin-notices.css'));
+        wp_enqueue_script('mk-admin-notices', $theme_uri . '/assets/js/admin-notices.js', [], mkbase_asset_version($theme_dir . '/assets/js/admin-notices.js'), true);
+        wp_enqueue_style('mk-admin-notices', $theme_uri . '/assets/css/admin-notices.css', [], mkbase_asset_version($theme_dir . '/assets/css/admin-notices.css'));
     });
 ?>

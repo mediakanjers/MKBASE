@@ -4,9 +4,9 @@
         $theme_dir = get_template_directory();
         $theme_uri = get_template_directory_uri();
         wp_enqueue_style('mk-inter-font', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap', [], null);
-        wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], filemtime($theme_dir . '/assets/css/admin-shared.css'));
-        wp_enqueue_style('mk-admin-changelog', $theme_uri . '/assets/css/admin-changelog.css', ['mk-admin-shared'], filemtime($theme_dir . '/assets/css/admin-changelog.css'));
-        wp_enqueue_script('mk-admin-changelog', $theme_uri . '/assets/js/admin-changelog.js', [], filemtime($theme_dir . '/assets/js/admin-changelog.js'), true);
+        wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], mkbase_asset_version($theme_dir . '/assets/css/admin-shared.css'));
+        wp_enqueue_style('mk-admin-changelog', $theme_uri . '/assets/css/admin-changelog.css', ['mk-admin-shared'], mkbase_asset_version($theme_dir . '/assets/css/admin-changelog.css'));
+        wp_enqueue_script('mk-admin-changelog', $theme_uri . '/assets/js/admin-changelog.js', [], mkbase_asset_version($theme_dir . '/assets/js/admin-changelog.js'), true);
     });
 
     add_action('admin_footer', function() {
@@ -20,6 +20,7 @@
         $pages = [
             'mkbase-changelog' => ['label' => 'Changelog',     'icon' => 'dashicons-backup'],
             'mkbase-docs'      => ['label' => 'Documentatie',  'icon' => 'dashicons-book'],
+            'mkbase-diagnose'  => ['label' => 'Diagnose',      'icon' => 'dashicons-search'],
         ];
         $html  = '<nav class="mkbase-page-nav">';
         foreach ($pages as $slug => $page) {

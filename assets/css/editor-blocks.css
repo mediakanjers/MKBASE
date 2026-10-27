@@ -150,8 +150,6 @@
 /* ── Dropdowns (select) ───────────────────────────────────── */
 .acf-block-form-modal .acf-input select {
     appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
     border-radius: 8px;
     border-color: var(--mk-border);
     background-color: #fff;
@@ -550,11 +548,10 @@
     min-width: 0;
 }
 
-/* Swiper wordt momenteel door geen enkel blok gebruikt, maar staat wel als
-   vendor-script geregistreerd (inc/enqueue/scripts.php) — dus beschikbaar
-   voor een toekomstig blok. Zelfde probleem, andere library-classnames
-   (.swiper-wrapper is de track, .swiper-slide de items), dus alvast dezelfde
-   generieke fallback. */
+/* Swiper (o.a. het Image Slider-blok): zelfde probleem, andere
+   library-classnames (.swiper-wrapper is de track, .swiper-slide de items),
+   dus dezelfde generieke fallback. De Owl-regels hierboven blijven staan
+   voor bestaande child-theme-blokken die Owl nog gebruiken. */
 .acf-block-preview .swiper-wrapper {
     display: flex;
     flex-wrap: wrap;

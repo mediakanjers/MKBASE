@@ -22,9 +22,12 @@
         }
         
         if( $atts['folder'] != "" && $atts['file'] != "")  {
-            if (file_exists( get_stylesheet_directory(). '/template-parts/'. $atts['folder'] .'/'. $atts['file'] . ".php" ))  {
+            $base = realpath( get_stylesheet_directory() . '/template-parts' );
+            $target = $base ? realpath( $base . '/' . $atts['folder'] . '/' . $atts['file'] . '.php' ) : false;
+
+            if ( $base && $target && strpos( $target, $base . DIRECTORY_SEPARATOR ) === 0 ) {
                 ob_start();
-                include( get_stylesheet_directory(). '/template-parts/'. $atts['folder'] .'/'. $atts['file'] . ".php");
+                include( $target );
                 return ob_get_clean();
             }
         }
