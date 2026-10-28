@@ -150,155 +150,250 @@
          * ====================================
          * MELDINGEN
          * ====================================
+         * Meerdere meldingen in een repeater. De groep-key en css_overschrijven zijn gelijk
+         * gebleven; de oude losse velden (tot 1.4.1) zet inc/migrations.php om naar de eerste rij.
          */
+        $melding_tab = function ($key, $label) {
+            return array('key' => $key, 'label' => $label, 'type' => 'tab', 'placement' => 'top');
+        };
+        $melding_als = function ($field, $value, $operator = '==') {
+            return array(array(array('field' => $field, 'operator' => $operator, 'value' => $value)));
+        };
+
         acf_add_local_field_group(array(
             'key' => 'group_68ff64b408f4e',
             'title' => 'Meldingen',
+            'style' => 'seamless',
             'fields' => array(
+                $melding_tab('field_mk_meldingen_tab_meldingen', 'Meldingen'),
                 array(
-                    'key' => 'field_68ff64b5b4107',
-                    'label' => 'Tekst',
-                    'type' => 'tab',
+                    'key'     => 'field_mk_meldingen_overzicht',
+                    'label'   => '',
+                    'name'    => '',
+                    'type'    => 'message',
+                    'message' => '', // Gevuld door mkbase_notifications_overview() in inc/notifications.php
                 ),
                 array(
-                    'key' => 'field_68ff65a4b4108',
-                    'label' => 'Tekst melding',
-                    'name' => 'tekst_melding',
-                    'type' => 'wysiwyg',
-                    'toolbar' => 'full',
-                    'media_upload' => 0,
-                ),
-                array(
-                    'key' => 'field_68ff65bcb4109',
-                    'label' => 'Data',
-                    'type' => 'tab',
-                ),
-                array(
-                    'key' => 'field_68ff7717d70fc',
-                    'label' => 'Data opgeven',
-                    'name' => 'data_opgeven',
-                    'type' => 'radio',
-                    'instructions' => 'Als je geen data opgeeft is de melding altijd zichtbaar.',
-                    'choices' => array(
-                        'ja' => 'ja',
-                        'nee' => 'Nee',
-                    ),
-                    'default_value' => 'nee',
-                    'layout' => 'horizontal',
-                ),
-                array(
-                    'key' => 'field_68ff65c6b410a',
-                    'label' => 'Begindatum',
-                    'name' => 'begindatum',
-                    'type' => 'date_picker',
-                    'display_format' => 'd/m/Y',
-                    'return_format' => 'Ymd',
-                    'wrapper' => array('width' => '50'),
-                    'conditional_logic' => array(
+                    'key'          => 'field_mk_meldingen',
+                    'label'        => 'Meldingen',
+                    'name'         => 'meldingen',
+                    'type'         => 'repeater',
+                    'layout'       => 'block',
+                    'button_label' => 'Melding toevoegen',
+                    'collapsed'    => 'field_mk_melding_naam',
+                    'sub_fields'   => array(
                         array(
-                            array(
-                                'field' => 'field_68ff7717d70fc',
-                                'operator' => '==',
-                                'value' => 'ja',
+                            'key'     => 'field_mk_melding_voorbeeld',
+                            'label'   => '',
+                            'name'    => '',
+                            'type'    => 'message',
+                            'message' => '<div class="mk-notification-preview" data-mk-notification-preview></div>',
+                            'esc_html' => 0,
+                        ),
+
+                        // ── Inhoud ──
+                        $melding_tab('field_mk_melding_tab_inhoud', 'Inhoud'),
+                        array(
+                            'key'           => 'field_mk_melding_actief',
+                            'label'         => 'Aan',
+                            'name'          => 'melding_actief',
+                            'type'          => 'true_false',
+                            'ui'            => 1,
+                            'default_value' => 1,
+                            'wrapper'       => array('width' => '20'),
+                        ),
+                        array(
+                            'key'          => 'field_mk_melding_naam',
+                            'label'        => 'Naam',
+                            'name'         => 'melding_naam',
+                            'type'         => 'text',
+                            'instructions' => 'Alleen voor in dit overzicht, niet zichtbaar op de website.',
+                            'placeholder'  => 'Bijv. Kerstsluiting',
+                            'wrapper'      => array('width' => '80'),
+                        ),
+                        array(
+                            'key'          => 'field_mk_melding_tekst',
+                            'label'        => 'Tekst',
+                            'name'         => 'melding_tekst',
+                            'type'         => 'wysiwyg',
+                            'toolbar'      => 'basic',
+                            'media_upload' => 0,
+                            'tabs'         => 'visual',
+                            'delay'        => 0,
+                        ),
+                        array(
+                            'key'          => 'field_mk_melding_knop',
+                            'label'        => 'Knop',
+                            'name'         => 'melding_knop',
+                            'type'         => 'link',
+                            'instructions' => 'Optioneel. Laat leeg voor geen knop.',
+                        ),
+
+                        // ── Planning ──
+                        $melding_tab('field_mk_melding_tab_planning', 'Planning'),
+                        array(
+                            'key'          => 'field_mk_melding_planning',
+                            'label'        => 'Inplannen',
+                            'name'         => 'melding_planning',
+                            'type'         => 'true_false',
+                            'ui'           => 1,
+                            'instructions' => 'Uit: de melding is zichtbaar zolang hij aan staat. Aan: alleen tussen de begin- en eindtijd.',
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_start',
+                            'label'             => 'Vanaf',
+                            'name'              => 'melding_start',
+                            'type'              => 'date_time_picker',
+                            'instructions'      => 'Leeg: direct.',
+                            'display_format'    => 'd-m-Y H:i',
+                            'return_format'     => 'Y-m-d H:i:s',
+                            'first_day'         => 1,
+                            'wrapper'           => array('width' => '50'),
+                            'conditional_logic' => $melding_als('field_mk_melding_planning', '1'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_eind',
+                            'label'             => 'Tot en met',
+                            'name'              => 'melding_eind',
+                            'type'              => 'date_time_picker',
+                            'instructions'      => 'Leeg: geen einde.',
+                            'display_format'    => 'd-m-Y H:i',
+                            'return_format'     => 'Y-m-d H:i:s',
+                            'first_day'         => 1,
+                            'wrapper'           => array('width' => '50'),
+                            'conditional_logic' => $melding_als('field_mk_melding_planning', '1'),
+                        ),
+
+                        // ── Weergave ──
+                        $melding_tab('field_mk_melding_tab_weergave', 'Weergave'),
+                        array(
+                            'key'           => 'field_mk_melding_stijl',
+                            'label'         => 'Stijl',
+                            'name'          => 'melding_stijl',
+                            'type'          => 'button_group',
+                            'choices'       => array(
+                                'info'         => 'Info',
+                                'succes'       => 'Succes',
+                                'waarschuwing' => 'Waarschuwing',
+                                'actie'        => 'Actie',
+                                'eigen'        => 'Eigen kleuren',
                             ),
+                            'default_value' => 'info',
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_achtergrond',
+                            'label'             => 'Achtergrondkleur',
+                            'name'              => 'melding_achtergrond',
+                            'type'              => 'color_picker',
+                            'default_value'     => '#ff0000',
+                            'wrapper'           => array('width' => '50'),
+                            'conditional_logic' => $melding_als('field_mk_melding_stijl', 'eigen'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_tekstkleur',
+                            'label'             => 'Tekstkleur',
+                            'name'              => 'melding_tekstkleur',
+                            'type'              => 'color_picker',
+                            'default_value'     => '#ffffff',
+                            'wrapper'           => array('width' => '50'),
+                            'conditional_logic' => $melding_als('field_mk_melding_stijl', 'eigen'),
+                        ),
+                        array(
+                            'key'           => 'field_mk_melding_positie',
+                            'label'         => 'Positie',
+                            'name'          => 'melding_positie',
+                            'type'          => 'button_group',
+                            'choices'       => array(
+                                'boven'         => 'Bovenaan, blijft staan',
+                                'boven_scrollt' => 'Bovenaan, scrolt mee weg',
+                                'onder'         => 'Onderaan, blijft staan',
+                            ),
+                            'default_value' => 'boven',
+                        ),
+                        array(
+                            'key'           => 'field_mk_melding_sluitbaar',
+                            'label'         => 'Sluitbaar',
+                            'name'          => 'melding_sluitbaar',
+                            'type'          => 'true_false',
+                            'ui'            => 1,
+                            'default_value' => 1,
+                            'instructions'  => 'Toon een kruisje waarmee de bezoeker de melding wegklikt.',
+                            'wrapper'       => array('width' => '33'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_opnieuw',
+                            'label'             => 'Na wegklikken weer tonen',
+                            'name'              => 'melding_opnieuw',
+                            'type'              => 'select',
+                            'choices'           => array(
+                                'sessie' => 'Bij een volgend bezoek',
+                                'dagen'  => 'Na een aantal dagen',
+                                'nooit'  => 'Nooit meer',
+                            ),
+                            'default_value'     => 'sessie',
+                            'instructions'      => 'Wijzig je de tekst, knop of planning, dan ziet iedereen de melding opnieuw.',
+                            'wrapper'           => array('width' => '33'),
+                            'conditional_logic' => $melding_als('field_mk_melding_sluitbaar', '1'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_dagen',
+                            'label'             => 'Aantal dagen',
+                            'name'              => 'melding_dagen',
+                            'type'              => 'number',
+                            'default_value'     => 7,
+                            'min'               => 1,
+                            'max'               => 365,
+                            'wrapper'           => array('width' => '34'),
+                            'conditional_logic' => array(array(
+                                array('field' => 'field_mk_melding_sluitbaar', 'operator' => '==', 'value' => '1'),
+                                array('field' => 'field_mk_melding_opnieuw', 'operator' => '==', 'value' => 'dagen'),
+                            )),
+                        ),
+
+                        // ── Zichtbaarheid ──
+                        $melding_tab('field_mk_melding_tab_zichtbaarheid', 'Zichtbaarheid'),
+                        array(
+                            'key'           => 'field_mk_melding_zichtbaarheid',
+                            'label'         => 'Waar tonen',
+                            'name'          => 'melding_zichtbaarheid',
+                            'type'          => 'button_group',
+                            'choices'       => array(
+                                'overal'  => 'Hele website',
+                                'alleen'  => 'Alleen op gekozen pagina\'s',
+                                'behalve' => 'Overal behalve gekozen pagina\'s',
+                            ),
+                            'default_value' => 'overal',
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_paginas',
+                            'label'             => 'Pagina\'s',
+                            'name'              => 'melding_paginas',
+                            'type'              => 'post_object',
+                            'instructions'      => 'Pagina\'s, berichten of andere berichttypes.',
+                            'post_type'         => array(),
+                            'post_status'       => array('publish'),
+                            'return_format'     => 'id',
+                            'multiple'          => 1,
+                            'allow_null'        => 1,
+                            'ui'                => 1,
+                            'conditional_logic' => $melding_als('field_mk_melding_zichtbaarheid', 'overal', '!='),
                         ),
                     ),
                 ),
-                array(
-                    'key' => 'field_68ff65dbb410b',
-                    'label' => 'Einddatum',
-                    'name' => 'einddatum',
-                    'type' => 'date_picker',
-                    'display_format' => 'd/m/Y',
-                    'return_format' => 'Ymd',
-                    'wrapper' => array('width' => '50'),
-                    'conditional_logic' => array(
-                        array(
-                            array(
-                                'field' => 'field_68ff7717d70fc',
-                                'operator' => '==',
-                                'value' => 'ja',
-                            ),
-                        ),
-                    ),
-                ),
-                array(
-                    'key' => 'field_68ff66555dd92',
-                    'label' => 'Opmaak',
-                    'type' => 'tab',
-                ),
-                array(
-                    'key' => 'field_68ff669f5dd93',
-                    'label' => 'Achtergrondkleur',
-                    'name' => 'achtergrondkleur',
-                    'type' => 'color_picker',
-                    'default_value' => '#FF0000',
-                ),
-                array(
-                    'key' => 'field_68ff76380e1da',
-                    'label' => 'Tekstkleur',
-                    'name' => 'tekstkleur',
-                    'type' => 'color_picker',
-                ),
-                array(
-                    'key' => 'field_68ff778f5dd88',
-                    'label' => 'Zichtbaarheid',
-                    'type' => 'tab',
-                ),
-                array(
-                    'key'           => 'field_68ff77975dd89',
-                    'label'         => 'Waar zichtbaar',
-                    'name'          => 'waar_zichtbaar',
-                    'type'          => 'post_object',
-                    'post_type'     => array('page'),
-                    'post_status'   => array('publish'),
-                    'return_format' => 'object',
-                    'multiple'      => 1,
-                    'allow_null'    => 1,
-                    'ui'            => 1,
-                ),
-                array(
-                    'key'          => 'field_6981bd824bb51',
-                    'label'        => 'Melding tonen',
-                    'name'         => 'melding_tonen',
-                    'type'         => 'radio',
-                    'instructions' => 'Deze moet op \'Ja\' staan om de meldingen aan te tonen!',
-                    'choices'      => array(
-                        'Ja'  => 'Ja',
-                        'Nee' => 'Nee',
-                    ),
-                    'default_value' => 'Nee',
-                    'layout'        => 'horizontal',
-                ),
-                array(
-                    'key' => 'field_6977204293692',
-                    'label' => 'Technisch',
-                    'type' => 'tab',
-                ),
+
+                $melding_tab('field_mk_meldingen_tab_technisch', 'Technisch'),
                 array(
                     'key'          => 'field_6977205593693',
                     'label'        => 'CSS overschrijven',
                     'name'         => 'css_overschrijven',
                     'type'         => 'radio',
-                    'instructions' => 'Alleen gebruiken voor medewerkers van Mediakanjers!',
+                    'instructions' => 'Alleen voor medewerkers van Mediakanjers. Op Ja laadt de opmaak van de meldingen niet uit het core thema en schuift de header niet mee: het child theme regelt alles zelf.',
                     'choices'      => array(
                         'Ja'  => 'Ja',
                         'Nee' => 'Nee',
                     ),
                     'default_value' => 'Nee',
                     'layout'        => 'horizontal',
-                ),
-                array(
-                    'key' => 'field_voorbeeld_tab',
-                    'label' => 'Voorbeeld',
-                    'type' => 'tab',
-                ),
-                array(
-                    'key' => 'field_voorbeeld_preview',
-                    'label' => 'Notificatie voorbeeld',
-                    'name' => '',
-                    'type' => 'message',
-                    'message' => '',
                 ),
             ),
             'location' => array(
@@ -1105,24 +1200,4 @@
         return $field;
     });
 
-    add_filter('acf/load_field/key=field_voorbeeld_preview', function($field) {
-        $bgcolor          = get_field('achtergrondkleur', 'option') ?: '#ff0000';
-        $txtcolor         = get_field('tekstkleur', 'option') ?: '#ffffff';
-        $txt              = get_field('tekst_melding', 'option');
-        $shownotification = get_field('melding_tonen', 'option');
-
-        if (empty($txt)) {
-            $field['message'] = '<p><em>Er is nog geen meldingstekst ingesteld.</em></p>';
-        } else {
-            $field['message'] = '<div style="background:' . esc_attr($bgcolor) . '; color:' . esc_attr($txtcolor) . '; padding:12px 20px; border-radius:4px; font-size:14px;">'
-                . wp_kses_post($txt)
-                . '</div>';
-
-            if ($shownotification !== 'Ja') {
-                $field['message'] .= '<p style="color:#888; margin-top:8px; font-style:italic;">Let op: "Melding tonen" staat op Nee — de melding is niet zichtbaar op de website.</p>';
-            }
-        }
-
-        return $field;
-    });
 ?>

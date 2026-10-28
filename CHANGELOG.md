@@ -1,5 +1,30 @@
 # MKBase Theme — Changelog
 
+## v1.5.0
+
+### Nieuw
+- Meerdere meldingen toegevoegd: bij **Mediakanjers → Meldingen** staat nu een lijst, en meldingen die tegelijk live zijn komen onder elkaar. Per melding een eigen naam, aan/uit-schakelaar, planning, opmaak en zichtbaarheid.
+- Planning op de minuut toegevoegd (vanaf / tot en met, in de tijdzone van de website). Op elk begin- en eindmoment wordt de cache van WP Rocket automatisch geleegd.
+- Nieuwe opties per melding toegevoegd: een **knop**, vaste **stijlen** (Info, Succes, Waarschuwing, Actie) naast eigen kleuren, de **positie** (bovenaan vast, bovenaan meescrollend of onderaan zwevend), **sluitbaar** aan of uit, en wanneer een weggeklikte melding terugkomt (volgend bezoek, na een aantal dagen of nooit).
+- Uitgebreide zichtbaarheid toegevoegd: hele website, alleen op gekozen pagina's, of overal behalve gekozen pagina's, en te kiezen uit pagina's, berichten en andere berichttypes.
+- Diagnose-controles toegevoegd: actieve kopieën van core-veldgroepen in de database of in `acf-json` van het child theme worden gemeld, omdat die wijzigingen uit core-updates kunnen tegenhouden. Ook verlopen of lege meldingen die nog aan staan worden gemeld.
+
+### Verbetering
+- Meldingen-pagina in de admin verbeterd: vernieuwd in de stijl van Changelog, Documentatie en Diagnose, met dark mode, een overzicht van de status van alle meldingen en een live voorbeeld per melding dat meeverandert terwijl je typt.
+- Meldingen geoptimaliseerd: CSS en JavaScript laden alleen nog op pagina's waar een melding zichtbaar is, en het script werkt zonder jQuery.
+- Toegankelijkheid verbeterd: het kruisje is een echte knop met een label voor schermlezers, en heeft de tekstkleur van de melding zodat het ook op een donkere achtergrond zichtbaar is.
+- Documentatie bij **Meldingen** verbeterd: herschreven, met een technisch deel voor developers (classes, CSS-variabelen en bestanden).
+
+### Wijziging
+- De losse melding van vóór 1.5.0 is vervangen door de lijst: bij de update wordt hij automatisch de eerste melding, met dezelfde tekst, kleuren, datums en pagina's. De oude instellingen blijven bewaard.
+- Uitgeschakelde database-kopieën van core-veldgroepen (Meldingen, Geavanceerd, MK instellingen, 404) worden bij de update eenmalig verwijderd. Ingevulde waarden blijven bewaard.
+- `notification.js` (jQuery) is vervangen door `notifications.js`. De classes `.mk-notification__inner`, `__inner__txt` en `__inner__closex` zijn gelijk gebleven voor bestaande eigen CSS.
+
+### Bugfix
+- Opgelost: buiten de ingestelde periode stond de melding toch op de website, zonder werkend kruisje en over de header heen.
+- Opgelost: na het wegklikken van één melding verscheen in hetzelfde tabblad geen enkele melding meer, ook geen nieuwe.
+- Opgelost: links in een melding kregen niet de tekstkleur van de melding.
+
 ## v1.4.1
 
 ### Nieuw

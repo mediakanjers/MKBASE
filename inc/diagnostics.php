@@ -118,13 +118,26 @@
             mkbase_report_issue('De menu-locatie "Footermenu" heeft geen menu gekoppeld.', 'info', false);
         }
 
-        if (function_exists('get_field') && get_field('melding_tonen', 'option') === 'Ja' && get_field('data_opgeven', 'option') === 'ja') {
-            $today = wp_date('Ymd');
-            $begin = get_field('begindatum', 'option');
-            $eind  = get_field('einddatum', 'option');
-            if (($begin && $today < $begin) || ($eind && $today > $eind)) {
-                mkbase_report_issue('De notificatiebalk staat aan, maar valt momenteel buiten de ingestelde periode en is dus niet zichtbaar.', 'info', false);
+        foreach (mkbase_get_notifications() as $melding) {
+            $status = mkbase_notification_status($melding);
+            $naam   = esc_html($melding['melding_naam'] ?: 'Naamloos');
+            if ($status === 'verlopen') {
+                mkbase_report_issue('Melding "' . $naam . '" staat aan, maar de eindtijd is voorbij. Zet hem uit of verwijder hem bij Mediakanjers → Meldingen.', 'info', false);
+            } elseif ($status === 'leeg') {
+                mkbase_report_issue('Melding "' . $naam . '" staat aan, maar heeft geen tekst of knop en wordt daarom niet getoond.', 'info', false);
             }
+        }
+
+        foreach (mkbase_core_field_group_copies() as $kopie) {
+            $waar = $kopie['where'] === 'database'
+                ? 'in de database (verwijder hem bij ACF → Veldgroepen)'
+                : 'als <code>' . esc_html($kopie['where']) . '</code> in het child theme (verwijder dat bestand)';
+            mkbase_report_issue(
+                'De ACF-veldgroep "' . esc_html($kopie['title']) . '" staat ' . $waar . ', terwijl het core thema deze groep zelf levert. '
+                . 'Zo komen wijzigingen uit core-updates mogelijk niet door. De ingevulde waarden blijven bewaard bij het verwijderen.',
+                'warning',
+                false
+            );
         }
 
         $update_data = get_site_transient('update_themes');
@@ -138,7 +151,7 @@
         }
 
         if (function_exists('get_field') && get_field('css_overschrijven', 'option') === 'Ja') {
-            mkbase_report_issue('"CSS overschrijven" bij Meldingen staat op "Ja" — dit is bedoeld voor Mediakanjers-medewerkers, niet voor permanent gebruik op een klantsite.', 'info', false);
+            mkbase_report_issue('"CSS overschrijven" bij Meldingen (tabblad Technisch) staat op "Ja" — dit is bedoeld voor Mediakanjers-medewerkers, niet voor permanent gebruik op een klantsite.', 'info', false);
         }
 
         if (!wp_is_writable(wp_upload_dir()['basedir'])) {

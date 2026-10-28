@@ -1,18 +1,130 @@
-#wpadminbar + .mk-notification, body.admin-bar .mk-notification { top: 32px; }
+/* Meldingen — zie inc/notifications.php. Laadt alleen op pagina's met een zichtbare melding,
+   en niet als "CSS overschrijven" op Ja staat. Laadt vóór style-main.css, zodat het child theme
+   alles kan overschrijven. Kleuren per melding: --mk-notification-bg en --mk-notification-color. */
 
-.mk-notification { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; transition: 0.3s; background-color: var(--mk-notification-bg); color: var(--mk-notification-color); }
-.mk-notification a { color: var(--mk-color); }
-.mk-notification .mk-notification__inner { max-width: 1400px; width: 90%; margin: auto; padding: 20px 0px; position: relative; transition: 0.3s; }
-.mk-notification .mk-notification__inner .mk-notification__inner__txt { width: 80%; margin: auto; }
-.mk-notification .mk-notification__inner .mk-notification__inner__closex { position: absolute; right: 0px; top: 20px; width: 20px; height: 20px; cursor: pointer; transform: rotate(45deg); }
-.mk-notification .mk-notification__inner .mk-notification__inner__closex .mk-notification__inner__closex__lineone { position: absolute; width: 100%; height: 2px; background-color: black; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-.mk-notification .mk-notification__inner .mk-notification__inner__closex .mk-notification__inner__closex__linetwo { position: absolute; width: 2px; height: 100%; background-color: black; top: 50%; left: 50%; transform: translate(-50%,-50%);  }
+.mk-notifications {
+    left: 0;
+    right: 0;
+    z-index: 9999;
+}
 
-.mk-notification .mk-notification__inner .mk-notification__inner__closex:hover { transform: rotate(-45deg); transition: 0.3s linear; }
+.mk-notifications--boven {
+    position: fixed;
+    top: var(--wp-admin--admin-bar--height, 0px);
+}
 
-.mk-notification.scrolled .mk-notification__inner { padding: 10px 0px; }
+/* Staat bovenaan de pagina en scrolt mee weg, onder een eventuele vaste balk */
+.mk-notifications--boven-scrollt {
+    position: absolute;
+    top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--mk-notification-fixed-height, 0px));
+    z-index: 9998;
+}
 
-@media screen and (max-width: 782px) {
-    #wpadminbar + .mk-notification, body.admin-bar .mk-notification { top: 46px; }
-    .mk-notification .mk-notification__inner .mk-notification__inner__txt { width: 100%; }
+.mk-notifications--onder {
+    position: fixed;
+    bottom: 0;
+}
+
+.mk-notification {
+    background-color: var(--mk-notification-bg);
+    color: var(--mk-notification-color);
+    transition: opacity 0.2s ease;
+}
+
+.mk-notification.is-closing {
+    opacity: 0;
+}
+
+.mk-notification a {
+    color: inherit;
+}
+
+/* Ruimte links en rechts voor het kruisje, zodat de tekst in het midden blijft */
+.mk-notification__inner {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px 20px;
+    max-width: 1400px;
+    width: 90%;
+    margin: auto;
+    padding: 20px 48px;
+    box-sizing: border-box;
+    transition: padding 0.3s ease;
+}
+
+.mk-notification.scrolled .mk-notification__inner {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.mk-notification__inner__txt {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.mk-notification__inner__txt > :last-child {
+    margin-bottom: 0;
+}
+
+.mk-notification__button {
+    flex-shrink: 0;
+    padding: 8px 18px;
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+}
+
+.mk-notification__button:hover {
+    opacity: 0.85;
+}
+
+/* Sluitknop: kruisje in de tekstkleur van de melding */
+.mk-notification__close {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    transform: translateY(-50%) rotate(45deg);
+    transition: transform 0.3s ease;
+}
+
+.mk-notification__close:hover {
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+.mk-notification__close:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.mk-notification__inner__closex__lineone,
+.mk-notification__inner__closex__linetwo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: currentColor;
+    transform: translate(-50%, -50%);
+}
+
+.mk-notification__inner__closex__lineone { width: 20px; height: 2px; }
+.mk-notification__inner__closex__linetwo { width: 2px; height: 20px; }
+
+@media screen and (max-width: 600px) {
+    .mk-notification__inner {
+        padding-left: 0;
+        padding-right: 40px;
+    }
 }

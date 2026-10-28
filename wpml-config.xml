@@ -35,20 +35,30 @@
         <custom-field action="copy">volgorde_vergrendeld</custom-field>
 
         <!-- ============================================================
-             OPTIONS PAGE: Meldingen
-             Alleen de meldingstekst zelf is content — data, kleuren en
-             zichtbaarheidsinstellingen zijn config.
+             OPTIONS PAGE: Meldingen (repeater 'meldingen', sinds 1.5.0)
+             Alleen de tekst en de knop zijn content — planning, opmaak en
+             zichtbaarheid zijn config.
         ============================================================= -->
-        <custom-field action="translate">tekst_melding</custom-field>
-        <custom-field action="copy">data_opgeven</custom-field>
-        <custom-field action="copy">begindatum</custom-field>
-        <custom-field action="copy">einddatum</custom-field>
-        <custom-field action="copy">achtergrondkleur</custom-field>
-        <custom-field action="copy">tekstkleur</custom-field>
-        <!-- Post-referentie (pagina's) — WPML kopieert het ID; koppel evt. via
+        <custom-field action="copy">meldingen</custom-field>
+        <custom-field action="copy">melding_actief</custom-field>
+        <custom-field action="copy">melding_naam</custom-field>
+        <custom-field action="translate">melding_tekst</custom-field>
+        <!-- Link-veld (tekst + url) — de knoptekst moet per taal vertaald worden. -->
+        <custom-field action="translate">melding_knop</custom-field>
+        <custom-field action="copy">melding_planning</custom-field>
+        <custom-field action="copy">melding_start</custom-field>
+        <custom-field action="copy">melding_eind</custom-field>
+        <custom-field action="copy">melding_stijl</custom-field>
+        <custom-field action="copy">melding_achtergrond</custom-field>
+        <custom-field action="copy">melding_tekstkleur</custom-field>
+        <custom-field action="copy">melding_positie</custom-field>
+        <custom-field action="copy">melding_sluitbaar</custom-field>
+        <custom-field action="copy">melding_opnieuw</custom-field>
+        <custom-field action="copy">melding_dagen</custom-field>
+        <custom-field action="copy">melding_zichtbaarheid</custom-field>
+        <!-- Post-referentie(s) — WPML kopieert het ID; koppel evt. via
              WPML's relatie-instelling voor dit veld aan de vertaalde pagina. -->
-        <custom-field action="copy">waar_zichtbaar</custom-field>
-        <custom-field action="copy">melding_tonen</custom-field>
+        <custom-field action="copy">melding_paginas</custom-field>
         <custom-field action="copy">css_overschrijven</custom-field>
 
         <!-- ============================================================

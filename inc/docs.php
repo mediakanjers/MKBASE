@@ -268,32 +268,45 @@
 
         /* ── MELDINGEN ────────────────────────────────────── */
         $html .= '<div class="mkbase-docs-panel" data-panel="meldingen">';
-        $html .= '<p class="mkbase-docs-intro">De notificatiebalk toont een opvallende melding bovenaan de website. Ideaal voor tijdelijke berichten, acties of belangrijke mededelingen.</p>';
+        $html .= '<p class="mkbase-docs-intro">Toon een opvallende balk boven- of onderaan de website, bijvoorbeeld voor een actie, gewijzigde openingstijden of een storing. Je kunt meerdere meldingen maken, ze vooraf inplannen en per melding kiezen waar en hoe ze verschijnen.</p>';
         $html .= mkbase_docs_settings_link(admin_url('admin.php?page=acf-options-meldingen'), 'Ga naar Meldingen');
 
-        $html .= mkbase_docs_section('melding-tekst', 'Tekst', 'dashicons-editor-paragraph', [
-            ['label' => 'Tekst melding', 'desc' => 'De inhoud van de melding. Je kunt tekst opmaken via de editor (vet, cursief, links). Houd de tekst kort en krachtig voor de beste leesbaarheid.'],
+        $html .= mkbase_docs_section('melding-overzicht', 'Overzicht en voorbeeld', 'dashicons-welcome-view-site', [
+            ['label' => 'Overzicht', 'desc' => 'Bovenaan zie je hoeveel meldingen <strong>Live</strong>, <strong>Gepland</strong>, <strong>Verlopen</strong> of <strong>Uit</strong> zijn. Het bolletje bij elk rijnummer toont de status, ook als de melding is ingeklapt.'],
+            ['label' => 'Live voorbeeld', 'desc' => 'Boven elke melding staat een voorbeeld dat meteen meeverandert terwijl je typt of kleuren kiest. Op de website verschijnt de melding pas na <strong>Bijwerken</strong>.'],
+            ['label' => 'Meerdere meldingen', 'desc' => 'Klik op <strong>Melding toevoegen</strong>. Staan er meerdere tegelijk live op dezelfde plek, dan komen ze onder elkaar, in de volgorde van de lijst. Sleep een rij aan het nummer om de volgorde te wijzigen.'],
         ]);
 
-        $html .= mkbase_docs_section('melding-data', 'Data', 'dashicons-calendar-alt', [
-            ['label' => 'Data opgeven', 'desc' => 'Kies <strong>Ja</strong> om de melding automatisch op een bepaalde periode te tonen of te verbergen. Kies <strong>Nee</strong> om de melding altijd te tonen (zolang "Melding tonen" op Ja staat).'],
-            ['label' => 'Begindatum', 'desc' => 'De datum vanaf wanneer de melding zichtbaar is. Verschijnt alleen als "Data opgeven" op Ja staat.'],
-            ['label' => 'Einddatum', 'desc' => 'De datum tot wanneer de melding zichtbaar is. Na deze datum verdwijnt de melding automatisch. Verschijnt alleen als "Data opgeven" op Ja staat.'],
+        $html .= mkbase_docs_section('melding-inhoud', 'Inhoud', 'dashicons-editor-paragraph', [
+            ['label' => 'Aan', 'desc' => 'De schakelaar per melding. Uit: de melding is nergens zichtbaar, ongeacht de planning.'],
+            ['label' => 'Naam', 'desc' => 'Alleen voor jezelf, om meldingen in het overzicht uit elkaar te houden. Niet zichtbaar op de website.'],
+            ['label' => 'Tekst', 'desc' => 'De inhoud van de melding, met opmaak (vet, cursief, links). Houd hem kort en krachtig.'],
+            ['label' => 'Knop', 'desc' => 'Optioneel: een knop naast de tekst, bijv. "Bekijk de actie". Laat leeg voor geen knop.'],
         ]);
 
-        $html .= mkbase_docs_section('melding-opmaak', 'Opmaak', 'dashicons-art', [
-            ['label' => 'Achtergrondkleur', 'desc' => 'De achtergrondkleur van de notificatiebalk. Kies een kleur die opvalt maar wel bij de huisstijl past.'],
-            ['label' => 'Tekstkleur', 'desc' => 'De kleur van de tekst in de melding. Zorg voor voldoende contrast met de achtergrondkleur (minimaal 4,5:1 contrastverhouding voor toegankelijkheid).'],
+        $html .= mkbase_docs_section('melding-planning', 'Planning', 'dashicons-calendar-alt', [
+            ['label' => 'Inplannen', 'desc' => 'Uit: de melding is zichtbaar zolang hij aan staat. Aan: alleen tussen <strong>Vanaf</strong> en <strong>Tot en met</strong>, op de minuut nauwkeurig (tijdzone van de website). Leeg laten mag: zonder Vanaf start hij direct, zonder Tot en met loopt hij door.'],
+            ['label' => 'Cache', 'desc' => 'Op elk begin- en eindmoment en bij het opslaan wordt de cache van WP Rocket automatisch geleegd, zodat de melding op tijd verschijnt en verdwijnt.'],
+        ]);
+
+        $html .= mkbase_docs_section('melding-weergave', 'Weergave', 'dashicons-art', [
+            ['label' => 'Stijl', 'desc' => 'Kies een vaste stijl (<strong>Info</strong>, <strong>Succes</strong>, <strong>Waarschuwing</strong> of <strong>Actie</strong>) of <strong>Eigen kleuren</strong>. Zorg bij eigen kleuren voor voldoende contrast tussen tekst en achtergrond.'],
+            ['label' => 'Positie', 'desc' => '<strong>Bovenaan, blijft staan</strong>: blijft in beeld tijdens het scrollen. <strong>Bovenaan, scrolt mee weg</strong>: staat boven de header en verdwijnt bij het scrollen. <strong>Onderaan, blijft staan</strong>: zwevende balk onderaan het scherm.'],
+            ['label' => 'Sluitbaar', 'desc' => 'Toont een kruisje waarmee de bezoeker de melding wegklikt. Kies wanneer hij weer verschijnt: bij een volgend bezoek, na een aantal dagen, of nooit meer. Wijzig je de tekst, knop of planning, dan ziet iedereen de melding opnieuw.'],
         ]);
 
         $html .= mkbase_docs_section('melding-zichtbaarheid', 'Zichtbaarheid', 'dashicons-visibility', [
-            ['label' => 'Waar zichtbaar', 'desc' => 'Selecteer op welke pagina\'s de melding getoond wordt. Laat het veld leeg om de melding op <strong>alle pagina\'s</strong> te tonen. Selecteer een of meerdere pagina\'s om de melding alleen daar te tonen.'],
-            ['label' => 'Melding tonen', 'desc' => 'De hoofdschakelaar. Zet dit op <strong>Ja</strong> om de melding te activeren. Staat dit op Nee, dan is de melding nergens zichtbaar, ongeacht de overige instellingen.'],
+            ['label' => 'Waar tonen', 'desc' => '<strong>Hele website</strong>, <strong>Alleen op gekozen pagina\'s</strong> of <strong>Overal behalve gekozen pagina\'s</strong>. Je kunt pagina\'s, berichten en andere berichttypes kiezen.'],
         ]);
 
-        $html .= mkbase_docs_section('melding-voorbeeld', 'Voorbeeld', 'dashicons-welcome-view-site', [
-            ['label' => 'Notificatie voorbeeld', 'desc' => 'In het tabblad "Voorbeeld" zie je direct hoe de melding eruit zal zien met de huidige kleur- en tekstinstellingen. Er is geen aparte opslaan-actie nodig — sla de pagina op en het voorbeeld wordt bijgewerkt.'],
-        ]);
+        if (current_user_can('manage_options')) {
+            $html .= mkbase_docs_section('melding-technisch', 'Technisch (developer)', 'dashicons-admin-tools', [
+                ['label' => 'Bestanden', 'desc' => 'Logica: <code>inc/notifications.php</code>. HTML: <code>template-parts/notifications/notifications.php</code>, aangeroepen vanuit <code>footer.php</code> van het child theme. CSS en JS laden alleen op pagina\'s met een zichtbare melding.'],
+                ['label' => 'Styling', 'desc' => 'Classes: <code>.mk-notifications--boven</code>, <code>--boven-scrollt</code>, <code>--onder</code>, en per melding <code>.mk-notification--{stijl}</code>, <code>__inner</code>, <code>__inner__txt</code>, <code>__button</code>, <code>__close</code>. Kleuren via <code>--mk-notification-bg</code> en <code>--mk-notification-color</code>. De hoogte van de balken staat op <code>&lt;html&gt;</code> in <code>--mk-notification-height</code> (boven) en <code>--mk-notification-bottom-height</code> (onder).'],
+                ['label' => 'CSS overschrijven', 'desc' => 'Tabblad Technisch. Op Ja laadt de opmaak niet uit het core thema en schuift de header niet mee; het child theme regelt dan alles zelf.'],
+                ['label' => 'Van 1.4.1 naar 1.5.0', 'desc' => 'De losse melding van vóór 1.5.0 wordt bij de update automatisch de eerste melding in de lijst, met dezelfde tekst, kleuren, datums en pagina\'s.'],
+            ]);
+        }
 
         $html .= '</div>';
 
