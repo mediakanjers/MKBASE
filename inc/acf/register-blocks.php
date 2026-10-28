@@ -1,4 +1,12 @@
 <?php
+    // Blokmappen die met _ beginnen worden overgeslagen (niet geregistreerd), zoals het
+    // voorbeeldblok blocks/_voorbeeld/ in het child theme. Geldt ook voor '.' en '..'.
+    if (!mkbase_check_duplicate('mkbase_is_skipped_block_dir')):
+    function mkbase_is_skipped_block_dir($dir_name) {
+        return $dir_name[0] === '_' || $dir_name[0] === '.';
+    }
+    endif;
+
     if (!mkbase_check_duplicate('mk_register_blocks')):
     function mk_register_blocks() {
         $core_dir  = get_template_directory() . '/template-parts/blocks';
@@ -11,7 +19,7 @@
         // Verzamel core blok-namen
         if (is_dir($core_dir)) {
             foreach (scandir($core_dir) as $block) {
-                if ($block === '.' || $block === '..') continue;
+                if (mkbase_is_skipped_block_dir($block)) continue;
                 $block_path = $core_dir . '/' . $block;
                 if (file_exists($block_path . '/block.json')) {
                     $json = json_decode(file_get_contents($block_path . '/block.json'), true);
@@ -25,7 +33,7 @@
         // Controleer child theme op duplicaten en registreer unieke blokken
         if ($is_child && is_dir($child_dir)) {
             foreach (scandir($child_dir) as $block) {
-                if ($block === '.' || $block === '..') continue;
+                if (mkbase_is_skipped_block_dir($block)) continue;
                 $block_path = $child_dir . '/' . $block;
                 if (file_exists($block_path . '/block.json')) {
                     $json = json_decode(file_get_contents($block_path . '/block.json'), true);
@@ -139,7 +147,7 @@
         foreach ($dirs as $dir) {
             if (!is_dir($dir)) continue;
             foreach (scandir($dir) as $block) {
-                if ($block === '.' || $block === '..') continue;
+                if (mkbase_is_skipped_block_dir($block)) continue;
                 $block_json = $dir . '/' . $block . '/block.json';
                 if (file_exists($block_json)) {
                     $json = json_decode(file_get_contents($block_json), true);

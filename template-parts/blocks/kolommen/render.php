@@ -10,7 +10,13 @@
 
     $kolom_aantal = count(explode('-', $verhouding));
 
-    if (!$kolommen) return;
+    // Nog geen kolommen: in de editor een hint tonen, op de site niets
+    if (!$kolommen) {
+        if ($is_preview) {
+            echo mkbase_block_notice(__('Kolommen: kies een verhouding en voeg kolommen toe.', 'mk'));
+        }
+        return;
+    }
 
     // Volgorde waarin meerdere gekozen types binnen één kolom gerenderd worden.
     $type_volgorde = ['titel', 'tekst', 'afbeelding', 'video', 'knop', 'icoon_tekst', 'cijfer'];
@@ -27,7 +33,18 @@
     $inner_style = $inner_style_parts ? ' style="' . implode(' ', $inner_style_parts) . '"' : '';
 ?>
 
-<div class="<?php echo esc_attr(implode(' ', $outer_classes)); ?>" data-padding="<?php echo esc_attr($padding); ?>"<?php echo $outer_style; ?>>
+<?php
+    // Aantal kolommen past niet bij de verhouding: extra kolommen worden niet getoond,
+    // te weinig laat een lege plek. Alleen in de editor melden.
+    if ($is_preview && count($kolommen) !== $kolom_aantal) {
+        echo mkbase_block_notice(sprintf(
+            /* translators: 1: verhouding, 2: benodigd aantal kolommen, 3: huidig aantal kolommen */
+            __('Kolommen: verhouding %1$s vraagt %2$d kolommen, er zijn er %3$d. Pas de verhouding of het aantal kolommen aan.', 'mk'),
+            str_replace('-', ' / ', $verhouding), $kolom_aantal, count($kolommen)
+        ));
+    }
+?>
+<div<?php echo mkbase_block_attrs($block, $outer_classes); ?> data-padding="<?php echo esc_attr($padding); ?>"<?php echo $outer_style; ?>>
     <div class="mk-kolommen<?php echo $blok_afgerond ? ' mk-kolommen--rounded' : ''; ?>"
         data-verhouding="<?php echo esc_attr($verhouding); ?>"
         data-uitlijning="<?php echo esc_attr($verticale_uitlijning); ?>"
@@ -73,11 +90,11 @@
                     <?php endif; ?>
 
                     <?php if ($type === 'afbeelding' && $kolom['afbeelding']): ?>
-                        <img class="mk-kolommen__afbeelding" loading="lazy" src="<?php echo esc_url($kolom['afbeelding']['url']); ?>" alt="<?php echo esc_attr($kolom['afbeelding']['alt']); ?>">
+                        <?php echo mkbase_image($kolom['afbeelding'], ($kolom['afbeeldingsformaat'] ?? '') ?: 'full', ['class' => 'mk-kolommen__afbeelding']); ?>
                     <?php endif; ?>
 
                     <?php if ($type === 'video' && $kolom['video']): ?>
-                        <div class="mk-kolommen__video"><?php echo $kolom['video']; ?></div>
+                        <div class="mk-kolommen__video"><?php echo mkbase_video($kolom['video'], $is_preview); ?></div>
                     <?php endif; ?>
 
                     <?php if ($type === 'knop' && $kolom['knop']):
@@ -97,7 +114,7 @@
                     <?php if ($type === 'icoon_tekst'): ?>
                         <div class="mk-kolommen__icoon-tekst">
                             <?php if ($kolom['icoon']): ?>
-                                <img class="mk-kolommen__icoon" loading="lazy" src="<?php echo esc_url($kolom['icoon']['url']); ?>" alt="">
+                                <?php echo mkbase_image($kolom['icoon'], 'medium', ['class' => 'mk-kolommen__icoon', 'alt' => '']); ?>
                             <?php endif; ?>
                             <?php if ($kolom['icoon_tekst']): ?>
                                 <span><?php echo esc_html($kolom['icoon_tekst']); ?></span>

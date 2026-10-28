@@ -5,6 +5,7 @@
     $autoplay     = get_field('autoplay');
     $aspectRatio  = get_field('aspect_ratio') ?: '';
     $lightbox     = get_field('lightbox');
+    $imageSize    = get_field('afbeeldingsformaat') ?: 'full';
     $galleryId    = wp_unique_id('image-slider-');
 
     $theme_uri = get_template_directory_uri();
@@ -19,7 +20,7 @@
 ?>
 
 <?php if ($slides): ?>
-<div class="image-slider"
+<div<?php echo mkbase_block_attrs($block, 'image-slider'); ?>
     data-items-desktop="<?php echo esc_attr($itemsDesktop); ?>"
     data-items-tablet="<?php echo esc_attr($itemsTablet); ?>"
     data-autoplay="<?php echo $autoplay ? 'true' : 'false'; ?>">
@@ -34,10 +35,10 @@
                     <div class="image-slider__item swiper-slide" <?php echo $style ? 'style="' . $style . '"' : ''; ?>>
                         <?php if ($lightbox): ?>
                             <a class="image-slider__link" href="<?php echo esc_url($afbeelding['url']); ?>" data-mk-lightbox="<?php echo esc_attr($galleryId); ?>">
-                                <img loading="lazy" src="<?php echo esc_url($afbeelding['url']); ?>" alt="<?php echo esc_attr($afbeelding['alt']); ?>">
+                                <?php echo mkbase_image($afbeelding, $imageSize); ?>
                             </a>
                         <?php else: ?>
-                            <img loading="lazy" src="<?php echo esc_url($afbeelding['url']); ?>" alt="<?php echo esc_attr($afbeelding['alt']); ?>">
+                            <?php echo mkbase_image($afbeelding, $imageSize); ?>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>

@@ -1,50 +1,51 @@
 # MKBase Theme — Changelog
 
-## v1.4.0
+## v1.4.1
 
-### Nieuw: lightbox
-- Nieuwe lightbox voor blokken en child themes, als vervanger van Fancybox voor nieuw werk: de eigen laag `mk-lightbox` (`assets/js/mk-lightbox.js`) met [Tobii](https://github.com/midzer/tobii) 3.2.0 (MIT, geen jQuery) eronder. Blokken gebruiken alleen de eigen data-attributen en nooit Tobii zelf, zodat de library later vervangen kan worden zonder dat blokken of sites aangepast hoeven te worden. Ondersteunt foto's, video (YouTube, Vimeo en eigen `.mp4`), iframes en eigen HTML-content:
-  ```html
-  <a href="foto.jpg" data-mk-lightbox="groep">…</a>
-  <a href="https://youtu.be/ID" data-mk-lightbox data-mk-lightbox-type="video">…</a>
-  <a href="https://…" data-mk-lightbox data-mk-lightbox-type="iframe">…</a>
-  <a href="#element-id" data-mk-lightbox data-mk-lightbox-type="html">…</a>
-  ```
-  Links met dezelfde `data-mk-lightbox`-waarde vormen een galerij. Inladen met `wp_enqueue_script('mk-lightbox')`; de CSS laadt automatisch mee. YouTube opent via `youtube-nocookie.com` en Vimeo met `dnt=1`. Eigen HTML-content wordt verplaatst in plaats van gekopieerd, dus formulieren daarin blijven werken. SVG's zonder eigen breedte/hoogte (zoals veel logo's) worden ook correct getoond. Knopteksten zijn vertaalbaar (`mk-core`). Styling vanuit het child theme gaat via eigen CSS-variabelen die het core thema doorzet naar Tobii — gebruik deze, niet Tobii's eigen `--tobii-*`-variabelen of classes, zodat de styling blijft werken als de library ooit vervangen wordt:
-  ```scss
-  :root {
-      --mk-lightbox-background: rgba(0, 0, 0, .9);   // overlay
-      --mk-lightbox-button-color: #fff;              // sluiten, vorige/volgende
-      --mk-lightbox-nav-background: #0057b8;         // achtergrond vorige/volgende
-      --mk-lightbox-caption-background: rgba(0, 0, 0, .8);
-      --mk-lightbox-caption-color: #fff;
-      --mk-lightbox-counter-color: #fff;
-      --mk-lightbox-z-index: 1337;
-  }
-  ```
-  Voor detailstyling heeft de lightbox de eigen class `.mk-lightbox` als basisselector.
-- **Image Slider**: nieuwe optie **Openen in lightbox**. Staat die aan, dan opent een klik op een afbeelding de lightbox, met bladeren door alle slides van die slider.
+### Nieuw
+- Zoekresultatenpagina toegevoegd (`search.php`): titel met de zoekterm, zoekformulier, aantal resultaten, resultaten met uittreksel, paginering en een melding als er niets gevonden is. Zoeken viel eerder terug op `index.php`, dat niets toonde. De opmaak komt uit het child theme via de `.search-page__*`-classes.
+- Toegevoegd: blokmappen die met `_` beginnen worden overgeslagen bij het registreren. Zo kan het child theme een voorbeeldblok (`blocks/_voorbeeld/`) meeleveren dat niet in de editor verschijnt.
+- Helperfunctie `mkbase_image()` toegevoegd om afbeeldingen te tonen in blokken en templates. Geeft de passende maat (`srcset`), breedte en hoogte, lazy loading en de alt-tekst uit de mediabibliotheek, en werkt met een ACF-afbeeldingsveld (array, ID of URL). SVG's krijgen de juiste breedte en hoogte uit het bestand zelf. Uitleg staat in **Documentatie → Developer → Afbeeldingen**.
+- Keuzeveld **Afbeeldingsformaat** toegevoegd aan de Image Slider, Kolommen, Loop en de 404-pagina: kies hoe groot de afbeeldingen worden ingeladen (Klein, Middel, Groot of Origineel). Bij Kolommen staat het veld naast de afbeelding, per kolom, en bepaalt het ook hoe groot de afbeelding getoond wordt (nooit breder dan de kolom; vraagt `max-width: 100%` in plaats van `width: 100%` op `.mk-kolommen__afbeelding` in het child theme). De standaard is gelijk aan wat het blok eerder laadde. Eigen blokken krijgen hetzelfde veld met `mkbase_image_size_field()`.
+- Video's in Kolommen laden nu pas na een klik: eerst een voorbeeldafbeelding met afspeelknop. De pagina laadt sneller en YouTube plaatst geen cookies voordat de bezoeker afspeelt (via `youtube-nocookie.com`, Vimeo met `dnt=1`). Hulpfunctie `mkbase_video()` toegevoegd voor eigen blokken, met styling via `--mk-video-*`-variabelen.
+- HTML-anker toegevoegd aan Kolommen, Loop en Image Slider (tabblad **Geavanceerd** in de editor), zodat een link als `#diensten` naar het blok scrolt. Eigen blokken gebruiken hiervoor `mkbase_block_attrs()`.
+- Developer-uitleg toegevoegd onder **Documentatie → Developer → Blokken bouwen**: `mkbase_block_attrs()`, `mkbase_block_notice()`, `mkbase_video()` en de berichtkaart.
 
-### Voorbereiding op jQuery 4
-- Het **Image Slider**-blok draait nu op **Swiper 14** in plaats van Owl Carousel, en heeft geen jQuery meer nodig. Instellingen en gedrag zijn gelijk gebleven (items desktop/tablet, autoplay met pauze bij hover, loop, op mobiel één gecentreerde slide met de buren in beeld). De markup kreeg Swiper-classes (`.swiper`, `.swiper-wrapper`, `.swiper-slide`) naast de bestaande `image-slider__*`-classes; die laatste blijven dus gewoon bruikbaar in de SCSS van het child theme. De `.owl-carousel`-class op de track is verdwenen.
-- Swiper 14 is beschikbaar voor nieuwe blokken via de handle `swiper-v14-js` (alleen geregistreerd — enqueue hem in de `render.php` van het blok; de CSS laadt automatisch mee).
-- De CSS van Fancybox, Owl Carousel en Swiper laadt niet meer op elke pagina, maar alleen nog op pagina's waar het bijbehorende script ge-enqueued wordt — net zoals de scripts zelf sinds v1.1.0. Child themes en blokken hoeven hiervoor niets aan te passen: `wp_enqueue_script('owl-carousel-js')` (of `fancybox-js` / `swiper-js` / `swiper-v14-js`) laadt de CSS automatisch mee, ook vanuit een `render.php`. De vendor-CSS wordt daarbij altijd vóór `style-main.css` van het child theme geplaatst, op dezelfde plek in de cascade als voorheen, zodat de eigen styling nooit door vendor-CSS overschreven wordt.
-- **Owl Carousel (`owl-carousel-js`) en Fancybox (`fancybox-js`) zijn verouderd**: ze worden niet meer onderhouden en werken niet met jQuery 4. Ze blijven geregistreerd en werkend voor bestaande sites die ze al gebruiken, maar zijn niet meer bedoeld voor nieuwe blokken. Ook Swiper 5 (`swiper-js`) blijft onder de oude handle staan voor bestaande sites.
-- De ongebruikte mappen `assets/vendor/fancybox/v3.4.1/` en `v3.5.7/` zijn verwijderd; nergens werd ernaar verwezen. De Fancybox-bestanden in `assets/vendor/fancybox/` zelf blijven.
+### Verbetering
+- Afbeeldingen verbeterd in de Image Slider, Kolommen (afbeelding en icoon), Loop en de 404-pagina: ze gebruiken nu `mkbase_image()`. Telefoons laden een kleinere versie in plaats van het origineel, de pagina verspringt niet meer tijdens het laden, en de alt-tekst komt uit de mediabibliotheek.
+- Documentatie verbeterd: het Kolommen-blok heeft nu uitleg, en het paneel **Afbeeldingen** legt nu uit hoe kleinere versies en het afbeeldingsformaat werken.
+- Archiefpagina verbeterd (`archive.php`, voor categorieën, tags, auteurs en datums): toont nu de titel, de beschrijving, de berichten als kaarten in een grid en paginering. Eerder stond de volledige inhoud van elk bericht onder elkaar, zonder titel. Gebruikt dezelfde kaart en opmaak als het Loop-blok (template-part `template-parts/content/card.php`), dus bestaande sites zijn meteen opgemaakt.
+- Kolommen verbeterd: in de editor verschijnt een melding als het blok leeg is, of als het aantal kolommen niet past bij de gekozen verhouding.
+- WPML-configuratie verbeterd: `afbeeldingsformaat`, `404_afbeeldingsformaat` en `lightbox` (Image Slider) staan nu in `wpml-config.xml`, zodat WPML ze uit de brontaal overneemt.
 
 ### Bugfix
-- De `[mk_theme_module]` shortcode gebruikte de `folder`/`file`-attributen ongefilterd in een bestandspad, waardoor met `../`-reeksen bestanden buiten `template-parts/` ingeladen konden worden. Het opgeloste pad wordt nu met `realpath()` gecontroleerd en moet binnen `template-parts/` vallen voordat het geïncluded wordt.
-- jQuery werd expliciet ge-enqueued terwijl WordPress dit al standaard registreert. De overbodige `wp_enqueue_script('jquery')`-regel is verwijderd; scripts die jQuery als dependency opgeven laden het nog altijd automatisch.
-- De begin-/einddatum-check van de notificatiebalk gebruikte `date('Ymd')` (servertijd) in plaats van de WordPress-tijdzone, waardoor de melding op de verkeerde dag kon in- of uitschakelen. Vervangen door `wp_date('Ymd')`.
-- `header.php` riep de sinds WordPress 4.4 verouderde `wp_title('')` aan voor de `<title>`-tag, wat botste met de al aanwezige `add_theme_support('title-tag')`. De handmatige tag is verwijderd; WordPress genereert de title-tag nu correct via `wp_head()`.
+- Opgelost: "Volledige breedte" in de blokwerkbalk en "Extra CSS-klasse(n)" in de editor deden niets bij Kolommen, Loop en Image Slider. Volledige breedte laat het blok nu buiten de inhoudsbreedte de hele breedte vullen (`assets/css/components/mk-align.css`, laadt alleen waar nodig en werkt ook met bestaande child themes). Bij Breadcrumbs is het werkingsloze veld voor extra classes verborgen.
+- Opgelost: de knopteksten van de lightbox gebruikten tekstdomein `mk-core` in plaats van `mk`, waardoor WPML ze niet bij de overige thema-teksten vond.
 
-### Developer experience
-- Nieuwe GitHub Action (`lint.yml`) draait voortaan bij elke pull request naar `dev`/`main`: een PHP-syntaxcheck op gewijzigde bestanden, een structuurcheck op de vier `block.json`-bestanden, en een controle dat een versiebump in `style.css` altijd samen met een `CHANGELOG.md`-wijziging gebeurt (en omgekeerd). Draait los van de bestaande release-workflow.
-- De 19 plekken die voor cache-busting van assets direct `filemtime()` aanriepen gebruiken nu één centrale helper, `mkbase_asset_version()` (`inc/helpers/asset-version.php`). Die controleert eerst of het bestand bestaat, zodat een ontbrekend asset (bijv. een child-theme zonder `dist`-build) geen PHP-warning meer geeft.
-- Verouderde jQuery-schrijfwijzen in de eigen scripts vervangen: `jQuery(document).ready(...)` / `jQuery(window).ready(...)` (verouderd sinds jQuery 3.0) is nu `jQuery(function($){...})` in `form.js`, `notification.js`, `sameheight.js` en `image-slider.js`, en de shorthand `$(window).resize(...)` (verouderd sinds jQuery 3.3) is nu `.on('resize', ...)`. Werking is ongewijzigd.
-- Overbodige `-webkit-appearance`/`-moz-appearance`-prefixes verwijderd uit `editor-blocks.css`; de standaard `appearance: none` stond er al en wordt door alle huidige browsers ondersteund.
-- De `<link rel="pingback">` in `header.php` wordt alleen nog uitgegeven op losse berichten/pagina's waar pingbacks openstaan, in plaats van op elke pagina.
-- Nieuwe pagina **Mediakanjers → Diagnose** verzamelt governance-bevindingen op één plek: child-theme/core-functienaamconflicten en een child-theme dat een te oude core-versie nodig heeft (via een optionele `Requires MKBase: X.Y.Z`-regel in het child-theme's `style.css`). Elke bevinding wordt ook naar de PHP-errorlog geschreven (zichtbaar in `wp-content/debug.log` zodra `WP_DEBUG_LOG` aan staat), zodat een developer ook kan meekijken wanneer de wp-admin zelf niet bereikbaar is.
-- De Diagnose-pagina toont nu ook: een Omgeving-overzicht (WordPress-/PHP-versie t.o.v. wat het thema vereist, `memory_limit`, actieve plugins, database table-prefix, of een SEO-plugin actief is), een Performance-overzicht (grootte van `debug.log` en van de autoload-opties in `wp_options` (inclusief de sinds WordPress 6.6 gebruikte autoload-waarden zoals `on` en `auto`) — beide een bekende WordPress-performanceval als ze te groot worden), de status van de bestaande thema-toggles (Alleen thema-blokken, Paginastructuur vergrendeld, Bestandseditor), en of een child-theme de ACF-velden van de blokken Loop/Image Slider/Kolommen overschrijft (was al mogelijk via `mkbase_block_has_fields()`, maar gebeurde tot nu toe onzichtbaar).
-- Nieuwe beveiligings- en SEO-checks op de Diagnose-pagina: HTTPS actief, `debug.log` niet publiek benaderbaar via de browser (met een 1 uur gecachete check om geen herhaalde externe requests te doen), site niet per ongeluk op "ontmoedig zoekmachines" ingesteld, favicon en 404-pagina ingevuld. Plus: eventuele legacy ACF-blokken (geregistreerd zonder `block.json`) worden nu gemeld — dit werd al bijgehouden door `mkbase_track_legacy_theme_block()`, maar nergens getoond.
-- Nog meer bevindingen op de Diagnose-pagina: menu-locaties zonder gekoppeld menu, een notificatiebalk die aanstaat maar buiten de ingestelde periode valt, een beschikbare MKBase-update (hergebruikt de bestaande updater-transient, geen extra requests), permalink-structuur op "Gewoon" i.p.v. nette URL's, en of "CSS overschrijven" bij Meldingen per ongeluk aanstaat op een klantsite. Nieuwe kaart **Server**: schrijfbaarheid van de uploads-/wp-content-map, aanwezigheid van `.htaccess`, vrije schijfruimte, ACF-JSON-syncstatus en belangrijke PHP-extensies (curl, mbstring, gd, imagick). Plus: persistent object cache-status in de Performance-kaart, en welke code-injectiepunten (Geavanceerd) en extra toegestane blokken actief staan in Thema-instellingen.
+## v1.4.0
+
+### Nieuw
+- Lightbox toegevoegd voor foto's, video (YouTube, Vimeo en eigen `.mp4`), iframes en eigen HTML-content. Draait op Tobii 3.2.0 (zonder jQuery) via de eigen laag `mk-lightbox`, en vervangt Fancybox voor nieuw werk. Uitleg voor developers staat in **Documentatie → Developer → Lightbox**.
+- Image Slider: optie **Openen in lightbox** toegevoegd. Een klik op een afbeelding opent die groot, met bladeren door alle slides van die slider.
+- Lightbox-styling vanuit het child theme toegevoegd via eigen CSS-variabelen (`--mk-lightbox-*`) en de class `.mk-lightbox`, los van de library eronder.
+- Swiper 14 toegevoegd voor sliders in blokken (`swiper-v14-js`); de CSS laadt automatisch mee.
+- Diagnose-pagina toegevoegd onder **Mediakanjers → Diagnose**: overzicht van omgeving, performance, beveiliging, SEO, server en thema-instellingen, plus waarschuwingen zoals child-theme-conflicten of een te oude core-versie (`Requires MKBase: X.Y.Z`). Bevindingen komen ook in `debug.log`.
+- GitHub Action `lint.yml` toegevoegd: bij elke pull request naar `dev`/`main` een PHP-syntaxcheck, een check op de `block.json`-bestanden en een controle dat versienummer en changelog bij elkaar passen.
+
+### Verbetering
+- Image Slider verbeterd: draait nu op Swiper 14 in plaats van Owl Carousel en werkt zonder jQuery. Instellingen en gedrag zijn gelijk gebleven, en de `image-slider__*`-classes blijven bruikbaar in het child theme.
+- Vendor-CSS geoptimaliseerd: de CSS van Fancybox, Owl Carousel en Swiper laadt alleen nog op pagina's waar het script geladen wordt, en altijd vóór `style-main.css`, zodat de eigen styling wint. Child themes hoeven niets aan te passen.
+- Eigen scripts verbeterd voor jQuery 4: verouderde schrijfwijzen in `form.js`, `notification.js`, `sameheight.js` en `image-slider.js` zijn aangepast. De werking is gelijk gebleven.
+- Cache-busting verbeterd met de centrale helper `mkbase_asset_version()`; een ontbrekend bestand geeft geen PHP-warning meer.
+- Pingback-link geoptimaliseerd: alleen nog op berichten en pagina's waar pingbacks openstaan.
+
+### Wijziging
+- Owl Carousel (`owl-carousel-js`) en Fancybox (`fancybox-js`) zijn verouderd en werken niet met jQuery 4. Ze blijven werken op bestaande sites, maar zijn voor nieuwe blokken vervangen door Swiper 14 en `mk-lightbox`.
+- Ongebruikte Fancybox-mappen `v3.4.1/` en `v3.5.7/` verwijderd.
+- Overbodige `-webkit-`/`-moz-appearance`-prefixes verwijderd uit `editor-blocks.css`.
+
+### Bugfix
+- Beveiligingslek opgelost in de `[mk_theme_module]`-shortcode: met `../` konden bestanden buiten `template-parts/` worden ingeladen. Het pad wordt nu gecontroleerd.
+- Opgelost: jQuery werd onnodig expliciet ingeladen, terwijl WordPress dit zelf al regelt.
+- Opgelost: de notificatiebalk gebruikte de servertijd in plaats van de WordPress-tijdzone, waardoor de melding op de verkeerde dag kon aan- of uitgaan.
+- Opgelost: de verouderde `wp_title()` in `header.php` botste met de `<title>`-tag van WordPress. WordPress maakt de titel nu zelf aan.

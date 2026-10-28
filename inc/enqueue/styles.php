@@ -20,6 +20,9 @@
         wp_register_style('swiper-v14-css', $theme_uri . '/assets/vendor/swiper/v14/swiper-bundle.min.css', [], '14.3.0');
         wp_register_style('tobii-css', $theme_uri . '/assets/vendor/tobii/tobii.min.css', [], '3.2.0');
         wp_register_style('mk-lightbox-css', $theme_uri . '/assets/css/components/mk-lightbox.css', ['tobii-css'], mkbase_asset_version($theme_dir . '/assets/css/components/mk-lightbox.css'));
+        // "Volledige breedte" van de blokken — wordt ge-enqueued door mkbase_block_attrs()
+        wp_register_style('mk-align', $theme_uri . '/assets/css/components/mk-align.css', [], mkbase_asset_version($theme_dir . '/assets/css/components/mk-align.css'));
+        wp_register_style('mk-video-css', $theme_uri . '/assets/css/components/mk-video.css', [], mkbase_asset_version($theme_dir . '/assets/css/components/mk-video.css'));
         wp_register_style('fancybox-css', $theme_uri . '/assets/vendor/fancybox/jquery.fancybox.min.css');
         wp_register_style('owl-carousel-css', $theme_uri . '/assets/vendor/owl/owl.carousel.min.css');
         wp_register_style('swiper-css', $theme_uri . '/assets/vendor/swiper/swiper.min.css');
@@ -49,6 +52,7 @@
             'swiper-v14-js'   => 'swiper-v14-css',
             'tobii-js'        => 'tobii-css',
             'mk-lightbox'     => 'mk-lightbox-css',
+            'mk-video'        => 'mk-video-css',
         ];
     }
 
@@ -70,7 +74,7 @@
     // Prioriteit 20: ná WordPress' eigen filter (10) dat de laat geprinte CSS naar de <head> verplaatst.
     function mkbase_move_vendor_styles_before_main($html) {
         $main    = '/<link\b[^>]*\bid=([\'"])mkbase-style-main-css\1[^>]*>/';
-        $handles = array_merge(array_values(mkbase_vendor_styles()), ['mk-image-slider']);
+        $handles = array_merge(array_values(mkbase_vendor_styles()), ['mk-image-slider', 'mk-align']);
 
         foreach ($handles as $handle) {
             if (!preg_match($main, $html, $m, PREG_OFFSET_CAPTURE)) return $html;
