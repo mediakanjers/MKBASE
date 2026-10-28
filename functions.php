@@ -16,6 +16,9 @@
     require_once get_template_directory() . '/inc/acf/json.php';
     require_once get_template_directory() . '/inc/acf/register-blocks.php';
 
+    require_once get_template_directory() . '/inc/migrations.php';
+    require_once get_template_directory() . '/inc/notifications.php';
+
     require_once get_template_directory() . '/inc/breadcrumbs.php';
     require_once get_template_directory() . '/inc/menu.php';
     require_once get_template_directory() . '/inc/changelog.php';

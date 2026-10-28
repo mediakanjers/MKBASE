@@ -27,11 +27,7 @@
         wp_register_style('owl-carousel-css', $theme_uri . '/assets/vendor/owl/owl.carousel.min.css');
         wp_register_style('swiper-css', $theme_uri . '/assets/vendor/swiper/swiper.min.css');
 
-        // Core component: notifications
-        $customcssoverwrite = get_field('css_overschrijven', 'option');
-        if($customcssoverwrite == 'Nee') {
-            wp_enqueue_style('mk-notifications-css', $theme_uri . '/assets/css/components/notifications.css', array('mk-core-style'), mkbase_asset_version($theme_dir . '/assets/css/components/notifications.css'));
-        };
+        // Meldingen (notificatiebalk): zie inc/notifications.php
 
         // Main compiled SCSS from /dist
         wp_enqueue_style( 'mkbase-style-main', $child_uri . '/dist/css/style-main.css', array(), mkbase_asset_version($child_dir . '/dist/css/style-main.css') );

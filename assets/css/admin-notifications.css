@@ -1,0 +1,406 @@
+/* ════════════════════════════════════════════════════════════
+   Mediakanjers → Meldingen — in de stijl van Changelog / Documentatie / Diagnose.
+   Kop (.mk-cover) en dark-toggle komen uit admin-shared.css. Zie inc/notifications.php.
+   ════════════════════════════════════════════════════════════ */
+
+.mediakanjers_page_acf-options-meldingen {
+    --mk-accent-1: #2563eb;
+    --mk-accent-2: #7c3aed;
+    --mk-card: #ffffff;
+    --mk-border: #e2e8f0;
+    --mk-text: #1e293b;
+    --mk-muted: #64748b;
+    --mk-soft: #f8fafc;
+    --mk-radius: 12px;
+}
+
+.mediakanjers_page_acf-options-meldingen.dark {
+    --mk-card: #161b22;
+    --mk-border: #21262d;
+    --mk-text: #e2e8f0;
+    --mk-muted: #8b949e;
+    --mk-soft: #0d1117;
+}
+
+.mediakanjers_page_acf-options-meldingen #wpbody-content {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Kop en formulier op dezelfde breedte */
+.mk-notif-head,
+.mediakanjers_page_acf-options-meldingen .wrap.acf-settings-wrap {
+    max-width: 1100px;
+    margin: 0 20px 0 0;
+}
+
+.mk-notif-head {
+    padding-top: 20px;
+}
+
+/* De standaard-titel van ACF: vervangen door de cover */
+.mediakanjers_page_acf-options-meldingen .wrap.acf-settings-wrap > h1 {
+    display: none;
+}
+
+.mk-notif-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.mk-notif-toolbar .mk-dark-toggle {
+    margin: 0;
+}
+
+.mk-notif-toolbar__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mk-muted);
+    text-decoration: none;
+}
+
+.mk-notif-toolbar__link:hover {
+    color: var(--mk-accent-1);
+}
+
+.mk-notif-toolbar__link .dashicons {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+}
+
+/* ── Opbouw: formulier links, opslaan rechts ───────────────── */
+.mediakanjers_page_acf-options-meldingen #poststuff {
+    padding-top: 0;
+}
+
+.mediakanjers_page_acf-options-meldingen .postbox {
+    background: var(--mk-card);
+    border: 1px solid var(--mk-border);
+    border-radius: var(--mk-radius);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.mediakanjers_page_acf-options-meldingen .postbox .postbox-header {
+    border-bottom-color: var(--mk-border);
+}
+
+.mediakanjers_page_acf-options-meldingen .postbox .hndle,
+.mediakanjers_page_acf-options-meldingen .postbox h2 {
+    color: var(--mk-text);
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+}
+
+.mediakanjers_page_acf-options-meldingen #submitdiv #major-publishing-actions {
+    background: var(--mk-soft);
+    border-top-color: var(--mk-border);
+    border-radius: 0 0 var(--mk-radius) var(--mk-radius);
+}
+
+.mediakanjers_page_acf-options-meldingen #submitdiv .button-primary {
+    background: linear-gradient(135deg, var(--mk-accent-1), var(--mk-accent-2));
+    border: 0;
+    border-radius: 8px;
+    padding: 4px 20px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.mediakanjers_page_acf-options-meldingen #submitdiv .button-primary:hover {
+    filter: brightness(1.08);
+}
+
+/* ── Tabbladen (Meldingen / Technisch en per melding) ──────── */
+.mediakanjers_page_acf-options-meldingen .acf-tab-wrap {
+    background: transparent;
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-tab-wrap .acf-tab-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 0;
+    border-bottom: 2px solid var(--mk-border);
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-tab-wrap .acf-tab-group li {
+    margin: 0 0 -2px;
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-tab-wrap .acf-tab-group li a {
+    padding: 8px 16px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--mk-muted);
+    background: transparent;
+    border: 2px solid transparent;
+    border-bottom: 0;
+    border-radius: 6px 6px 0 0;
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-tab-wrap .acf-tab-group li a:hover {
+    color: var(--mk-text);
+    background: var(--mk-soft);
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-tab-wrap .acf-tab-group li.active a {
+    color: var(--mk-text);
+    background: var(--mk-card);
+    border-color: var(--mk-border);
+}
+
+/* ── Velden ────────────────────────────────────────────────── */
+.mediakanjers_page_acf-options-meldingen .acf-field .acf-label label {
+    font-weight: 600;
+    color: var(--mk-text);
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-field p.description {
+    color: var(--mk-muted);
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-fields > .acf-field {
+    border-top-color: var(--mk-border);
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-switch.-on {
+    background: linear-gradient(135deg, var(--mk-accent-1), var(--mk-accent-2));
+    border-color: transparent;
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-button-group label.selected {
+    background: linear-gradient(135deg, var(--mk-accent-1), var(--mk-accent-2));
+    border-color: transparent;
+}
+
+/* ── Overzicht bovenaan ────────────────────────────────────── */
+.mk-notif-overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.mk-notif-overview--empty {
+    display: block;
+    padding: 18px 20px;
+    border: 1px dashed var(--mk-border);
+    border-radius: var(--mk-radius);
+    color: var(--mk-muted);
+}
+
+.mk-notif-stat {
+    position: relative;
+    padding: 16px 18px;
+    background: var(--mk-card);
+    border: 1px solid var(--mk-border);
+    border-radius: var(--mk-radius);
+    overflow: hidden;
+}
+
+.mk-notif-stat::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--mk-stat-color, #94a3b8);
+}
+
+.mk-notif-stat--live     { --mk-stat-color: #16a34a; }
+.mk-notif-stat--gepland  { --mk-stat-color: #2563eb; }
+.mk-notif-stat--verlopen { --mk-stat-color: #f59e0b; }
+.mk-notif-stat--uit      { --mk-stat-color: #94a3b8; }
+
+.mk-notif-stat__count {
+    display: block;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--mk-text);
+}
+
+.mk-notif-stat__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mk-muted);
+}
+
+.mk-notif-overview__hint {
+    margin: 10px 0 0;
+    color: #b45309;
+    font-size: 12.5px;
+}
+
+/* ── Meldingen (repeater) ──────────────────────────────────── */
+.mediakanjers_page_acf-options-meldingen .acf-field[data-key="field_mk_meldingen"] > .acf-label {
+    display: none;
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-repeater > table.acf-table {
+    border: 0;
+    border-collapse: separate;
+    border-spacing: 0 14px;
+    background: transparent;
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-repeater .acf-row > td {
+    background: var(--mk-card);
+    border-top: 1px solid var(--mk-border) !important;
+    border-bottom: 1px solid var(--mk-border) !important;
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-repeater .acf-row > td.acf-row-handle.order {
+    position: relative;
+    border-left: 1px solid var(--mk-border);
+    border-radius: var(--mk-radius) 0 0 var(--mk-radius);
+    background: var(--mk-soft);
+    color: var(--mk-muted);
+    font-weight: 700;
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-repeater .acf-row > td.acf-row-handle.remove {
+    border-right: 1px solid var(--mk-border);
+    border-radius: 0 var(--mk-radius) var(--mk-radius) 0;
+    background: var(--mk-card);
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-repeater .acf-row.-collapsed > .acf-fields > .acf-field {
+    font-weight: 600;
+    color: var(--mk-text);
+}
+
+.mediakanjers_page_acf-options-meldingen .acf-repeater .acf-actions .acf-button {
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* Statusbolletje bij het rijnummer, ook als de rij is ingeklapt */
+.mk-notif-row-badge {
+    display: block;
+    width: 10px;
+    height: 10px;
+    margin: 8px auto 0;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* ── Status-labels ─────────────────────────────────────────── */
+.mk-notif-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #475569;
+    background: #f1f5f9;
+}
+
+.mk-notif-badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.mk-notif-row-badge.mk-notif-badge--live,     .mk-notif-badge.mk-notif-badge--live     { color: #15803d; }
+.mk-notif-row-badge.mk-notif-badge--gepland,  .mk-notif-badge.mk-notif-badge--gepland  { color: #1d4ed8; }
+.mk-notif-row-badge.mk-notif-badge--verlopen, .mk-notif-badge.mk-notif-badge--verlopen { color: #b45309; }
+.mk-notif-row-badge.mk-notif-badge--uit,      .mk-notif-badge.mk-notif-badge--uit      { color: #94a3b8; }
+.mk-notif-row-badge.mk-notif-badge--leeg,     .mk-notif-badge.mk-notif-badge--leeg     { color: #dc2626; }
+
+.mk-notif-badge.mk-notif-badge--live     { background: #dcfce7; }
+.mk-notif-badge.mk-notif-badge--gepland  { background: #dbeafe; }
+.mk-notif-badge.mk-notif-badge--verlopen { background: #fef3c7; }
+.mk-notif-badge.mk-notif-badge--leeg     { background: #fee2e2; }
+
+.dark .mk-notif-badge { background: rgba(148, 163, 184, 0.12); }
+.dark .mk-notif-badge.mk-notif-badge--live     { background: rgba(22, 163, 74, 0.15);  color: #4ade80; }
+.dark .mk-notif-badge.mk-notif-badge--gepland  { background: rgba(37, 99, 235, 0.18); color: #93c5fd; }
+.dark .mk-notif-badge.mk-notif-badge--verlopen { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.dark .mk-notif-badge.mk-notif-badge--leeg     { background: rgba(220, 38, 38, 0.15); color: #f87171; }
+
+/* ── Live voorbeeld per melding ────────────────────────────── */
+.mk-notification-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mk-notif-preview__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--mk-muted);
+}
+
+.mk-notif-preview__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 18px;
+    position: relative;
+    padding: 14px 48px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+
+.mk-notif-preview__txt > :first-child { margin-top: 0; }
+.mk-notif-preview__txt > :last-child  { margin-bottom: 0; }
+.mk-notif-preview__txt a              { color: inherit; }
+
+.mk-notif-preview__btn {
+    padding: 5px 14px;
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.mk-notif-preview__close {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    font-size: 22px;
+    line-height: 1;
+    transform: translateY(-50%);
+    opacity: 0.85;
+}
+
+/* ── Dark mode: ACF-velden ─────────────────────────────────── */
+.mediakanjers_page_acf-options-meldingen.dark .acf-field input[type="text"],
+.mediakanjers_page_acf-options-meldingen.dark .acf-field input[type="number"],
+.mediakanjers_page_acf-options-meldingen.dark .acf-field select,
+.mediakanjers_page_acf-options-meldingen.dark .acf-field textarea {
+    background: #0d1117;
+    border-color: #30363d;
+    color: #e2e8f0;
+}
+
+.mediakanjers_page_acf-options-meldingen.dark .acf-fields,
+.mediakanjers_page_acf-options-meldingen.dark .acf-field {
+    color: var(--mk-text);
+}
+
+.mediakanjers_page_acf-options-meldingen.dark .acf-button-group label {
+    background: #0d1117;
+    border-color: #30363d;
+    color: #c9d1d9;
+}
+
+@media (max-width: 782px) {
+    .mk-notif-overview {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
