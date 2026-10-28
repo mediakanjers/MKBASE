@@ -1,0 +1,12 @@
+/* "Volledige breedte" uit de blokwerkbalk (class alignfull, via mkbase_block_attrs()).
+   De blokken begrenzen zichzelf in het child theme op de inhoudsbreedte; hier laten ze die los
+   en vullen ze de hele breedte van de pagina. Iets specifieker dan de blokstyling van het child
+   theme, zodat het ook werkt op bestaande sites. Laadt alleen op pagina's met zo'n blok.
+   Voor eigen blokken: voeg hier de buitenste class van het blok toe, of geef het blok in het
+   child theme zelf een regel voor .alignfull. */
+.mk-loop.alignfull,
+.image-slider.alignfull,
+.mk-kolommen-outer.alignfull .mk-kolommen {
+    max-width: none;
+    width: 100%;
+}

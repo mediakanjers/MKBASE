@@ -167,6 +167,8 @@
 
         if (current_user_can('manage_options')) {
             $groups['Developer'] = [
+                'dev-blokken'      => 'Blokken bouwen',
+                'dev-afbeeldingen' => 'Afbeeldingen',
                 'lightbox'      => 'Lightbox',
                 'mobiel-testen' => 'Mobiel testen',
             ];
@@ -304,6 +306,7 @@
             ['label' => 'Titel', 'desc' => 'De hoofdtitel op de 404-pagina, bijv. <em>"Oeps, deze pagina bestaat niet."</em>'],
             ['label' => 'Tekst', 'desc' => 'Een korte uitleg of tip voor de bezoeker, bijv. een verwijzing naar de homepage of de zoekopdracht.'],
             ['label' => 'Afbeelding', 'desc' => 'Een optionele illustratie of afbeelding die de 404-pagina visueel ondersteunt.'],
+            ['label' => 'Afbeeldingsformaat', 'desc' => 'Hoe groot de afbeelding wordt ingeladen. Groter is scherper maar laadt trager; telefoons krijgen automatisch een kleinere versie. Standaard: <strong>Origineel</strong>.'],
         ]);
 
         $html .= '</div>';
@@ -325,18 +328,37 @@
             ['label' => 'Handmatige selectie', 'desc' => 'Selecteer specifieke berichten die je wilt tonen. Zodra je berichten selecteert, worden het ingestelde post type en aantal genegeerd — de handmatige selectie heeft prioriteit.'],
             ['label' => 'Kolommen', 'desc' => 'Kies hoeveel kolommen het grid heeft: 1, 2, 3 of 4. Op mobiel worden de kolommen automatisch teruggebracht naar 1.'],
             ['label' => 'Breedte', 'desc' => '<strong>Ingesloten</strong>: de loop past binnen de standaard paginabreedte. <strong>Volledige breedte</strong>: de loop strekt zich uit tot de rand van het scherm.'],
+            ['label' => 'Afbeeldingsformaat', 'desc' => 'Hoe groot de uitgelichte afbeeldingen worden ingeladen. Groter is scherper maar laadt trager; telefoons krijgen automatisch een kleinere versie. Standaard: <strong>Groot</strong>. Kies <strong>Origineel</strong> bij 1 kolom over de volledige breedte.'],
             ['label' => 'Toon knop', 'desc' => 'Schakel in om per kaart een knop te tonen. Handig als je bezoekers expliciet wilt aanmoedigen door te klikken.'],
             ['label' => 'Knoptekst', 'desc' => 'De tekst op de knop. Standaard is dit "Meer lezen". Pas aan naar keuze, bijv. "Bekijk product" of "Lees verder". Zichtbaar zodra "Toon knop" ingeschakeld is.'],
         ]);
 
         $html .= mkbase_docs_section('blok-slider', 'Image Slider', 'dashicons-images-alt2', [
-            ['label' => 'Wat doet het?', 'desc' => 'Toont een scrollbare slider met afbeeldingen. Geschikt voor galerijen, logo\'swanden of afbeeldingscarrousels.'],
+            ['label' => 'Wat doet het?', 'desc' => 'Toont een scrollbare slider met afbeeldingen. Geschikt voor galerijen, logowanden of afbeeldingscarrousels.'],
             ['label' => 'Items desktop', 'desc' => 'Hoeveel afbeeldingen er tegelijk zichtbaar zijn op een desktopscherm (1–4).'],
             ['label' => 'Items tablet', 'desc' => 'Hoeveel afbeeldingen er tegelijk zichtbaar zijn op een tabletscherm (1–3). Op mobiel wordt altijd 1 item tegelijk getoond.'],
             ['label' => 'Autoplay', 'desc' => 'Schakel in om de slider automatisch door de afbeeldingen te laten scrollen. De gebruiker kan de slider altijd handmatig bedienen.'],
             ['label' => 'Aspect ratio', 'desc' => 'Bepaalt de verhouding van elke slide. Kies uit Vierkant (1:1), Standaard (4:3), Portret (3:4), Klassiek (3:2), Klassiek portret (2:3), Breed (16:9) of Groot (9:16). Laat leeg om de originele afmetingen van de afbeelding te gebruiken.'],
             ['label' => 'Openen in lightbox', 'desc' => 'Schakel in om een afbeelding groot te openen als een bezoeker erop klikt. In de lightbox kan de bezoeker bladeren door alle afbeeldingen van deze slider.'],
+            ['label' => 'Afbeeldingsformaat', 'desc' => 'Hoe groot de afbeeldingen worden ingeladen. Groter is scherper maar laadt trager; telefoons krijgen automatisch een kleinere versie. Standaard: <strong>Origineel</strong>. Bij 3 of 4 items naast elkaar is <strong>Groot</strong> meestal scherp genoeg en sneller.'],
             ['label' => 'Slides', 'desc' => 'Voeg afbeeldingen toe via de repeater. Klik op "Nieuwe rij" om een extra slide toe te voegen. Sleep de rijen om de volgorde te wijzigen.'],
+        ]);
+
+        $html .= mkbase_docs_section('blok-kolommen', 'Kolommen', 'dashicons-columns', [
+            ['label' => 'Wat doet het?', 'desc' => 'Zet inhoud naast elkaar in 1 tot 4 kolommen, bijv. tekst naast een afbeelding of drie USP\'s naast elkaar. Op mobiel komen de kolommen onder elkaar te staan.'],
+            ['label' => 'Verhouding', 'desc' => 'Kies het aantal kolommen en hoe breed ze zijn, bijv. <strong>66 / 33</strong> voor een brede en een smalle kolom. Voeg daarna evenveel kolommen toe als gekozen.'],
+            ['label' => 'Kolommen', 'desc' => 'De bovenste kolom komt links op de pagina, de onderste rechts. Kies per kolom bij <strong>Type</strong> wat erin komt: Titel, Tekst, Afbeelding, Video, Knop, Icoon + tekst of Cijfer. Combineren mag, bijv. Titel + Tekst + Knop; de onderdelen verschijnen in die volgorde.'],
+            ['label' => 'Video', 'desc' => 'Plak een YouTube- of Vimeo-link. Op de website staat eerst een voorbeeldafbeelding met afspeelknop; de video laadt pas als de bezoeker daarop klikt. Zo laadt de pagina sneller en plaatst YouTube geen cookies voordat de bezoeker kiest om af te spelen.'],
+            ['label' => 'Meldingen in de editor', 'desc' => 'Past het aantal kolommen niet bij de gekozen verhouding, of is het blok nog leeg, dan staat er in de editor een oranje melding boven het blok. Op de website is die niet zichtbaar.'],
+            ['label' => 'Opmaak per kolom', 'desc' => 'Per kolom kun je een eigen achtergrondkleur, tekstkleur, afgeronde hoeken, binnenruimte (padding) en verticale uitlijning instellen.'],
+            ['label' => 'Opmaak van het blok', 'desc' => 'In het tabblad <strong>Opmaak</strong>: de verticale uitlijning van de kolommen ten opzichte van elkaar, een achtergrondkleur over de volle schermbreedte en/of binnen de paginabreedte, de tekstkleur, de binnenruimte en afgeronde hoeken.'],
+            ['label' => 'Afbeeldingsformaat', 'desc' => 'Staat naast de afbeelding in de kolom. Bepaalt hoe groot de afbeelding getoond wordt: <strong>Klein</strong> (max. 150px), <strong>Middel</strong> (max. 300px), <strong>Groot</strong> (max. 1024px) of <strong>Origineel</strong>. Nooit breder dan de kolom, dus Origineel vult de kolom. Standaard: <strong>Origineel</strong>.'],
+        ]);
+
+        $html .= mkbase_docs_section('blok-geavanceerd', 'Breedte en geavanceerd (Kolommen, Loop, Image Slider)', 'dashicons-admin-generic', [
+            ['label' => 'Volledige breedte', 'desc' => 'Klik in de werkbalk boven het blok op het uitlijn-icoon en kies <strong>Volledige breedte</strong>. Het blok gaat dan buiten de normale inhoudsbreedte en vult de hele breedte van het scherm.'],
+            ['label' => 'HTML-anker', 'desc' => 'Geef het blok een anker, bijv. <code>diensten</code>, via het tabblad <strong>Geavanceerd</strong> in de rechterkolom van de editor. Een link of menu-item naar <code>#diensten</code> scrolt dan naar dit blok.'],
+            ['label' => 'Extra CSS-klasse(n)', 'desc' => 'Ook onder <strong>Geavanceerd</strong>. Bedoeld voor de developer, om één specifiek blok een eigen opmaak te geven.'],
         ]);
 
         // mkbase_docs_section() is beschikbaar vanuit het core thema — niet opnieuw definiëren.
@@ -363,6 +385,8 @@
             ['label' => 'Breedte', 'desc' => 'Upload afbeeldingen op de breedte waarop ze getoond worden, of iets groter. Een afbeelding van 3000px breed uploaden voor een blok van 800px breed is onnodig groot.'],
             ['label' => 'Aanbevolen breedtes', 'desc' => 'Volledige breedte (banner/hero): <strong>1920px</strong>. Inhoudsblok: <strong>1200px</strong>. Thumbnail / kaart: <strong>800px</strong>.'],
             ['label' => 'Retina schermen', 'desc' => 'Wil je dat afbeeldingen scherp zijn op retina-schermen (bijv. MacBooks en iPhones)? Upload ze op <strong>2× de weergavegrootte</strong>. Dus een afbeelding die 600px breed getoond wordt, upload je op 1200px.'],
+            ['label' => 'Kleinere versies', 'desc' => 'Bij het uploaden maakt WordPress automatisch kleinere versies van de afbeelding. De website laat elk apparaat de versie laden die past: een telefoon krijgt een kleine, een groot scherm een grote. Je hoeft zelf geen aparte mobiele afbeelding te uploaden.'],
+            ['label' => 'Afbeeldingsformaat in blokken', 'desc' => 'Blokken met afbeeldingen (Image Slider, Kolommen, Loop) en de 404-pagina hebben een keuzeveld <strong>Afbeeldingsformaat</strong>: Klein, Middel, Groot of Origineel. In de Image Slider en de Loop bepaalt het hoe scherp de afbeeldingen zijn: kies <strong>Origineel</strong> voor afbeeldingen over (bijna) de volle breedte, en <strong>Groot</strong> of kleiner als er meerdere naast elkaar staan. In Kolommen bepaalt het hoe groot de afbeelding getoond wordt.'],
         ]);
 
         $html .= mkbase_docs_section('afb-alt', 'Alt-tekst', 'dashicons-editor-textcolor', [
@@ -498,6 +522,66 @@
             $html .= '</div>';
         }
 
+        /* ── BLOKKEN BOUWEN (developer only) ─────────────── */
+        if (current_user_can('manage_options')) {
+            $html .= '<div class="mkbase-docs-panel" data-panel="dev-blokken">';
+            $html .= '<p class="mkbase-docs-intro">Hulpfuncties uit het core thema voor de <code>render.php</code> van een blok. Een compleet startpunt staat in het child theme: <code>template-parts/blocks/_voorbeeld/</code>, met een stappenplan in de <code>README.md</code>. Mappen die met <code>_</code> beginnen worden niet als blok geregistreerd.</p>';
+
+            $html .= mkbase_docs_section('dev-blok-attrs', 'Anker en extra classes', 'dashicons-admin-generic', [
+                ['label' => 'Gebruik', 'desc' => '<code>' . esc_html('<div<?php echo mkbase_block_attrs($block, \'mk-team\'); ?>>') . '</code> op de buitenste <code>&lt;div&gt;</code> van het blok. Voegt het HTML-anker (<code>id</code>) en de "Extra CSS-klasse(n)" uit de editor toe aan de eigen classes. Meerdere eigen classes: geef een array mee.'],
+                ['label' => 'block.json', 'desc' => 'Zet onder <code>supports</code>: <code>"anchor": true</code> voor het veld HTML-anker, en <code>"align": ["full"]</code> voor "Volledige breedte" in de blokwerkbalk.'],
+                ['label' => 'Volledige breedte', 'desc' => 'Geeft de buitenste <code>&lt;div&gt;</code> de class <code>.alignfull</code>. Voor de core-blokken staat de opmaak in <code>assets/css/components/mk-align.css</code> (laadt alleen waar nodig). Voor een eigen blok in het child theme: <code>.mk-team.alignfull { max-width: none; width: 100%; }</code>.'],
+            ]);
+
+            $html .= mkbase_docs_section('dev-blok-notice', 'Meldingen in de editor', 'dashicons-warning', [
+                ['label' => 'Gebruik', 'desc' => '<code>if ($is_preview) echo mkbase_block_notice(__(\'Team: voeg teamleden toe.\', \'mk\'));</code> — een oranje melding, alleen in de editor. Handig bij een leeg blok of een instelling die niet klopt.'],
+            ]);
+
+            $html .= mkbase_docs_section('dev-blok-video', 'Video', 'dashicons-video-alt3', [
+                ['label' => 'Gebruik', 'desc' => '<code>echo mkbase_video(get_field(\'video\'), $is_preview);</code> met een ACF oEmbed-veld. Op de site eerst een afspeelknop (bij YouTube met voorbeeldafbeelding); de video laadt pas na een klik, YouTube via <code>youtube-nocookie.com</code> en Vimeo met <code>dnt=1</code>. In de editor staat de video er direct. Script en CSS laden automatisch mee.'],
+                ['label' => 'Styling', 'desc' => 'Pas in het child theme de variabelen aan op <code>.mk-video</code>: <code>--mk-video-bg</code>, <code>--mk-video-icon-bg</code>, <code>--mk-video-icon-bg-hover</code> en <code>--mk-video-icon-color</code>. Of overschrijf de classes <code>.mk-video__play</code>, <code>.mk-video__poster</code> en <code>.mk-video__icon</code>.'],
+            ]);
+
+            $html .= mkbase_docs_section('dev-blok-kaart', 'Berichtkaart', 'dashicons-id', [
+                ['label' => 'Gebruik', 'desc' => '<code>get_template_part(\'template-parts/content/card\', null, [\'post\' =&gt; $post, \'image_size\' =&gt; \'large\', \'knop_tekst\' =&gt; \'\', \'is_preview\' =&gt; $is_preview]);</code> — dezelfde kaart als het Loop-blok en de archiefpagina, met de <code>.mk-loop__*</code>-classes.'],
+            ]);
+
+            $html .= '</div>';
+        }
+
+        /* ── AFBEELDINGEN (developer only) ───────────────── */
+        if (current_user_can('manage_options')) {
+            $html .= '<div class="mkbase-docs-panel" data-panel="dev-afbeeldingen">';
+            $html .= '<p class="mkbase-docs-intro"><code>mkbase_image()</code> zet een afbeelding uit de mediabibliotheek om naar een complete <code>&lt;img&gt;</code>-tag. Gebruik hem in blokken en templates altijd, in plaats van zelf een <code>&lt;img&gt;</code> te schrijven.</p>';
+
+            $html .= mkbase_docs_section('dev-img-waarom', 'Waarom gebruiken we dit?', 'dashicons-lightbulb', [
+                ['label' => 'Het probleem', 'desc' => 'Een eigen <code>' . esc_html('<img src="<?php echo $afbeelding[\'url\']; ?>">') . '</code> laadt altijd de originele, volledige foto, ook op een telefoon. Er staat geen breedte en hoogte op, dus de pagina verspringt tijdens het laden, en de alt-tekst moet je zelf ophalen. Dat moet je in elk blok opnieuw goed doen, en dat gaat snel mis.'],
+                ['label' => 'De oplossing', 'desc' => 'Eén functie die dit altijd goed doet. Elke developer krijgt hetzelfde resultaat zonder erover na te denken, en elk blok is daardoor even snel en toegankelijk.'],
+                ['label' => 'Op één plek aan te passen', 'desc' => 'Willen we later iets veranderen voor alle afbeeldingen (bijv. een extra attribuut of ander laadgedrag), dan passen we alleen <code>inc/helpers/image.php</code> aan in een core-update. Alle blokken en child themes nemen het dan automatisch over.'],
+                ['label' => 'Waarom niet WordPress zelf?', 'desc' => 'WordPress heeft <code>wp_get_attachment_image()</code>, maar die werkt alleen met een ID en geeft niets terug voor SVG\'s. <code>mkbase_image()</code> gebruikt die functie, maar accepteert ook een ACF-array of URL en vangt SVG\'s en externe afbeeldingen op.'],
+            ]);
+
+            $html .= mkbase_docs_section('dev-img-gebruik', 'Gebruik', 'dashicons-format-image', [
+                ['label' => 'Basis', 'desc' => '<code>&lt;?php echo mkbase_image($afbeelding, \'large\'); ?&gt;</code> — <code>$afbeelding</code> is een ACF-afbeeldingsveld (array, ID of URL) of een attachment-ID. Is het leeg, dan geeft de functie niets terug; een eigen <code>if</code> is niet nodig.'],
+                ['label' => 'Maat', 'desc' => 'Het tweede argument is de WordPress-afbeeldingsmaat: <code>thumbnail</code>, <code>medium</code>, <code>large</code> of <code>full</code>. Kies de maat die het dichtst bij de weergavegrootte ligt; de browser kiest daarnaast zelf een kleinere versie op kleine schermen.'],
+                ['label' => 'Class of attributen', 'desc' => '<code>mkbase_image($afbeelding, \'large\', [\'class\' =&gt; \'mk-blok__afbeelding\'])</code>. Voor een puur decoratieve afbeelding (bijv. een icoon naast tekst): <code>[\'alt\' =&gt; \'\']</code>.'],
+                ['label' => 'Uitgelichte afbeelding', 'desc' => '<code>mkbase_image(get_post_thumbnail_id($post_id), \'large\')</code>'],
+                ['label' => 'Formaat kiesbaar in het blok', 'desc' => 'Zet het keuzeveld <strong>Afbeeldingsformaat</strong> bij de ACF-velden van het blok: <code>mkbase_image_size_field(\'field_mk_team_afbeeldingsformaat\', \'large\', \'team_afbeeldingsformaat\')</code> (key, standaardformaat, veldnaam). In de <code>render.php</code>: <code>mkbase_image($afbeelding, get_field(\'team_afbeeldingsformaat\') ?: \'large\')</code>. Kies als standaard <code>full</code> voor afbeeldingen over (bijna) de volle breedte, anders <code>large</code> of <code>medium</code>. De Image Slider, Kolommen, Loop en 404-pagina hebben dit veld al.'],
+            ]);
+
+            $html .= mkbase_docs_section('dev-img-wat', 'Wat doet het precies?', 'dashicons-performance', [
+                ['label' => 'Stap voor stap', 'desc' => '1. Zoekt uit welk bestand het is: uit een ACF-array of ID haalt hij het ID; bij een URL zoekt hij het bijbehorende bestand in de mediabibliotheek op.<br>2. Maakt de <code>&lt;img&gt;</code> via WordPress, met alle onderstaande voordelen.<br>3. Bij een SVG of een URL buiten de mediabibliotheek kan WordPress dat niet; dan maakt hij zelf een <code>&lt;img&gt;</code> met alt-tekst, lazy loading en (bij een SVG) de breedte en hoogte uit het bestand.<br>4. Leeg veld of onbekend bestand: geeft niets terug.'],
+                ['label' => 'Passende maat', 'desc' => 'Levert de kleinere versies mee die WordPress bij het uploaden aanmaakt (<code>srcset</code>). Een telefoon laadt zo niet de originele, grote foto.'],
+                ['label' => 'Breedte en hoogte', 'desc' => 'Zet <code>width</code> en <code>height</code> op de afbeelding, zodat de pagina niet verspringt tijdens het laden (goed voor de Core Web Vitals van Google).'],
+                ['label' => 'Alt-tekst en lazy loading', 'desc' => 'Neemt de alt-tekst over uit de mediabibliotheek en laadt afbeeldingen pas als ze in beeld komen.'],
+                ['label' => 'SVG\'s', 'desc' => 'WordPress kent de maten van een SVG niet en kan er geen kleinere versies van maken. De functie toont dan het originele bestand, met de breedte en hoogte uit het SVG-bestand zelf (<code>width</code>/<code>height</code> of <code>viewBox</code>) en de alt-tekst uit de mediabibliotheek.'],
+                ['label' => 'Externe afbeeldingen', 'desc' => 'Bij een URL buiten de mediabibliotheek zijn de maten onbekend. Geef ze dan zelf mee: <code>mkbase_image($url, \'large\', [\'width\' =&gt; 800, \'height\' =&gt; 600])</code>.'],
+                ['label' => 'Child theme', 'desc' => 'Beschikbaar vanaf core 1.4.1. Het voorbeeldblok in het child theme (<code>template-parts/blocks/_voorbeeld/</code>) laat zien hoe je het gebruikt.'],
+            ]);
+
+            $html .= '</div>';
+        }
+
         /* ── LIGHTBOX (developer only) ───────────────────── */
         if (current_user_can('manage_options')) {
             $html .= '<div class="mkbase-docs-panel" data-panel="lightbox">';
@@ -537,7 +621,7 @@
             $html .= mkbase_docs_section('mobiel-samenvatting', 'Wat staat erin?', 'dashicons-smartphone', [
                 ['label' => 'Wat is ngrok?', 'desc' => 'Uitleg over ngrok en waarom je het nodig hebt om een lokale site bereikbaar te maken op je telefoon.'],
                 ['label' => 'Installatie (1× per computer)', 'desc' => 'ngrok installeren via winget, account aanmaken, statisch domein reserveren en authtoken koppelen.'],
-                ['label' => 'Laragon & Apache (1× per computer)', 'desc' => 'Centrale <code>ngrok.conf</code>, <code>ngrok-prepend.php</code> en <code>ngrok-site</code> script installeren in <code>C:\laragon\</code>.'],
+                ['label' => 'Laragon &amp; Apache (1× per computer)', 'desc' => 'Centrale <code>ngrok.conf</code>, <code>ngrok-prepend.php</code> en <code>ngrok-site</code> script installeren in <code>C:\laragon\</code>.'],
                 ['label' => 'Per project (geen actie)', 'desc' => 'Niets te doen — de centrale setup dekt elk project automatisch. Geen wp-config.php aanpassen.'],
                 ['label' => 'Dagelijks gebruik', 'desc' => 'Twee stappen per testsessie: Laragon starten → <code>ngrok-site &lt;sitenaam&gt;</code> typen → vaste URL openen op telefoon.'],
                 ['label' => 'Problemen oplossen', 'desc' => 'Veelvoorkomende fouten: redirect loop, afbeeldingen die niet laden, "command not found", versiefouten.'],

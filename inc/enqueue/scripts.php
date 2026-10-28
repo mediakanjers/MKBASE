@@ -20,14 +20,17 @@
         wp_register_script('mk-lightbox', $theme_uri . '/assets/js/mk-lightbox.js', ['tobii-js'], mkbase_asset_version($theme_dir . '/assets/js/mk-lightbox.js'), true);
         wp_localize_script('mk-lightbox', 'mkLightboxConfig', [
             'labels' => [
-                'navLabel'              => [__('Vorige', 'mk-core'), __('Volgende', 'mk-core')],
-                'closeLabel'            => __('Lightbox sluiten', 'mk-core'),
-                'dialogTitle'           => __('Lightbox', 'mk-core'),
-                'loadingIndicatorLabel' => __('Bezig met laden', 'mk-core'),
-                'captionToggleLabel'    => [__('Bijschrift verbergen', 'mk-core'), __('Bijschrift tonen', 'mk-core')],
-                'announcementLabel'     => [__('Slide', 'mk-core'), __('van', 'mk-core')],
+                'navLabel'              => [__('Vorige', 'mk'), __('Volgende', 'mk')],
+                'closeLabel'            => __('Lightbox sluiten', 'mk'),
+                'dialogTitle'           => __('Lightbox', 'mk'),
+                'loadingIndicatorLabel' => __('Bezig met laden', 'mk'),
+                'captionToggleLabel'    => [__('Bijschrift verbergen', 'mk'), __('Bijschrift tonen', 'mk')],
+                'announcementLabel'     => [__('Slide', 'mk'), __('van', 'mk')],
             ],
         ]);
+
+        // Video pas laden na een klik — wordt ge-enqueued door mkbase_video()
+        wp_register_script('mk-video', $theme_uri . '/assets/js/mk-video.js', [], mkbase_asset_version($theme_dir . '/assets/js/mk-video.js'), true);
 
         // Verouderd — alleen nog voor bestaande sites die ze al gebruiken, niet voor nieuwe blokken.
         // Fancybox 3 en Owl Carousel 2 worden niet meer onderhouden en werken niet met jQuery 4.

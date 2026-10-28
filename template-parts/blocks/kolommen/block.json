@@ -11,6 +11,7 @@
     "renderTemplate": "render.php"
   },
   "supports": {
-    "align": ["full"]
+    "align": ["full"],
+    "anchor": true
   }
 }

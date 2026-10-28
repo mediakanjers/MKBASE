@@ -3,6 +3,9 @@
 
     require_once get_template_directory() . '/inc/compat.php';
     require_once get_template_directory() . '/inc/helpers/asset-version.php';
+    require_once get_template_directory() . '/inc/helpers/image.php';
+    require_once get_template_directory() . '/inc/helpers/blocks.php';
+    require_once get_template_directory() . '/inc/helpers/video.php';
 
     require_once get_template_directory() . '/inc/enqueue/scripts.php';
     require_once get_template_directory() . '/inc/enqueue/styles.php';

@@ -497,6 +497,7 @@
                     'allow_null'    => 0,
                     'wrapper'       => array('width' => '50'),
                 ),
+                mkbase_image_size_field('field_mk_loop_afbeeldingsformaat', 'large'),
                 array(
                     'key'           => 'field_mk_loop_toon_knop',
                     'label'         => 'Toon knop',
@@ -602,6 +603,7 @@
                     'ui'            => 1,
                     'wrapper'       => array('width' => '50'),
                 ),
+                mkbase_image_size_field('field_mk_slider_afbeeldingsformaat', 'full'),
                 array(
                     'key'          => 'field_mk_slider_slides',
                     'label'        => 'Slides',
@@ -763,12 +765,21 @@
                             'required'          => 1,
                             'return_format'     => 'array',
                             'preview_size'      => 'medium',
+                            'wrapper'           => array('width' => '50'),
                             'conditional_logic' => array(
                                 array(
                                     array('field' => 'field_mk_kolom_type', 'operator' => '==', 'value' => 'afbeelding'),
                                 ),
                             ),
                         ),
+                        array_merge(mkbase_image_size_field('field_mk_kolom_afbeeldingsformaat', 'full'), array(
+                            'instructions'      => 'Hoe groot de afbeelding getoond wordt, nooit breder dan de kolom. Origineel vult de kolom.',
+                            'conditional_logic' => array(
+                                array(
+                                    array('field' => 'field_mk_kolom_type', 'operator' => '==', 'value' => 'afbeelding'),
+                                ),
+                            ),
+                        )),
                         array(
                             'key'               => 'field_mk_kolom_video',
                             'label'             => 'Video',
@@ -1052,7 +1063,10 @@
                     'type'          => 'image',
                     'return_format' => 'url',
                     'preview_size'  => 'medium',
+                    'wrapper'       => array('width' => '50'),
                 ),
+                // Eigen naam: velden van opties-pagina's delen één naamruimte
+                mkbase_image_size_field('field_mk_404_afbeeldingsformaat', 'full', '404_afbeeldingsformaat'),
             ),
             'location' => array(
                 array(

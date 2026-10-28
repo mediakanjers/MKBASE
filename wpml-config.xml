@@ -81,6 +81,8 @@
         <custom-field action="copy">breedte</custom-field>
         <custom-field action="copy">toon_knop</custom-field>
         <custom-field action="translate">knop_tekst</custom-field>
+        <!-- Ook gebruikt door Image Slider en (per kolom) Kolommen. -->
+        <custom-field action="copy">afbeeldingsformaat</custom-field>
 
         <!-- ============================================================
              BLOK: Image Slider
@@ -90,6 +92,7 @@
         <custom-field action="copy">items_tablet</custom-field>
         <custom-field action="copy">autoplay</custom-field>
         <custom-field action="copy">aspect_ratio</custom-field>
+        <custom-field action="copy">lightbox</custom-field>
         <!-- Slides-repeater — rijstructuur (aantal/volgorde slides) volgt de
              brontaal, alleen de afbeelding zelf staat hieronder. -->
         <custom-field action="copy">slides</custom-field>
@@ -132,6 +135,7 @@
              OPTIONS PAGE: 404
         ============================================================= -->
         <custom-field action="translate">titel</custom-field>
+        <custom-field action="copy">404_afbeeldingsformaat</custom-field>
         <!-- "tekst" en "afbeelding" hierboven (Kolommen resp. Image Slider)
              dekken ook deze 404-velden, zelfde naam en zelfde gewenst gedrag
              (translate resp. copy) — hier niet nogmaals gedeclareerd. -->

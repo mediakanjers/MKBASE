@@ -580,3 +580,25 @@
     background: linear-gradient(135deg, var(--mk-accent-1), var(--mk-accent-2)) !important;
     border-color: transparent !important;
 }
+
+/* ── Meldingen in de blok-preview (mkbase_block_notice()) ────
+   Alleen in de editor: bijv. een leeg blok of een verkeerd aantal kolommen. */
+.acf-block-preview .mk-block-notice {
+    margin: 0 0 12px;
+    padding: 10px 14px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 6px;
+    color: #9a3412;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ── Volledige breedte in de canvas ──────────────────────────
+   Zelfde regels als assets/css/components/mk-align.css (die laadt alleen op de website). */
+.mk-loop.alignfull,
+.image-slider.alignfull,
+.mk-kolommen-outer.alignfull .mk-kolommen {
+    max-width: none;
+    width: 100%;
+}
