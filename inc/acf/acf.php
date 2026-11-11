@@ -33,7 +33,7 @@
             ));
             // Submenu 4 - 404
             acf_add_options_sub_page(array(
-                'page_title'    => '404',
+                'page_title'    => '404-pagina',
                 'menu_title'    => '404',
                 'parent_slug'   => 'Mediakanjers',
             ));

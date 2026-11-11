@@ -1,7 +1,7 @@
 {
   "name": "mk/kolommen",
   "title": "Kolommen",
-  "description": "Flexibele kolommen met tekst, afbeeldingen, video, knoppen, iconen of cijfers",
+  "description": "Inhoud naast elkaar in 1 tot 4 kolommen: tekst, afbeeldingen, video, knoppen, iconen of cijfers.",
   "category": "mediakanjers",
   "icon": "columns",
   "apiVersion": 3,
@@ -13,5 +13,22 @@
   "supports": {
     "align": ["full"],
     "anchor": true
+  },
+  "example": {
+    "attributes": {
+      "mode": "preview",
+      "data": {
+        "verhouding": "50-50", "_verhouding": "field_mk_kolommen_verhouding",
+        "kolommen": 2, "_kolommen": "field_mk_kolommen_kolommen",
+        "kolommen_0_type": ["titel", "tekst", "knop"], "_kolommen_0_type": "field_mk_kolom_type",
+        "kolommen_0_titel_tekst": "Wie wij zijn", "_kolommen_0_titel_tekst": "field_mk_kolom_titel_tekst",
+        "kolommen_0_titel_niveau": "h3", "_kolommen_0_titel_niveau": "field_mk_kolom_titel_niveau",
+        "kolommen_0_tekst": "<p>Een vast team met korte lijnen. We denken mee en houden het simpel.</p>", "_kolommen_0_tekst": "field_mk_kolom_tekst",
+        "kolommen_0_knop": {"title": "Meer over ons", "url": "#", "target": ""}, "_kolommen_0_knop": "field_mk_kolom_knop",
+        "kolommen_1_type": ["cijfer"], "_kolommen_1_type": "field_mk_kolom_type",
+        "kolommen_1_cijfer_waarde": "500+", "_kolommen_1_cijfer_waarde": "field_mk_kolom_cijfer_waarde",
+        "kolommen_1_cijfer_label": "tevreden klanten", "_kolommen_1_cijfer_label": "field_mk_kolom_cijfer_label"
+      }
+    }
   }
 }

@@ -25,6 +25,9 @@
     require_once get_template_directory() . '/inc/docs.php';
     require_once get_template_directory() . '/inc/diagnostics.php';
     require_once get_template_directory() . '/inc/setup.php';
+    require_once get_template_directory() . '/inc/admin/ui.php';
+    require_once get_template_directory() . '/inc/admin/help.php';
+    require_once get_template_directory() . '/inc/admin/dashboard.php';
     require_once get_template_directory() . '/inc/shortcodes.php';
 
     require_once get_template_directory() . '/updater/updater.php';

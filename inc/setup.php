@@ -74,9 +74,6 @@
             $code = get_field('alleen_op_de_homepage', 'option');
             if ($code) echo $code . "\n";
         }
-
-        $code = get_field('alleen_in_de_footer', 'option');
-        if ($code) echo $code . "\n";
     });
 
     function mkbase_main_class() {
@@ -135,15 +132,23 @@
         return $text . ' | MKBase core thema versie: ' . esc_html($theme->get('Version'));
     }, 11);
 
-    // Admin notices samenvouwen — alleen laden op pagina's waar notices verwacht worden
-    add_action('admin_enqueue_scripts', function($hook) {
-        $relevant = ['index.php', 'plugins.php', 'plugin-install.php', 'themes.php', 'update-core.php', 'options-general.php'];
-        $is_mkbase = isset($_GET['page']) && strpos($_GET['page'], 'mkbase') === 0;
-        if (!in_array($hook, $relevant, true) && !$is_mkbase) return;
+    // Admin notices samenvouwen op alle WordPress-pagina's: plugins zetten hun melding overal neer
+    add_action('admin_enqueue_scripts', function() {
+        // Op de MK-pagina's zitten de meldingen in de MK-balk (inc/admin/ui.php)
+        if (function_exists('mkbase_admin_current_page') && mkbase_admin_current_page()) return;
+        // De blokeditor toont meldingen op zijn eigen manier
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+        if ($screen && method_exists($screen, 'is_block_editor') && $screen->is_block_editor()) return;
 
         $theme_uri = get_template_directory_uri();
         $theme_dir = get_template_directory();
         wp_enqueue_script('mk-admin-notices', $theme_uri . '/assets/js/admin-notices.js', [], mkbase_asset_version($theme_dir . '/assets/js/admin-notices.js'), true);
+        // Dezelfde verborgen meldingen als in de MK-balk (inc/admin/ui.php)
+        wp_localize_script('mk-admin-notices', 'mkNotices', [
+            'ajax'   => admin_url('admin-ajax.php'),
+            'nonce'  => wp_create_nonce('mkbase_admin'),
+            'hidden' => function_exists('mkbase_admin_hidden_notices') ? mkbase_admin_hidden_notices() : [],
+        ]);
         wp_enqueue_style('mk-admin-notices', $theme_uri . '/assets/css/admin-notices.css', [], mkbase_asset_version($theme_dir . '/assets/css/admin-notices.css'));
     });
 ?>

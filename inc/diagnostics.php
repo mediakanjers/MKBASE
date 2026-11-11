@@ -3,9 +3,8 @@
         if (!isset($_GET['page']) || $_GET['page'] !== 'mkbase-diagnose') return;
         $theme_dir = get_template_directory();
         $theme_uri = get_template_directory_uri();
-        wp_enqueue_style('mk-inter-font', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap', [], null);
-        wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], mkbase_asset_version($theme_dir . '/assets/css/admin-shared.css'));
-        wp_enqueue_style('mk-admin-diagnostics', $theme_uri . '/assets/css/admin-diagnostics.css', ['mk-admin-shared'], mkbase_asset_version($theme_dir . '/assets/css/admin-diagnostics.css'));
+        // MK-stijl en -balk komen uit inc/admin/ui.php (mk-admin); dit is alleen het diagnose-deel
+        wp_enqueue_style('mk-admin-diagnostics', $theme_uri . '/assets/css/admin-diagnostics.css', ['mk-admin'], mkbase_asset_version($theme_dir . '/assets/css/admin-diagnostics.css'));
         wp_enqueue_script('mk-admin-diagnostics', $theme_uri . '/assets/js/admin-diagnostics.js', [], mkbase_asset_version($theme_dir . '/assets/js/admin-diagnostics.js'), true);
     });
 
@@ -172,23 +171,8 @@
         $debug_on      = defined('WP_DEBUG') && WP_DEBUG;
         $debug_log_on  = defined('WP_DEBUG_LOG') && WP_DEBUG_LOG;
 
-        $html  = '<div class="mk-cover">';
-        $html .= '<div class="mk-cover__eyebrow">MKBase Theme &nbsp;·&nbsp; Mediakanjers</div>';
-        $html .= '<div class="mk-cover__title">Diagnose</div>';
-        $html .= '<div class="mk-cover__sub">Overzicht van bevindingen op deze site — child-theme/core-conflicten, versie-eisen en andere signalen. Bedoeld voor de developer.</div>';
-        $html .= '<div class="mk-cover__tags">';
-        $html .= '<span class="mk-cover__tag">Core-versie ' . esc_html($core_version) . '</span>';
-        if (!empty($issues)) {
-            $html .= '<span class="mk-cover__tag mk-cover__tag--alert">' . count($issues) . ' bevinding(en)</span>';
-        } else {
-            $html .= '<span class="mk-cover__tag">Alles in orde</span>';
-        }
-        $html .= '</div>';
-        $html .= '</div>';
-
-        $html .= mkbase_admin_page_nav('mkbase-diagnose');
-
-        $html .= '<div id="mkbase-diag-layout">';
+        // De kaarten per onderdeel worden eerst opgebouwd; samenvatting en bevindingen komen erboven
+        $html = '';
 
         // ── Omgeving ─────────────────────────────────────────────
         $core_theme    = wp_get_theme(get_template());
@@ -245,11 +229,10 @@
         $wp_cron_disabled = defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
         $html .= mkbase_diagnostics_status_row('WP-Cron', mkbase_diagnostics_toggle(!$wp_cron_disabled) . ($wp_cron_disabled ? ' (uitgeschakeld — vaak bewust, servercron actief)' : ''));
 
-        $html .= '</div>';
-
         if (!$debug_log_on) {
             $html .= '<p class="mkbase-diag-hint">Bevindingen worden altijd naar de PHP-errorlog geschreven, maar landen pas in <code>wp-content/debug.log</code> als <code>WP_DEBUG_LOG</code> in <code>wp-config.php</code> op <code>true</code> staat. Handig om aan te zetten als de wp-admin niet bereikbaar is.</p>';
         }
+        $html .= '</div>';
 
         // ── Thema-instellingen ───────────────────────────────────
         $only_theme_blocks = function_exists('get_field') && get_field('alleen_thema_blokken', 'option');
@@ -272,7 +255,6 @@
                 'direct_na_body'            => 'Direct na body',
                 'voor_de_sluitende_body'    => 'Voor sluitende body',
                 'alleen_op_de_homepage'     => 'Alleen homepage',
-                'alleen_in_de_footer'       => 'Alleen footer',
             ];
             $active_injections = [];
             foreach ($injection_points as $field_name => $label) {
@@ -305,7 +287,6 @@
         $html .= mkbase_diagnostics_status_row('Autoload-opties (wp_options)', size_format($autoload_bytes) . ' ' . mkbase_diagnostics_badge($autoload_ok, $autoload_ok ? 'OK' : 'groot'));
         $html .= mkbase_diagnostics_status_row('Grootte debug.log', ($debug_log_size > 0 ? size_format($debug_log_size) : '— (bestaat niet)') . ' ' . mkbase_diagnostics_badge($debug_log_size_ok, $debug_log_size_ok ? 'OK' : 'groot'));
         $html .= mkbase_diagnostics_status_row('Persistent object cache', mkbase_diagnostics_toggle(wp_using_ext_object_cache()));
-        $html .= '</div>';
 
         if (!$autoload_ok) {
             $html .= '<p class="mkbase-diag-hint">Autoload-opties worden bij élke pagina-load in het geheugen geladen. Een grote hoeveelheid (vaak veroorzaakt door een plugin) kan de site vertragen.</p>';
@@ -313,6 +294,7 @@
         if (!$debug_log_size_ok) {
             $html .= '<p class="mkbase-diag-hint"><code>debug.log</code> is groot geworden — overweeg het bestand op te ruimen.</p>';
         }
+        $html .= '</div>';
 
         // ── Server ───────────────────────────────────────────────
         $uploads_dir      = wp_upload_dir();
@@ -338,15 +320,33 @@
             $badge  = $required ? mkbase_diagnostics_badge($loaded, $loaded ? 'OK' : 'ontbreekt') : mkbase_diagnostics_toggle($loaded);
             $html  .= mkbase_diagnostics_status_row('PHP-extensie: ' . $ext, $badge);
         }
-        $html .= '</div>';
-
         if (!$uploads_writable || !$content_writable) {
             $html .= '<p class="mkbase-diag-hint">Een niet-schrijfbare map breekt media-uploads en/of thema-/pluginfunctionaliteit die bestanden probeert weg te schrijven.</p>';
         }
+        $html .= '</div>';
+        $groups_html = $html;
+
+        // ── Samenvatting ─────────────────────────────────────────
+        $warnings = count(array_filter($issues, fn($i) => ($i['severity'] ?? 'warning') !== 'info'));
+        $infos    = count($issues) - $warnings;
+        $tiles = [
+            ['value' => $warnings, 'label' => $warnings === 1 ? 'Waarschuwing' : 'Waarschuwingen', 'icon' => '!', 'tone' => $warnings ? 'warn' : 'ok'],
+            ['value' => $infos, 'label' => 'Info', 'icon' => 'i', 'tone' => 'info'],
+            ['value' => esc_html($core_version), 'label' => 'MKBase-versie', 'icon' => 'MK', 'tone' => 'info'],
+            ['value' => esc_html(PHP_VERSION), 'label' => 'PHP-versie', 'icon' => $php_ok ? '✓' : '!', 'tone' => $php_ok ? 'ok' : 'warn'],
+        ];
+        $html  = '<div class="mk-diag">';
+        $html .= '<div class="mk-diag__tiles">';
+        foreach ($tiles as $tile) {
+            $html .= '<div class="mk-diag__tile"><span class="mk-diag__icon mk-diag__icon--' . $tile['tone'] . '" aria-hidden="true">' . $tile['icon'] . '</span>'
+                . '<span class="mk-diag__value">' . $tile['value'] . '</span><span class="mk-diag__label">' . esc_html($tile['label']) . '</span></div>';
+        }
+        $html .= '</div>';
 
         // ── Bevindingen ──────────────────────────────────────────
-        $html .= '<div class="mkbase-diag-findings">';
-        $html .= '<h2>Bevindingen</h2>';
+        $html .= '<section class="mkbase-diag-findings">';
+        $html .= '<div class="mkbase-diag-findings__head"><h2>Bevindingen</h2><span>'
+            . ($issues ? esc_html($warnings . ' ' . ($warnings === 1 ? 'waarschuwing' : 'waarschuwingen') . ' · ' . $infos . ' info') : 'Alles in orde') . '</span></div>';
 
         if (empty($issues)) {
             $html .= '<p class="mkbase-diag-empty">' . mkbase_diagnostics_badge(true, 'OK') . ' Geen problemen gevonden tijdens dit paginabezoek.</p>';
@@ -358,13 +358,14 @@
                 $html .= '<div class="mkbase-diag-issue mkbase-diag-issue--' . esc_attr($severity) . '">';
                 $html .= '<span class="mkbase-diag-badge ' . $badgeClass . '">' . esc_html($badgeLabel) . '</span>';
                 $html .= '<p>' . wp_kses_post($issue['message']) . '</p>';
-                $html .= '<p class="mkbase-diag-issue__hint">Deze melding staat ook in de PHP-errorlog (<code>debug.log</code> als <code>WP_DEBUG_LOG</code> aan staat) — ook zichtbaar als de wp-admin niet bereikbaar is.</p>';
                 $html .= '</div>';
             }
+            $html .= '<p class="mkbase-diag-findings__foot">Deze meldingen staan ook in de PHP-errorlog (<code>debug.log</code> als <code>WP_DEBUG_LOG</code> aan staat), zodat je ze ook ziet als de admin niet bereikbaar is.</p>';
         }
+        $html .= '</section>';
 
-        $html .= '</div>'; // .mkbase-diag-findings
-        $html .= '</div>'; // #mkbase-diag-layout
+        $html .= '<div class="mk-diag__grid">' . $groups_html . '</div>';
+        $html .= '</div>'; // .mk-diag
 
         return $html;
     }

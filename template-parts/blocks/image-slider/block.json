@@ -1,7 +1,7 @@
 {
   "name": "mk/image-slider",
-  "title": "Image Slider",
-  "description": "Afbeeldingen slider met instelbaar aantal items",
+  "title": "Fotoslider",
+  "description": "Meerdere foto's die je naast elkaar ziet en doorschuift, bijv. een fotogalerij of logo's van klanten.",
   "category": "mediakanjers",
   "icon": "images-alt2",
   "apiVersion": 3,
