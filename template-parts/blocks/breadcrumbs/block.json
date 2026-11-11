@@ -1,7 +1,7 @@
 {
   "name": "mk/breadcrumbs",
-  "title": "Breadcrumbs",
-  "description": "Toont het navigatiepad van de huidige pagina.",
+  "title": "Kruimelpad",
+  "description": "Het pad naar deze pagina, bijv. Home › Diensten › Webdesign. Vult zich vanzelf.",
   "category": "mediakanjers",
   "icon": "arrow-right-alt",
   "apiVersion": 3,

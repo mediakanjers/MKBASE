@@ -1,7 +1,7 @@
 {
   "name": "mk/loop",
-  "title": "Post type loop",
-  "description": "Toont een lijst/grid van berichten of een ander post type, met instelbaar aantal, kolommen en een optionele knop",
+  "title": "Berichtenoverzicht",
+  "description": "Een overzicht van je nieuwste berichten (of andere inhoud) als kaarten naast elkaar. Nieuwe berichten verschijnen vanzelf.",
   "category": "mediakanjers",
   "icon": "list-view",
   "apiVersion": 3,
@@ -13,5 +13,15 @@
   "supports": {
     "align": ["full"],
     "anchor": true
+  },
+  "example": {
+    "attributes": {
+      "mode": "preview",
+      "data": {
+        "query_loop": "post", "_query_loop": "field_mk_loop_query_loop",
+        "number_of_posts": 3, "_number_of_posts": "field_mk_loop_number_of_posts",
+        "grid": "3", "_grid": "field_mk_loop_grid"
+      }
+    }
   }
 }

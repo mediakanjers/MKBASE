@@ -8,9 +8,12 @@
     // Veldgroepen die het core thema zelf in PHP registreert (inc/acf/fields.php)
     function mkbase_core_field_group_keys() {
         return [
-            'group_681c77cf42eb6', // Geavanceerd
+            'group_681c77cf42eb6', // Geavanceerd (sinds 1.6.0: Scripts en tracking)
+            'group_mk_geavanceerd_editor',
             'group_68ff64b408f4e', // Meldingen
-            'group_681afe6b4a111', // MK instellingen
+            'group_681afe6b4a111', // MK instellingen (sinds 1.6.0: Logo en icoon)
+            'group_mk_instellingen_bedrijf',
+            'group_mk_instellingen_social',
             'group_69f0a9ec6e104', // 404
             'group_mk_loop_block',
             'group_mk_image_slider_block',
@@ -28,6 +31,7 @@
         $migrations = [
             'meldingen_repeater_1_5_0'   => 'mkbase_migrate_notifications_to_repeater',
             'opruimen_veldgroepen_1_5_0' => 'mkbase_remove_disabled_core_field_groups',
+            'footercode_samenvoegen_1_6_0' => 'mkbase_merge_footer_code',
         ];
 
         $changed = false;
@@ -94,6 +98,29 @@
                 $parents = array_map('intval', $children);
             }
             wp_delete_post((int) $group_id, true);
+        }
+    }
+
+    // 1.6.0: 'Alleen in de footer' laadde op dezelfde plek als 'Voor de sluitende /body' en is
+    // daarin opgegaan. De code komt onder de bestaande code; per taal bij WPML (options_en_...).
+    // De oude optie blijft staan, zodat er niets verloren gaat.
+    function mkbase_merge_footer_code() {
+        global $wpdb;
+
+        $rows = $wpdb->get_results(
+            "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'options%\\_alleen\\_in\\_de\\_footer'"
+        );
+
+        foreach ($rows as $row) {
+            $code = trim((string) $row->option_value);
+            if ($code === '') continue;
+
+            $prefix = substr($row->option_name, 0, -strlen('_alleen_in_de_footer'));
+            $target = $prefix . '_voor_de_sluitende_body';
+            $current = trim((string) get_option($target, ''));
+
+            update_option($target, $current === '' ? $code : $current . "\n" . $code);
+            update_option('_' . $target, 'field_681c7a512e60a');
         }
     }
 

@@ -64,12 +64,15 @@
             if (!$update) {
                 echo '<p>Geen updategegevens beschikbaar.</p>';
             } else {
+                // Zelfde stijl als Mediakanjers → Changelog (tokens hangen aan body.mk-admin)
                 $theme_uri = get_template_directory_uri();
-                wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], mkbase_asset_version(get_template_directory() . '/assets/css/admin-shared.css'));
-                wp_enqueue_style('mk-admin-changelog', $theme_uri . '/assets/css/admin-changelog.css', ['mk-admin-shared'], mkbase_asset_version(get_template_directory() . '/assets/css/admin-changelog.css'));
-                wp_print_styles(['mk-admin-shared', 'mk-admin-changelog']);
+                $theme_dir = get_template_directory();
+                wp_enqueue_style('mk-admin', $theme_uri . '/assets/css/mk-admin.css', [], mkbase_asset_version($theme_dir . '/assets/css/mk-admin.css'));
+                wp_enqueue_style('mk-admin-changelog', $theme_uri . '/assets/css/admin-changelog.css', ['mk-admin'], mkbase_asset_version($theme_dir . '/assets/css/admin-changelog.css'));
+                wp_print_styles(['mk-admin', 'mk-admin-changelog']);
+                echo '<script>document.body.classList.add("mk-admin");</script>';
 
-                echo '<div class="mkbase-pending-changelog" style="margin:16px;">';
+                echo '<div class="mk-cl__pending" style="margin:16px;">';
                 echo !empty($update['mkbase_changelog'])
                     ? mkbase_render_changelog_markdown($update['mkbase_changelog'])
                     : '<p>Geen changelog beschikbaar voor deze versie.</p>';

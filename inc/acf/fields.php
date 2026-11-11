@@ -65,14 +65,6 @@
                     'wrapper' => array('width' => '50'),
                 ),
                 array(
-                    'key' => 'field_681c7a692e60c',
-                    'label' => 'Alleen in de footer',
-                    'name' => 'alleen_in_de_footer',
-                    'type' => 'textarea',
-                    'instructions' => 'Voor extra dingen die onderaan geladen mogen worden',
-                    'wrapper' => array('width' => '100'),
-                ),
-                array(
                     'key' => 'field_mkbase_alleen_thema_blokken',
                     'label' => 'Alleen thema-blokken in de editor',
                     'name' => 'alleen_thema_blokken',
@@ -130,19 +122,34 @@
             );
         }
 
-        acf_add_local_field_group(array(
-            'key' => 'group_681c77cf42eb6',
-            'title' => 'Geavanceerd',
-            'fields' => $geavanceerd_fields,
-            'location' => array(
+        // Twee kaarten: de vier codevelden, en de editor-instellingen (sinds 1.6.0 een eigen groep)
+        $geavanceerd_location = array(
+            array(
                 array(
-                    array(
-                        'param' => 'options_page',
-                        'operator' => '==',
-                        'value' => 'acf-options-geavanceerd',
-                    ),
+                    'param' => 'options_page',
+                    'operator' => '==',
+                    'value' => 'acf-options-geavanceerd',
                 ),
             ),
+        );
+
+        acf_add_local_field_group(array(
+            'key' => 'group_681c77cf42eb6',
+            'title' => 'Scripts en tracking',
+            'description' => 'Bijvoorbeeld Google Tag Manager of een chatwidget. Kies de plek die de dienst in zijn handleiding noemt.',
+            'menu_order' => 0,
+            'fields' => array_slice($geavanceerd_fields, 0, 4),
+            'location' => $geavanceerd_location,
+            'active' => true,
+        ));
+
+        acf_add_local_field_group(array(
+            'key' => 'group_mk_geavanceerd_editor',
+            'title' => 'Editor',
+            'description' => 'Welke blokken redacteuren in de editor zien, en of de paginavolgorde vastligt.',
+            'menu_order' => 1,
+            'fields' => array_slice($geavanceerd_fields, 4),
+            'location' => $geavanceerd_location,
             'active' => true,
         ));
 
@@ -165,7 +172,6 @@
             'title' => 'Meldingen',
             'style' => 'seamless',
             'fields' => array(
-                $melding_tab('field_mk_meldingen_tab_meldingen', 'Meldingen'),
                 array(
                     'key'     => 'field_mk_meldingen_overzicht',
                     'label'   => '',
@@ -207,16 +213,15 @@
                             'label'        => 'Naam',
                             'name'         => 'melding_naam',
                             'type'         => 'text',
-                            'instructions' => 'Alleen voor in dit overzicht, niet zichtbaar op de website.',
+                            'instructions' => 'alleen voor jou',
                             'placeholder'  => 'Bijv. Kerstsluiting',
-                            'wrapper'      => array('width' => '80'),
                         ),
                         array(
                             'key'          => 'field_mk_melding_tekst',
                             'label'        => 'Tekst',
                             'name'         => 'melding_tekst',
                             'type'         => 'wysiwyg',
-                            'toolbar'      => 'basic',
+                            'toolbar'      => 'mk_melding', // vet, cursief, link (inc/notifications.php)
                             'media_upload' => 0,
                             'tabs'         => 'visual',
                             'delay'        => 0,
@@ -226,7 +231,7 @@
                             'label'        => 'Knop',
                             'name'         => 'melding_knop',
                             'type'         => 'link',
-                            'instructions' => 'Optioneel. Laat leeg voor geen knop.',
+                            'instructions' => 'optioneel',
                         ),
 
                         // ── Planning ──
@@ -237,7 +242,7 @@
                             'name'         => 'melding_planning',
                             'type'         => 'true_false',
                             'ui'           => 1,
-                            'instructions' => 'Uit: de melding is zichtbaar zolang hij aan staat. Aan: alleen tussen de begin- en eindtijd.',
+                            'instructions' => 'Alleen zichtbaar tussen de begin- en eindtijd',
                         ),
                         array(
                             'key'               => 'field_mk_melding_start',
@@ -307,8 +312,125 @@
                                 'boven'         => 'Bovenaan, blijft staan',
                                 'boven_scrollt' => 'Bovenaan, scrolt mee weg',
                                 'onder'         => 'Onderaan, blijft staan',
+                                'popup'         => 'Pop-up in het midden',
+                                'blok'          => 'Zwevend blok',
                             ),
                             'default_value' => 'boven',
+                        ),
+                        // Pop-up en zwevend blok (1.6.0); de plekken zijn uniek, zie mkbase_notification_slot()
+                        array(
+                            'key'               => 'field_mk_melding_backdrop',
+                            'label'             => 'Pagina erachter donker maken',
+                            'name'              => 'melding_backdrop',
+                            'type'              => 'true_false',
+                            'ui'                => 1,
+                            'default_value'     => 1,
+                            'instructions'      => 'De bezoeker reageert dan eerst op de pop-up',
+                            'wrapper'           => array('width' => '50'),
+                            'conditional_logic' => $melding_als('field_mk_melding_positie', 'popup'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_scroll_blok',
+                            'label'             => 'Scrollen erachter blokkeren',
+                            'name'              => 'melding_scroll_blok',
+                            'type'              => 'true_false',
+                            'ui'                => 1,
+                            'default_value'     => 1,
+                            'instructions'      => 'De pagina staat stil zolang de pop-up open is',
+                            'wrapper'           => array('width' => '50'),
+                            'conditional_logic' => $melding_als('field_mk_melding_positie', 'popup'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_blok_plek',
+                            'label'             => 'Plek op het scherm',
+                            'name'              => 'melding_blok_plek',
+                            'type'              => 'button_group',
+                            'choices'           => array(
+                                'links_boven'   => 'Linksboven',
+                                'links_midden'  => 'Links in het midden',
+                                'links_onder'   => 'Linksonder',
+                                'rechts_boven'  => 'Rechtsboven',
+                                'rechts_midden' => 'Rechts in het midden',
+                                'rechts_onder'  => 'Rechtsonder',
+                            ),
+                            'default_value'     => 'rechts_onder',
+                            'wrapper'           => array('width' => '66'),
+                            'conditional_logic' => $melding_als('field_mk_melding_positie', 'blok'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_blok_breedte',
+                            'label'             => 'Breedte',
+                            'name'              => 'melding_blok_breedte',
+                            'type'              => 'number',
+                            'default_value'     => 360,
+                            'min'               => 240,
+                            'max'               => 640,
+                            'step'              => 10,
+                            'append'            => 'px',
+                            'wrapper'           => array('width' => '34'),
+                            'conditional_logic' => $melding_als('field_mk_melding_positie', 'blok'),
+                        ),
+
+                        // ── Gedrag ──
+                        $melding_tab('field_mk_melding_tab_gedrag', 'Gedrag'),
+                        array(
+                            'key'           => 'field_mk_melding_tonen',
+                            'label'         => 'Wanneer verschijnen',
+                            'name'          => 'melding_tonen',
+                            'type'          => 'button_group',
+                            'choices'       => array(
+                                'direct' => 'Direct',
+                                'tijd'   => 'Na een aantal seconden',
+                                'scroll' => 'Na scrollen',
+                            ),
+                            'default_value' => 'direct',
+                            'wrapper'       => array('width' => '66'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_tonen_sec',
+                            'label'             => 'Na',
+                            'name'              => 'melding_tonen_sec',
+                            'type'              => 'number',
+                            'default_value'     => 10,
+                            'min'               => 1,
+                            'max'               => 120,
+                            'append'            => 'seconden',
+                            'wrapper'           => array('width' => '34'),
+                            'conditional_logic' => $melding_als('field_mk_melding_tonen', 'tijd'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_tonen_px',
+                            'label'             => 'Na',
+                            'name'              => 'melding_tonen_px',
+                            'type'              => 'number',
+                            'default_value'     => 600,
+                            'min'               => 50,
+                            'max'               => 10000,
+                            'step'              => 50,
+                            'append'            => 'px scrollen',
+                            'wrapper'           => array('width' => '34'),
+                            'conditional_logic' => $melding_als('field_mk_melding_tonen', 'scroll'),
+                        ),
+                        array(
+                            'key'           => 'field_mk_melding_auto',
+                            'label'         => 'Automatisch verdwijnen',
+                            'name'          => 'melding_auto',
+                            'type'          => 'true_false',
+                            'ui'            => 1,
+                            'default_value' => 0,
+                            'wrapper'       => array('width' => '66'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_auto_sec',
+                            'label'             => 'Na',
+                            'name'              => 'melding_auto_sec',
+                            'type'              => 'number',
+                            'default_value'     => 8,
+                            'min'               => 2,
+                            'max'               => 120,
+                            'append'            => 'seconden',
+                            'wrapper'           => array('width' => '34'),
+                            'conditional_logic' => $melding_als('field_mk_melding_auto', '1'),
                         ),
                         array(
                             'key'           => 'field_mk_melding_sluitbaar',
@@ -317,15 +439,29 @@
                             'type'          => 'true_false',
                             'ui'            => 1,
                             'default_value' => 1,
-                            'instructions'  => 'Toon een kruisje waarmee de bezoeker de melding wegklikt.',
+                            'instructions'  => 'Bezoeker kan hem wegklikken',
                             'wrapper'       => array('width' => '33'),
+                            // Een pop-up heeft altijd een kruisje; dan is deze keuze er niet
+                            'conditional_logic' => array(array(
+                                array('field' => 'field_mk_melding_positie', 'operator' => '!=', 'value' => 'popup'),
+                            )),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_sluitbaar_popup',
+                            'label'             => 'Sluitbaar',
+                            'name'              => '',
+                            'type'              => 'message',
+                            'message'           => 'Een pop-up heeft altijd een kruisje, zodat de bezoeker hem kan sluiten.',
+                            'wrapper'           => array('width' => '33'),
+                            'conditional_logic' => $melding_als('field_mk_melding_positie', 'popup'),
                         ),
                         array(
                             'key'               => 'field_mk_melding_opnieuw',
-                            'label'             => 'Na wegklikken weer tonen',
+                            'label'             => 'Daarna weer tonen',
                             'name'              => 'melding_opnieuw',
                             'type'              => 'select',
                             'choices'           => array(
+                                'pagina' => 'Op de volgende pagina',
                                 'sessie' => 'Bij een volgend bezoek',
                                 'dagen'  => 'Na een aantal dagen',
                                 'nooit'  => 'Nooit meer',
@@ -333,7 +469,10 @@
                             'default_value'     => 'sessie',
                             'instructions'      => 'Wijzig je de tekst, knop of planning, dan ziet iedereen de melding opnieuw.',
                             'wrapper'           => array('width' => '33'),
-                            'conditional_logic' => $melding_als('field_mk_melding_sluitbaar', '1'),
+                            'conditional_logic' => array(
+                                array(array('field' => 'field_mk_melding_sluitbaar', 'operator' => '==', 'value' => '1')),
+                                array(array('field' => 'field_mk_melding_positie', 'operator' => '==', 'value' => 'popup')),
+                            ),
                         ),
                         array(
                             'key'               => 'field_mk_melding_dagen',
@@ -344,10 +483,16 @@
                             'min'               => 1,
                             'max'               => 365,
                             'wrapper'           => array('width' => '34'),
-                            'conditional_logic' => array(array(
-                                array('field' => 'field_mk_melding_sluitbaar', 'operator' => '==', 'value' => '1'),
-                                array('field' => 'field_mk_melding_opnieuw', 'operator' => '==', 'value' => 'dagen'),
-                            )),
+                            'conditional_logic' => array(
+                                array(
+                                    array('field' => 'field_mk_melding_sluitbaar', 'operator' => '==', 'value' => '1'),
+                                    array('field' => 'field_mk_melding_opnieuw', 'operator' => '==', 'value' => 'dagen'),
+                                ),
+                                array(
+                                    array('field' => 'field_mk_melding_positie', 'operator' => '==', 'value' => 'popup'),
+                                    array('field' => 'field_mk_melding_opnieuw', 'operator' => '==', 'value' => 'dagen'),
+                                ),
+                            ),
                         ),
 
                         // ── Zichtbaarheid ──
@@ -381,7 +526,7 @@
                     ),
                 ),
 
-                $melding_tab('field_mk_meldingen_tab_technisch', 'Technisch'),
+                // Getoond als inklapbaar blok "Technisch" onder de lijst (assets/js/admin-notifications.js)
                 array(
                     'key'          => 'field_6977205593693',
                     'label'        => 'CSS overschrijven',
@@ -412,29 +557,57 @@
          * ====================================
          * MK INSTELLINGEN
          * ====================================
+         * Drie kaarten op Website instellingen. De velden (en hun keys en namen) zijn
+         * gelijk gebleven; alleen de indeling in groepen is nieuw in 1.6.0.
          */
+        $instellingen_location = array(
+            array(
+                array(
+                    'param' => 'options_page',
+                    'operator' => '==',
+                    'value' => 'acf-options-website-instellingen',
+                ),
+            ),
+        );
+
         acf_add_local_field_group(array(
             'key' => 'group_681afe6b4a111',
-            'title' => 'MK instellingen',
+            'title' => 'Huisstijl',
+            'description' => 'Het logo staat in de header. De favicon is het icoontje in het browsertabblad.',
+            'menu_order' => 0,
+            'instruction_placement' => 'field',
             'fields' => array(
                 array(
                     'key' => 'field_681afe92edf91',
                     'label' => 'Logo',
                     'name' => 'logo',
                     'type' => 'image',
+                    'instructions' => 'SVG, of PNG van maximaal 600 px breed',
                     'return_format' => 'array',
                     'preview_size' => 'medium',
-                    'wrapper' => array('width' => '50'),
+                    'wrapper' => array('width' => '64'),
                 ),
                 array(
                     'key' => 'field_681afeceedf92',
                     'label' => 'Favicon',
                     'name' => 'favicon',
                     'type' => 'image',
+                    'instructions' => 'Vierkant, minimaal 512 × 512 px',
                     'return_format' => 'array',
                     'preview_size' => 'medium',
-                    'wrapper' => array('width' => '50'),
+                    'wrapper' => array('width' => '36'),
                 ),
+            ),
+            'location' => $instellingen_location,
+            'active' => true,
+        ));
+
+        acf_add_local_field_group(array(
+            'key' => 'group_mk_instellingen_bedrijf',
+            'title' => 'Bedrijfsgegevens',
+            'description' => 'Deze gegevens staan in de footer van je website, zodat bezoekers je makkelijk kunnen bereiken.',
+            'menu_order' => 1,
+            'fields' => array(
                 array(
                     'key' => 'field_681afeeaedf94',
                     'label' => 'Bedrijfsnaam',
@@ -450,7 +623,7 @@
                 ),
                 array(
                     'key' => 'field_681aff0dedf96',
-                    'label' => 'Postcode',
+                    'label' => 'Postcode en plaats',
                     'name' => 'postcode',
                     'type' => 'text',
                     'wrapper' => array('width' => '50'),
@@ -464,7 +637,7 @@
                 ),
                 array(
                     'key' => 'field_681aff2bedf98',
-                    'label' => 'Email',
+                    'label' => 'E-mail',
                     'name' => 'email',
                     'type' => 'text',
                     'wrapper' => array('width' => '50'),
@@ -474,13 +647,25 @@
                     'label' => 'Mobiel',
                     'name' => 'mobiel',
                     'type' => 'text',
+                    'wrapper' => array('width' => '50'),
                 ),
+            ),
+            'location' => $instellingen_location,
+            'active' => true,
+        ));
+
+        acf_add_local_field_group(array(
+            'key' => 'group_mk_instellingen_social',
+            'title' => 'Sociale media',
+            'description' => 'Deze links verschijnen als iconen in de footer en het mobiele menu. Sleep om de volgorde te wijzigen.',
+            'menu_order' => 2,
+            'fields' => array(
                 array(
                     'key' => 'field_681aff7828fc2',
                     'label' => 'Socials',
                     'name' => 'socials',
                     'type' => 'repeater',
-                    'button_label' => 'Nieuwe rij',
+                    'button_label' => '+ Platform toevoegen',
                     'layout' => 'table',
                     'sub_fields' => array(
                         array(
@@ -492,12 +677,12 @@
                                 'discord' => 'Discord',
                                 'facebook' => 'Facebook',
                                 'instagram' => 'Instagram',
-                                'linkedin' => 'Linkedin',
+                                'linkedin' => 'LinkedIn',
                                 'snapchat' => 'Snapchat',
-                                'tiktok' => 'Tiktok',
-                                'whatsapp' => 'Whatsapp',
+                                'tiktok' => 'TikTok',
+                                'whatsapp' => 'WhatsApp',
                                 'x' => 'X',
-                                'youtube' => 'Youtube',
+                                'youtube' => 'YouTube',
                             ),
                         ),
                         array(
@@ -509,15 +694,7 @@
                     ),
                 ),
             ),
-            'location' => array(
-                array(
-                    array(
-                        'param' => 'options_page',
-                        'operator' => '==',
-                        'value' => 'acf-options-website-instellingen',
-                    ),
-                ),
-            ),
+            'location' => $instellingen_location,
             'active' => true,
         ));
 
@@ -705,7 +882,7 @@
                     'name'         => 'slides',
                     'type'         => 'repeater',
                     'layout'       => 'block',
-                    'button_label' => 'Nieuwe rij',
+                    'button_label' => 'Lege slide toevoegen',
                     'sub_fields'   => array(
                         array(
                             'key'           => 'field_mk_slider_afbeelding',
@@ -791,9 +968,9 @@
                                 'tekst'       => 'Tekst',
                                 'afbeelding'  => 'Afbeelding',
                                 'video'       => 'Video',
-                                'knop'        => 'Knop / CTA',
+                                'knop'        => 'Knop',
                                 'icoon_tekst' => 'Icoon + tekst',
-                                'cijfer'      => 'Cijfer / statistiek',
+                                'cijfer'      => 'Cijfer',
                             ),
                             'default_value' => array('tekst'),
                             'layout'        => 'horizontal',
@@ -843,7 +1020,8 @@
                             'type'              => 'wysiwyg',
                             'instructions'      => 'Verplicht — zonder tekst blijft deze kolom leeg op de pagina.',
                             'required'          => 1,
-                            'toolbar'           => 'basic',
+                            'toolbar'           => 'mk_tekst',
+                            'tabs'              => 'visual',
                             'media_upload'      => 0,
                             'conditional_logic' => array(
                                 array(
@@ -1135,21 +1313,21 @@
          */
         acf_add_local_field_group(array(
             'key'    => 'group_69f0a9ec6e104',
-            'title'  => '404',
+            'title'  => 'Pagina niet gevonden',
+            'description' => 'Wat bezoekers zien als een pagina niet bestaat, bijvoorbeeld door een oude link of een typfout.',
             'fields' => array(
                 array(
                     'key'     => 'field_69f0a9ed41264',
                     'label'   => 'Titel',
                     'name'    => 'titel',
                     'type'    => 'text',
-                    'wrapper' => array('width' => '50'),
                 ),
                 array(
                     'key'     => 'field_69f0aa1541265',
                     'label'   => 'Tekst',
                     'name'    => 'tekst',
                     'type'    => 'textarea',
-                    'wrapper' => array('width' => '50'),
+                    'rows'    => 3,
                 ),
                 array(
                     'key'           => 'field_69f0aa2a41266',
@@ -1158,10 +1336,13 @@
                     'type'          => 'image',
                     'return_format' => 'url',
                     'preview_size'  => 'medium',
-                    'wrapper'       => array('width' => '50'),
+                    'wrapper'       => array('width' => '60'),
                 ),
                 // Eigen naam: velden van opties-pagina's delen één naamruimte
-                mkbase_image_size_field('field_mk_404_afbeeldingsformaat', 'full', '404_afbeeldingsformaat'),
+                array_merge(
+                    mkbase_image_size_field('field_mk_404_afbeeldingsformaat', 'full', '404_afbeeldingsformaat'),
+                    array('wrapper' => array('width' => '40'))
+                ),
             ),
             'location' => array(
                 array(

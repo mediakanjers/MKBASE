@@ -1,165 +1,104 @@
-/* Widget verplaatst naar boven de kolomstructuur via JS */
+/* Dashboard: welkomstblok en startlijst van Mediakanjers (inc/admin/dashboard.php).
+   Het dashboard is een WordPress-pagina zonder MK-balk, dus vaste kleuren in plaats van de --mk-tokens. */
+
+/* Widget boven de kolommen (via JS verplaatst), zonder eigen kop en rand */
 .metabox-holder > #mkbase_docs_widget {
-    width: 100% !important;
+    width: auto !important;
     float: none !important;
     clear: both;
-    margin-bottom: 20px !important;
+    margin: 0 4px 20px 8px !important; /* gelijk met de blokken in de kolommen eronder */
 }
+#mkbase_docs_widget { box-sizing: border-box; border: 0; background: transparent; box-shadow: none; }
+#mkbase_docs_widget .postbox-header { display: none; }
+#mkbase_docs_widget .inside { padding: 0 !important; margin: 0 !important; }
 
-#mkbase_docs_widget {
-    box-sizing: border-box;
-}
-
-#mkbase_docs_widget .postbox-header {
-    display: none;
-}
-
-#mkbase_docs_widget .inside {
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-/* Widget wrapper */
-.mkbase-dash {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-/* Header */
-.mkbase-dash__header {
-    background: #1d2327;
-    padding: 24px 28px;
+.mk-dash {
     display: flex;
+    flex-direction: column;
+    gap: 20px;
+    color: #0F1B2D;
+    font: 14px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.mk-dash h2 { margin: 0; padding: 0; color: #0F1B2D; font-family: "Plus Jakarta Sans", Inter, sans-serif; font-weight: 800; letter-spacing: -0.3px; }
+.mk-dash a:focus-visible,
+.mk-dash button:focus-visible { outline: 2px solid #0B6FB8; outline-offset: 2px; box-shadow: none; }
+
+/* ── Welkomstblok ─────────────────────────────────────────── */
+.mk-welcome { background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 27, 45, 0.04); }
+.mk-welcome__head { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; padding: 24px 26px; border-bottom: 1px solid #E3E8EF; }
+.mk-welcome__head > svg { flex-shrink: 0; }
+.mk-welcome__intro { flex: 1 1 320px; }
+.mk-welcome__intro h2 { margin-bottom: 4px; font-size: 22px; }
+.mk-welcome__intro p { margin: 0; color: #56667A; font-size: 14px; line-height: 1.55; }
+.mk-welcome__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.mk-welcome__btn {
+    display: inline-flex;
     align-items: center;
-    gap: 28px;
-    flex-wrap: wrap;
-}
-
-.mkbase-dash__logo {
-    height: 32px;
-    width: auto;
-    flex-shrink: 0;
-    filter: brightness(0) invert(1);
-    opacity: 0.9;
-}
-
-.mkbase-dash__intro {
-    flex: 1;
-    min-width: 200px;
-}
-
-.mkbase-dash__intro h3 {
-    color: #fff !important;
-    font-size: 15px !important;
-    font-weight: 700 !important;
-    margin: 0 0 4px !important;
-    padding: 0 !important;
-    border: none !important;
-}
-
-.mkbase-dash__intro p {
-    color: rgba(255,255,255,0.65);
-    font-size: 13px;
-    margin: 0;
-    line-height: 1.5;
-}
-
-.mkbase-dash__actions {
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-}
-
-.mkbase-dash__btn {
-    display: inline-block;
-    padding: 7px 16px;
-    border-radius: 4px;
-    font-size: 13px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 10px;
+    border: 1px solid #E3E8EF;
+    background: #FFFFFF;
+    color: #0F1B2D;
     font-weight: 600;
-    text-decoration: none !important;
-    transition: opacity 0.15s ease;
-    white-space: nowrap;
-}
-
-.mkbase-dash__btn:hover {
-    opacity: 0.85;
-}
-
-.mkbase-dash__btn--primary {
-    background: #f0b849;
-    color: #3c2800 !important;
-}
-
-.mkbase-dash__btn--secondary {
-    background: rgba(255,255,255,0.12);
-    color: #fff !important;
-    border: 1px solid rgba(255,255,255,0.2);
-}
-
-/* Cards */
-.mkbase-dash__cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border-top: 1px solid #e2e4e7;
-}
-
-.mkbase-dash__card {
-    padding: 18px 24px;
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    background: #fff;
-}
-
-.mkbase-dash__card + .mkbase-dash__card {
-    border-left: 1px solid #e2e4e7;
-}
-
-.mkbase-dash__card .dashicons {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
-    color: #1d2327;
-    flex-shrink: 0;
-    margin-top: 2px;
-    opacity: 0.5;
-}
-
-.mkbase-dash__card-body strong {
-    display: block;
-    font-size: 13px;
-    font-weight: 700;
-    color: #1d2327;
-    margin-bottom: 3px;
-}
-
-.mkbase-dash__card-body p {
-    font-size: 12px;
-    color: #50575e;
-    margin: 0 0 8px;
-    line-height: 1.5;
-}
-
-.mkbase-dash__card-body a {
-    font-size: 12px;
-    font-weight: 600;
-    color: #2271b1;
+    font-size: 13.5px;
     text-decoration: none;
 }
+.mk-welcome__btn:hover { background: #F4F6FA; color: #0F1B2D; }
+.mk-welcome__btn--primary { border-color: #0B6FB8; background: #0B6FB8; color: #FFFFFF; font-weight: 700; }
+.mk-welcome__btn--primary:hover { border-color: #08568F; background: #08568F; color: #FFFFFF; }
 
-.mkbase-dash__card-body a:hover {
-    text-decoration: underline;
+.mk-welcome__tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.mk-welcome__tile { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 18px 22px; color: #0F1B2D; text-decoration: none; }
+.mk-welcome__tile + .mk-welcome__tile { border-left: 1px solid #E3E8EF; }
+.mk-welcome__tile:hover { background: #F7F9FC; color: #0F1B2D; }
+.mk-welcome__tile:hover strong { color: #0B6FB8; }
+.mk-welcome__tile:focus-visible { outline-offset: -2px; }
+.mk-welcome__icon { width: 36px; height: 36px; border-radius: 10px; background: #E7F1FB; color: #0B6FB8; display: inline-flex; align-items: center; justify-content: center; }
+.mk-welcome__tile strong { font-weight: 700; }
+.mk-welcome__text { color: #56667A; font-size: 13px; line-height: 1.5; }
+.mk-welcome__badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: #E3F6EC; color: #146C3A; font-size: 12px; font-weight: 700; }
+.mk-welcome__badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+/* ── Startlijst ───────────────────────────────────────────── */
+.mk-start { background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 16px; overflow: hidden; transition: opacity 0.2s ease; }
+.mk-start.is-hiding { opacity: 0; }
+.mk-start__head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; padding: 22px 26px; border-bottom: 1px solid #E3E8EF; }
+.mk-start__ring { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+.mk-start__ring svg { display: block; }
+.mk-start__ring span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+.mk-start__intro { flex: 1 1 280px; }
+.mk-start__intro h2 { margin-bottom: 4px; font-size: 20px; }
+.mk-start__intro p { margin: 0; color: #56667A; font-size: 14px; line-height: 1.6; }
+.mk-start__hide { height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid #E3E8EF; background: #FFFFFF; color: #56667A; font: 600 13px/1 inherit; cursor: pointer; }
+.mk-start__hide:hover { background: #F4F6FA; color: #0F1B2D; }
+
+.mk-start__list { list-style: none; margin: 0; padding: 0; }
+.mk-start__step { display: flex; align-items: center; gap: 16px; margin: 0; padding: 14px 26px; background: #F7F9FC; }
+.mk-start__step + .mk-start__step { border-top: 1px solid #EEF1F5; }
+.mk-start__step.is-done { background: #FFFFFF; }
+.mk-start__mark { width: 28px; height: 28px; flex-shrink: 0; box-sizing: border-box; border-radius: 50%; border: 2px solid #CFD8E3; color: #56667A; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
+.mk-start__step.is-done .mk-start__mark { border: 0; background: #E3F6EC; color: #146C3A; }
+.mk-start__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.mk-start__text strong { font-weight: 700; }
+.mk-start__step.is-done .mk-start__text strong { color: #56667A; }
+.mk-start__text > span { color: #56667A; font-size: 12.5px; margin-top: 2px; }
+.mk-start__btn { display: inline-flex; align-items: center; height: 36px; padding: 0 16px; border-radius: 10px; background: #0B6FB8; color: #FFFFFF; font-weight: 700; font-size: 13px; text-decoration: none; white-space: nowrap; }
+.mk-start__btn:hover { background: #08568F; color: #FFFFFF; }
+.mk-start__edit { color: #0B6FB8; font-weight: 600; font-size: 13px; text-decoration: none; }
+.mk-start__edit:hover { text-decoration: underline; }
+
+@media (max-width: 1100px) {
+    .mk-welcome__tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mk-welcome__tile:nth-child(3) { border-left: 0; }
+    .mk-welcome__tile:nth-child(n+3) { border-top: 1px solid #E3E8EF; }
 }
-
 @media (max-width: 600px) {
-    .mkbase-dash__cards {
-        grid-template-columns: 1fr;
-    }
-
-    .mkbase-dash__card + .mkbase-dash__card {
-        border-left: none;
-        border-top: 1px solid #e2e4e7;
-    }
+    .mk-welcome__head,
+    .mk-start__head { padding: 20px 16px; }
+    .mk-welcome__tiles { grid-template-columns: 1fr; }
+    .mk-welcome__tile + .mk-welcome__tile { border-left: 0; border-top: 1px solid #E3E8EF; }
+    .mk-welcome__tile { padding: 16px; }
+    .mk-start__step { padding: 14px 16px; gap: 12px; }
 }
+@media (prefers-reduced-motion: reduce) { .mk-start { transition: none; } }

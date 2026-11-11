@@ -1,57 +1,5 @@
 <?php
-    add_action('wp_dashboard_setup', function() {
-        wp_add_dashboard_widget('mkbase_docs_widget', 'Mediakanjers', 'mkbase_render_dashboard_widget');
-
-        // Zet de widget bovenaan
-        global $wp_meta_boxes;
-        $widget = $wp_meta_boxes['dashboard']['normal']['core']['mkbase_docs_widget'] ?? null;
-        if ($widget) {
-            unset($wp_meta_boxes['dashboard']['normal']['core']['mkbase_docs_widget']);
-            $wp_meta_boxes['dashboard']['normal']['core'] = array_merge(
-                ['mkbase_docs_widget' => $widget],
-                $wp_meta_boxes['dashboard']['normal']['core']
-            );
-        }
-    });
-
-    function mkbase_render_dashboard_widget() {
-        $logo          = get_template_directory_uri() . '/assets/images/mk_logo_tekst.svg';
-        $url_docs      = admin_url('admin.php?page=mkbase-docs');
-        $url_changelog = admin_url('admin.php?page=mkbase-changelog');
-        ?>
-        <div class="mkbase-dash">
-            <div class="mkbase-dash__header">
-                <img src="<?php echo esc_url($logo); ?>" alt="Mediakanjers" class="mkbase-dash__logo">
-                <div class="mkbase-dash__intro">
-                    <h3>Welkom bij je website</h3>
-                    <p>In de documentatie vind je uitleg over alle blokken en instellingen van dit thema.</p>
-                </div>
-                <div class="mkbase-dash__actions">
-                    <a href="<?php echo esc_url($url_docs); ?>" class="mkbase-dash__btn mkbase-dash__btn--primary">Bekijk documentatie</a>
-                    <a href="<?php echo esc_url($url_changelog); ?>" class="mkbase-dash__btn mkbase-dash__btn--secondary">Changelog</a>
-                </div>
-            </div>
-            <div class="mkbase-dash__cards">
-                <div class="mkbase-dash__card">
-                    <span class="dashicons dashicons-book-alt"></span>
-                    <div class="mkbase-dash__card-body">
-                        <strong>Documentatie</strong>
-                        <p>Uitleg over alle blokken, meldingen, instellingen en meer — overzichtelijk per onderwerp.</p>
-                        <a href="<?php echo esc_url($url_docs); ?>">Ga naar documentatie &rarr;</a>
-                    </div>
-                </div>
-                <div class="mkbase-dash__card">
-                    <span class="dashicons dashicons-email-alt"></span>
-                    <div class="mkbase-dash__card-body">
-                        <strong>Vragen?</strong>
-                        <p>Kom je er niet uit? Neem contact op met Mediakanjers, we helpen je graag verder.</p>
-                        <a href="https://mediakanjers.nl" target="_blank" rel="noopener">Ga naar mediakanjers.nl &rarr;</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php
-    }
+    // Het dashboard-welkomstblok staat sinds 1.6.0 in inc/admin/dashboard.php
 
     add_action('admin_menu', function() {
         add_submenu_page(null, 'Mobiel testen', 'Mobiel testen', 'manage_options', 'mkbase-mobile-guide', function() {
@@ -70,26 +18,13 @@
         });
     });
 
-    add_action('admin_enqueue_scripts', function($hook) {
-        if ($hook !== 'index.php') return;
-        $theme_dir = get_template_directory();
-        $theme_uri = get_template_directory_uri();
-        wp_enqueue_style('mk-admin-dashboard', $theme_uri . '/assets/css/admin-dashboard.css', [], mkbase_asset_version($theme_dir . '/assets/css/admin-dashboard.css'));
-    });
-
-    add_action('admin_footer', function() {
-        if (get_current_screen()->id !== 'dashboard') return;
-        echo '<script>document.addEventListener("DOMContentLoaded",function(){var w=document.getElementById("mkbase_docs_widget"),h=document.querySelector(".metabox-holder");if(w&&h)h.insertBefore(w,h.firstChild);});</script>';
-    });
-
     add_action('admin_enqueue_scripts', function() {
         if (!isset($_GET['page']) || $_GET['page'] !== 'mkbase-docs') return;
+        // MK-stijl en -balk komen uit inc/admin/ui.php (mk-admin); dit is alleen het documentatie-deel
         $theme_dir = get_template_directory();
         $theme_uri = get_template_directory_uri();
-        wp_enqueue_style('mk-inter-font', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap', [], null);
-        wp_enqueue_style('mk-admin-shared', $theme_uri . '/assets/css/admin-shared.css', [], mkbase_asset_version($theme_dir . '/assets/css/admin-shared.css'));
-        wp_enqueue_style('mk-admin-docs', $theme_uri . '/assets/css/admin-docs.css', ['mk-admin-shared'], mkbase_asset_version($theme_dir . '/assets/css/admin-docs.css'));
-        wp_enqueue_script('mk-admin-docs', $theme_uri . '/assets/js/admin-docs.js', [], mkbase_asset_version($theme_dir . '/assets/js/admin-docs.js'), true);
+        wp_enqueue_style('mk-admin-docs', $theme_uri . '/assets/css/admin-docs.css', ['mk-admin'], mkbase_asset_version($theme_dir . '/assets/css/admin-docs.css'));
+        wp_enqueue_script('mk-admin-docs', $theme_uri . '/assets/js/admin-docs.js', ['mk-admin'], mkbase_asset_version($theme_dir . '/assets/js/admin-docs.js'), true);
     });
 
     add_action('admin_footer', function() {
@@ -103,48 +38,117 @@
         return '<a href="' . esc_url($url) . '" class="mkbase-docs-settings-link">' . esc_html($label) . ' &rarr;</a>';
     }
 
+    // Een kaart met een titel en vragen die je los openklapt ($icon wordt sinds 1.6.0 niet meer getoond;
+    // de kaarten zijn genummerd). Elke vraag heeft een eigen id, zodat er naartoe gelinkt kan worden.
     function mkbase_docs_section($id, $title, $icon, $items) {
-        $html  = '<div class="mkbase-docs-section" data-section="' . esc_attr($id) . '">';
-        $html .= '<button class="mkbase-docs-toggle" type="button" aria-expanded="false">';
-        $html .= '<span class="mkbase-docs-toggle__icon dashicons ' . esc_attr($icon) . '"></span>';
-        $html .= '<span class="mkbase-docs-toggle__title">' . esc_html($title) . '</span>';
-        $html .= '<span class="mkbase-docs-toggle__arrow dashicons dashicons-arrow-down-alt2"></span>';
-        $html .= '</button>';
-        $html .= '<div class="mkbase-docs-body" style="display:none;">';
-        $html .= '<dl class="mkbase-docs-list">';
-        foreach ($items as $item) {
+        $html  = '<section class="mkbase-docs-section" id="docs-' . esc_attr($id) . '" data-section="' . esc_attr($id) . '">';
+        $html .= '<h2 class="mkbase-docs-section__title">' . esc_html($title) . '</h2>';
+        foreach ($items as $i => $item) {
+            $qid   = 'docs-' . $id . '-' . $i;
             $html .= '<div class="mkbase-docs-item">';
-            $html .= '<dt>' . $item['label'] . '</dt>';
-            $html .= '<dd>' . $item['desc'] . '</dd>';
+            $html .= '<button class="mkbase-docs-q" type="button" aria-expanded="false" aria-controls="' . esc_attr($qid) . '">' . $item['label'] . '</button>';
+            $html .= '<div class="mkbase-docs-a" id="' . esc_attr($qid) . '" hidden>' . $item['desc'] . '</div>';
             $html .= '</div>';
         }
-        $html .= '</dl>';
-        $html .= '</div>';
+        $html .= '</section>';
+        return $html;
+    }
+
+    // Stijlgids: elk voorbeeld gebruikt de echte klassen uit mk-admin.css, dus wat je ziet is wat je krijgt
+    function mkbase_docs_stijlgids() {
+        // Elk woord heel houden: de browser breekt anders midden in een klasse af (na "--")
+        $code = function ($text) {
+            return '<code class="mk-sg__code"><span>' . implode('</span> <span>', array_map('esc_html', explode(' ', $text))) . '</span></code>';
+        };
+
+        $kleuren = '';
+        foreach (['--mk-primary', '--mk-logo', '--mk-tint', '--mk-text', '--mk-bg', '--mk-card', '--mk-border', '--mk-muted', '--mk-ok-text', '--mk-warn-text', '--mk-err', '--mk-focus'] as $var) {
+            $kleuren .= '<div class="mk-sg__swatch"><span style="background: var(' . $var . ')"></span><code>' . $var . '</code><small data-mk-var="' . $var . '"></small></div>';
+        }
+
+        $html  = '<div class="mk-sg">';
+
+        $html .= mkbase_admin_section('Kleuren', '<div class="mk-sg__swatches">' . $kleuren . '</div>'
+            . '<p class="mk-hint">Gebruik altijd de variabele, nooit de kleurcode: in de donkere modus krijgen ze vanzelf een andere waarde.</p>');
+
+        $html .= mkbase_admin_section('Tekst',
+            '<p class="mk-h1">Paginatitel 30</p>'
+            . '<p class="mk-h2">Sectiekop 17</p>'
+            . '<p class="mk-text">Lopende tekst 14 · Inter</p>'
+            . '<p class="mk-hint">Hulptekst 12,5 · gedempt</p>'
+            . $code('.mk-h1 .mk-h2 .mk-text .mk-hint'));
+
+        $html .= mkbase_admin_section('Knoppen',
+            '<div class="mk-sg__row">'
+            . '<button type="button" class="mk-btn">Primair</button>'
+            . '<button type="button" class="mk-btn mk-btn--secondary">Secundair</button>'
+            . '<button type="button" class="mk-btn mk-btn--link">Link-knop</button>'
+            . '<button type="button" class="mk-btn mk-btn--danger">Verwijderen</button>'
+            . '</div>'
+            . $code('.mk-btn .mk-btn--secondary .mk-btn--link .mk-btn--danger'));
+
+        $html .= mkbase_admin_section('Statuslabels',
+            '<div class="mk-sg__row">'
+            . '<span class="mk-pill mk-pill--live">Live</span>'
+            . '<span class="mk-pill mk-pill--gepland">Gepland</span>'
+            . '<span class="mk-pill mk-pill--verlopen">Verlopen</span>'
+            . '<span class="mk-pill mk-pill--uit">Uit</span>'
+            . '</div>'
+            . $code('.mk-pill .mk-pill--live .mk-pill--gepland .mk-pill--verlopen .mk-pill--uit'));
+
+        $html .= mkbase_admin_section('Velden',
+            '<label class="mk-field"><span class="mk-field__label">Normaal <span class="mk-help-btn" aria-hidden="true">?</span></span><input type="text" value="Bakkerij Jansen"></label>'
+            . '<label class="mk-field mk-field--error"><span class="mk-field__label">Met fout</span><input type="text" value="info@bakkerij" aria-invalid="true" aria-describedby="mk-sg-fout"><span class="mk-field__error" id="mk-sg-fout">Vul een volledig e-mailadres in</span></label>'
+            . $code('.mk-field .mk-field__label .mk-field--error .mk-field__error .mk-help-btn'));
+
+        $html .= mkbase_admin_section('Schakelaar, bevestiging en sectie',
+            '<div class="mk-sg__row">'
+            . '<button type="button" class="mk-switch" role="switch" aria-checked="true" aria-labelledby="mk-sg-aan"></button><span id="mk-sg-aan" class="mk-sg__label">Aan</span>'
+            . '<button type="button" class="mk-switch" role="switch" aria-checked="false" aria-labelledby="mk-sg-uit"></button><span id="mk-sg-uit" class="mk-sg__label">Uit</span>'
+            . '</div>'
+            . '<div class="mk-toast mk-toast--inline"><span class="mk-toast__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><div><div class="mk-toast__title">Wijzigingen opgeslagen</div></div><button type="button" data-mk-sg-toast>Probeer het</button></div>'
+            . $code('.mk-switch · mkToast({ title, sub, action }) · mkbase_admin_section($titel, $html)'));
+
+        $focus = [
+            ['<button type="button" class="mk-btn mk-sg__ring">Opslaan</button>', 'Knop'],
+            ['<input type="text" class="mk-sg__ring mk-sg__ring--veld" value="Bakkerij Jansen">', 'Veld (ring in de rand)'],
+            ['<span class="mk-help-btn mk-sg__ring">?</span>', 'Uitlegknop'],
+            ['<span class="mk-switch mk-sg__ring" aria-checked="true"></span>', 'Schakelaar'],
+            ['<span class="mk-sg__tab mk-sg__ring">Meldingen</span>', 'Tabblad'],
+            ['<span class="mk-sg__link mk-sg__ring">Meer uitleg →</span>', 'Link'],
+        ];
+        $voorbeelden = '';
+        foreach ($focus as [$el, $label]) {
+            $voorbeelden .= '<div class="mk-sg__focus">' . $el . '<span class="mk-hint">' . esc_html($label) . '</span></div>';
+        }
+        $regels = '';
+        foreach ([
+            'Volgorde van Tab = volgorde op het scherm',
+            'Pop-ups en zijpanelen: focus gaat erin, Esc sluit, focus terug naar de knop',
+            'Ongedaan maken in de bevestiging is ook met Tab te bereiken',
+            'Fouten: focus springt naar de foutmelding bovenaan',
+        ] as $regel) {
+            $regels .= '<li>' . esc_html($regel) . '</li>';
+        }
+        $html .= mkbase_admin_section('Focus met het toetsenbord',
+            '<p class="mk-text mk-sg__lead">Ga je met Tab door de pagina, dan zie je altijd waar je bent: een ring van 2 px in <code>--mk-focus</code> (blauw, in donker lichtblauw), met 2 px ruimte ertussen. Alleen bij het toetsenbord (<code>:focus-visible</code>), niet bij klikken met de muis. Nooit <code>outline: none</code> zonder vervanging. Dit regelt <code>mk-admin.css</code> al voor alles op de pagina.</p>'
+            . '<div class="mk-sg__row mk-sg__row--focus">' . $voorbeelden . '</div>'
+            . '<ul class="mk-sg__rules">' . $regels . '</ul>'
+            . $code(':focus-visible { outline: 2px solid var(--mk-focus); outline-offset: 2px; }'),
+            'mk-sg__wide');
+
         $html .= '</div>';
         return $html;
     }
 
     function mkbase_get_docs_html() {
-        $html  = '<div class="mk-cover">';
-        $html .= '<div class="mk-cover__eyebrow">MKBase Theme &nbsp;·&nbsp; Mediakanjers</div>';
-        $html .= '<div class="mk-cover__title">Documentatie</div>';
-        $html .= '<div class="mk-cover__sub">Uitleg over alle instellingen, blokken en mogelijkheden van het MKBase thema — rechtstreeks in je WordPress admin.</div>';
-        $html .= '<div class="mk-cover__tags">';
-        $html .= '<span class="mk-cover__tag">Website instellingen</span>';
-        $html .= '<span class="mk-cover__tag">Menu\'s</span>';
-        $html .= '<span class="mk-cover__tag">Blokken</span>';
-        $html .= '<span class="mk-cover__tag">Afbeeldingen</span>';
-        if (class_exists('GFForms'))      $html .= '<span class="mk-cover__tag">Gravity Forms</span>';
-        if (defined('WP_ROCKET_VERSION')) $html .= '<span class="mk-cover__tag">WP Rocket</span>';
-        if (defined('WPSEO_VERSION'))     $html .= '<span class="mk-cover__tag">Yoast SEO</span>';
-        if (class_exists('WooCommerce'))  $html .= '<span class="mk-cover__tag">WooCommerce</span>';
-        $html .= '</div>';
-        $html .= '</div>';
-
-        $html .= mkbase_admin_page_nav('mkbase-docs');
+        $html = '';
 
         // Groepen voor de zijbalk
         $groups = [
+            'Beginnen' => [
+                'beheer' => 'Werken in het beheer',
+            ],
             'Thema' => [
                 'instellingen' => 'Website instellingen',
                 'menus'        => "Menu's",
@@ -168,6 +172,7 @@
         if (current_user_can('manage_options')) {
             $groups['Developer'] = [
                 'dev-blokken'      => 'Blokken bouwen',
+                'stijlgids'        => 'Stijlgids',
                 'dev-afbeeldingen' => 'Afbeeldingen',
                 'lightbox'      => 'Lightbox',
                 'mobiel-testen' => 'Mobiel testen',
@@ -176,15 +181,16 @@
 
         // Zijbalk
         $html .= '<div id="mkbase-docs-layout">';
-        $html .= '<nav id="mkbase-docs-sidebar">';
+        $html .= '<nav id="mkbase-docs-sidebar" aria-label="Onderwerpen">';
+        $html .= '<label class="mk-search"><span class="screen-reader-text">Zoeken in de documentatie</span><input type="search" id="mkbase-docs-search" placeholder="Zoeken" autocomplete="off"></label>';
         $first = true;
         foreach ($groups as $group_label => $items) {
             $extra = $group_label === 'Developer' ? ' mkbase-docs-group--developer' : '';
             $html .= '<div class="mkbase-docs-group' . $extra . '">';
-            $html .= '<span class="mkbase-docs-group__label">' . esc_html($group_label) . '</span>';
+            $html .= '<span class="mkbase-docs-group__label">' . esc_html($group_label) . ($group_label === 'Developer' ? ' <span class="mk-dev-tag">Dev</span>' : '') . '</span>';
             foreach ($items as $key => $label) {
                 $active = $first ? ' is-active' : '';
-                $html  .= '<button class="mkbase-docs-nav-item' . $active . '" data-panel="' . esc_attr($key) . '">' . esc_html($label) . '</button>';
+                $html  .= '<button type="button" class="mkbase-docs-nav-item' . $active . '" data-panel="' . esc_attr($key) . '"' . ($first ? ' aria-current="true"' : '') . '>' . esc_html($label) . '</button>';
                 $first  = false;
             }
             $html .= '</div>';
@@ -192,8 +198,43 @@
         $html .= '</nav>';
         $html .= '<div id="mkbase-docs-panels">';
 
+        /* ── WERKEN IN HET BEHEER ─────────────────────────── */
+        $html .= '<div class="mkbase-docs-panel is-active" data-panel="beheer">';
+        $html .= '<p class="mkbase-docs-intro">Alle pagina\'s onder <strong>Mediakanjers</strong> werken op dezelfde manier. Hier lees je hoe je opslaat, waar je uitleg vindt en hoe je de meldingen van WordPress zelf wegklikt.</p>';
+
+        $html .= mkbase_docs_section('beheer-balk', 'De balk bovenaan', 'dashicons-menu', [
+            ['label' => 'Wat staat erin?', 'desc' => 'Bovenaan elke Mediakanjers-pagina staat een balk met waar je bent, tabbladen naar alle Mediakanjers-pagina\'s, een knop met de meldingen van WordPress, een knop voor de donkere modus (het maantje) en de knop <strong>Opslaan</strong>. De balk blijft in beeld als je naar beneden scrolt.'],
+            ['label' => 'Donkere modus', 'desc' => 'Met het maantje zet je de Mediakanjers-pagina\'s donker of licht. Je keuze wordt per gebruiker onthouden, ook op een andere computer of in een andere browser.'],
+        ]);
+
+        $html .= mkbase_docs_section('beheer-opslaan', 'Opslaan en wijzigingen', 'dashicons-saved', [
+            ['label' => 'Opslaan', 'desc' => 'Klik op <strong>Opslaan</strong> in de balk, of druk op <strong>Ctrl+S</strong> (Mac: <strong>Cmd+S</strong>). Daarna zie je rechtsonder een bevestiging. De cache van de website wordt meteen geleegd, zodat bezoekers de wijziging direct zien; met <strong>Bekijk website</strong> controleer je het.'],
+            ['label' => 'Niet opgeslagen', 'desc' => 'Zodra je iets wijzigt, staat er <strong>Niet-opgeslagen wijzigingen</strong> in de balk. Zet je de wijziging zelf terug zoals het was, dan verdwijnt dat weer.'],
+            ['label' => 'Annuleren', 'desc' => 'Verschijnt naast Opslaan zodra er iets gewijzigd is. Hiermee gooi je alle wijzigingen weg en zie je weer de laatst opgeslagen versie.'],
+            ['label' => 'Pagina verlaten', 'desc' => 'Ga je naar een andere pagina terwijl er nog iets niet is opgeslagen, dan vraagt het beheer wat je wilt: <strong>Opslaan en verder</strong>, <strong>Niet opslaan</strong> of <strong>Blijven</strong>. Zo raak je niets per ongeluk kwijt.'],
+        ]);
+
+        $html .= mkbase_docs_section('beheer-uitleg', 'Uitleg bij de velden', 'dashicons-editor-help', [
+            ['label' => 'Het vraagteken', 'desc' => 'Naast elk veld staat een <strong>?</strong>. Klik erop voor een korte uitleg. Ook bij de velden van de Mediakanjers-blokken in de editor.'],
+            ['label' => 'Meer uitleg', 'desc' => 'Onder de korte uitleg staat <strong>Meer uitleg</strong>. Dat opent rechts een paneel met het stuk uit deze documentatie dat over dat veld gaat, zonder dat je de pagina verlaat.'],
+            ['label' => 'Live voorbeeld', 'desc' => 'Bij <strong>Website instellingen</strong> en <strong>404</strong> zie je naast de velden een voorbeeld dat meeverandert terwijl je typt. Met <strong>Live voorbeeld</strong> in de balk zet je het aan of uit. Bij <strong>Meldingen</strong> heeft elke melding een eigen voorbeeld.'],
+        ]);
+
+        $html .= mkbase_docs_section('beheer-wp-meldingen', 'Meldingen van WordPress en plugins', 'dashicons-bell', [
+            ['label' => 'Waar staan ze?', 'desc' => 'Meldingen van WordPress en plugins (bijv. over updates) staan samen achter de knop met het belletje en het aantal. Klik erop om ze te bekijken. Dit geldt op de Mediakanjers-pagina\'s en op de andere pagina\'s van het beheer, zoals het Dashboard en Pagina\'s.'],
+            ['label' => 'Verbergen', 'desc' => 'Klik op het kruisje bij een melding om hem te verbergen, of op <strong>Alles verbergen</strong>. Verborgen meldingen blijven per gebruiker weg, ook als een plugin ze op elke pagina opnieuw toont. Verandert de tekst van een melding, dan komt hij terug.'],
+            ['label' => 'Weer tonen', 'desc' => 'Onderaan de lijst staat hoeveel meldingen je hebt verborgen. Met <strong>Weer tonen</strong> zie je ze allemaal weer.'],
+        ]);
+
+        $html .= mkbase_docs_section('beheer-startlijst', 'Startlijst op het dashboard', 'dashicons-yes-alt', [
+            ['label' => 'Wat is het?', 'desc' => 'Op een nieuwe website staat op het dashboard een lijst met zes dingen die ingevuld moeten zijn: logo, favicon, bedrijfsgegevens, sociale media, hoofdmenu en de 404-pagina. Wat klaar is, wordt vanzelf afgevinkt, en als alles klaar is verdwijnt de lijst.'],
+            ['label' => 'Verbergen', 'desc' => 'Met <strong>Verbergen</strong> haal je de lijst voor jezelf weg. Terugzetten kan onderaan deze documentatie, zolang hij verborgen is.'],
+        ]);
+
+        $html .= '</div>';
+
         /* ── INSTELLINGEN ─────────────────────────────────── */
-        $html .= '<div class="mkbase-docs-panel is-active" data-panel="instellingen">';
+        $html .= '<div class="mkbase-docs-panel" data-panel="instellingen">';
         $html .= '<p class="mkbase-docs-intro">Stel hier de algemene website-informatie in. Deze gegevens zijn beschikbaar via ACF en kunnen overal in het thema worden gebruikt.</p>';
         $html .= mkbase_docs_settings_link(admin_url('admin.php?page=acf-options-website-instellingen'), 'Ga naar Website instellingen');
 
@@ -203,16 +244,17 @@
         ]);
 
         $html .= mkbase_docs_section('bedrijf', 'Bedrijfsgegevens', 'dashicons-building', [
-            ['label' => 'Bedrijfsnaam', 'desc' => 'De officiële naam van het bedrijf. Wordt gebruikt in de footer, contactpagina en metadata.'],
-            ['label' => 'Adres', 'desc' => 'Straatnaam en huisnummer van het bedrijf.'],
-            ['label' => 'Postcode', 'desc' => 'Postcode van het bedrijf (bijv. <code>1234 AB</code>).'],
-            ['label' => 'Telefoon', 'desc' => 'Hoofdtelefoonnummer. Gebruik het internationaal formaat voor klikbare links (bijv. <code>+31 20 123 4567</code>).'],
-            ['label' => 'Email', 'desc' => 'Algemeen e-mailadres van het bedrijf.'],
-            ['label' => 'Mobiel', 'desc' => 'Mobiel telefoonnummer, indien van toepassing.'],
+            ['label' => 'Bedrijfsnaam', 'desc' => 'De officiële naam van het bedrijf. Staat vetgedrukt boven de contactgegevens in de footer.'],
+            ['label' => 'Adres', 'desc' => 'Straat en huisnummer, zoals ze in de footer moeten staan (bijv. <code>Marktstraat 12</code>).'],
+            ['label' => 'Postcode en plaats', 'desc' => 'Staat in de footer onder het adres (bijv. <code>7511 AB Enschede</code>).'],
+            ['label' => 'Telefoon', 'desc' => 'Hoofdtelefoonnummer. Op een telefoon kunnen bezoekers erop tikken om direct te bellen. Het internationale formaat werkt overal (bijv. <code>+31 53 478 61 47</code>).'],
+            ['label' => 'E-mail', 'desc' => 'Algemeen e-mailadres; bezoekers kunnen erop klikken om te mailen. Kies een adres dat iemand leest.'],
+            ['label' => 'Mobiel', 'desc' => 'Een tweede nummer, bijvoorbeeld voor spoed. Optioneel: leeg laten verbergt het.'],
+            ['label' => 'Lege velden', 'desc' => 'Een veld dat je leeg laat, verschijnt niet op de website.'],
         ]);
 
         $html .= mkbase_docs_section('socials', 'Sociale media', 'dashicons-share', [
-            ['label' => 'Socials', 'desc' => 'Voeg sociale mediaprofielen toe via de repeater. Kies per rij het platform (Discord, Facebook, Instagram, LinkedIn, Snapchat, TikTok, WhatsApp, X, YouTube) en vul de volledige URL in. Voeg meerdere rijen toe voor meerdere platformen.'],
+            ['label' => 'Sociale media', 'desc' => 'Voeg sociale mediaprofielen toe via de repeater. Kies per rij het platform (Discord, Facebook, Instagram, LinkedIn, Snapchat, TikTok, WhatsApp, X, YouTube) en vul de volledige URL in. Voeg meerdere rijen toe voor meerdere platformen.'],
         ]);
 
         $html .= '</div>';
@@ -240,7 +282,7 @@
 
         /* ── GEAVANCEERD ──────────────────────────────────── */
         $html .= '<div class="mkbase-docs-panel" data-panel="geavanceerd">';
-        $html .= '<p class="mkbase-docs-intro">Via het Geavanceerd-menu kun je code-snippets toevoegen aan de HTML-output van de website. Dit is bedoeld voor tracking pixels, tag managers en andere externe scripts. <strong>Gebruik dit menu alleen als je weet wat je doet.</strong></p>';
+        $html .= '<p class="mkbase-docs-intro">Via het Geavanceerd-menu kun je code-snippets toevoegen aan de HTML-output van de website. Dit is bedoeld voor tracking pixels, tag managers en andere externe scripts. Daarnaast stel je hier in welke blokken er in de editor beschikbaar zijn. <strong>Gebruik dit menu alleen als je weet wat je doet.</strong></p>';
         $html .= mkbase_docs_settings_link(admin_url('admin.php?page=acf-options-geavanceerd'), 'Ga naar Geavanceerd');
 
         $html .= mkbase_docs_section('head', 'In de &lt;head&gt;', 'dashicons-editor-code', [
@@ -252,17 +294,23 @@
             ['label' => 'Wanneer gebruiken?', 'desc' => 'Voor de <code>&lt;noscript&gt;</code>-fallback van Google Tag Manager of andere iframe-gebaseerde trackers die direct na de openings-tag geplaatst moeten worden.'],
         ]);
 
-        $html .= mkbase_docs_section('body-close', 'Voor de sluitende &lt;/body&gt;', 'dashicons-editor-code', [
-            ['label' => 'Wanneer gebruiken?', 'desc' => 'Voor niet-kritische scripts die pas aan het einde van de pagina geladen hoeven te worden, zoals chatwidgets of pop-uptools.'],
+        $html .= mkbase_docs_section('body-close', 'Onderaan de pagina (voor &lt;/body&gt;)', 'dashicons-editor-code', [
+            ['label' => 'Wanneer gebruiken?', 'desc' => 'Voor niet-kritische scripts die pas aan het einde van de pagina geladen hoeven te worden, zoals chatwidgets of pop-uptools. Hier hoort de meeste code, op elke pagina.'],
         ]);
 
         $html .= mkbase_docs_section('homepage-only', 'Alleen op de homepage', 'dashicons-admin-home', [
             ['label' => 'Wanneer gebruiken?', 'desc' => 'Code die uitsluitend op de homepagina zichtbaar of actief moet zijn. De code wordt geladen in de footer, maar alleen als de bezoeker op de voorpagina zit.'],
         ]);
 
-        $html .= mkbase_docs_section('footer-only', 'Alleen in de footer', 'dashicons-editor-code', [
-            ['label' => 'Wanneer gebruiken?', 'desc' => 'Extra code die sowieso in de footer geladen mag worden, ongeacht de pagina. Geschikt voor scripts die op elke pagina actief moeten zijn maar niet tijdkritisch zijn.'],
-        ]);
+        $editor_items = [
+            ['label' => 'Alleen thema-blokken in de editor', 'desc' => 'Verbergt de standaardblokken van WordPress in de editor, voor iedereen. Alleen de Mediakanjers-blokken blijven over, plus de blokken bij <strong>Extra zichtbare blokken</strong>. <strong>Let op:</strong> pagina\'s die standaardblokken gebruiken (paragraaf, afbeelding, kolommen) zijn daarna niet meer te bewerken.'],
+            ['label' => 'Extra zichtbare blokken', 'desc' => 'Standaardblokken die naast de thema-blokken beschikbaar blijven, bijv. Kop of Lijst. Verschijnt alleen als <strong>Alleen thema-blokken</strong> aan staat.'],
+        ];
+        if (function_exists('mkbase_is_mediakanjers_admin') && mkbase_is_mediakanjers_admin()) {
+            $editor_items[] = ['label' => 'Bestandseditor toestaan voor Mediakanjers', 'desc' => 'Zet de thema- en plugin-bestandseditor aan, alleen voor het account <code>mediakanjers</code>. Voor iedereen anders blijft hij altijd uit. Alleen zichtbaar voor dat account.'];
+            $editor_items[] = ['label' => 'Volgorde vergrendeld (hele website)', 'desc' => 'Op elke pagina en elk bericht kan niemand nog blokken toevoegen, verwijderen of verplaatsen; de inhoud blijft wel te bewerken. Zet de volgorde eerst goed voordat je dit aanzet. Alleen zichtbaar voor het account <code>mediakanjers</code>.'];
+        }
+        $html .= mkbase_docs_section('editor', 'Editor', 'dashicons-edit', $editor_items);
 
         $html .= '</div>';
 
@@ -272,15 +320,18 @@
         $html .= mkbase_docs_settings_link(admin_url('admin.php?page=acf-options-meldingen'), 'Ga naar Meldingen');
 
         $html .= mkbase_docs_section('melding-overzicht', 'Overzicht en voorbeeld', 'dashicons-welcome-view-site', [
-            ['label' => 'Overzicht', 'desc' => 'Bovenaan zie je hoeveel meldingen <strong>Live</strong>, <strong>Gepland</strong>, <strong>Verlopen</strong> of <strong>Uit</strong> zijn. Het bolletje bij elk rijnummer toont de status, ook als de melding is ingeklapt.'],
-            ['label' => 'Live voorbeeld', 'desc' => 'Boven elke melding staat een voorbeeld dat meteen meeverandert terwijl je typt of kleuren kiest. Op de website verschijnt de melding pas na <strong>Bijwerken</strong>.'],
-            ['label' => 'Meerdere meldingen', 'desc' => 'Klik op <strong>Melding toevoegen</strong>. Staan er meerdere tegelijk live op dezelfde plek, dan komen ze onder elkaar, in de volgorde van de lijst. Sleep een rij aan het nummer om de volgorde te wijzigen.'],
+            ['label' => 'Overzicht', 'desc' => 'Naast de titel zie je hoeveel meldingen <strong>Live</strong>, <strong>Gepland</strong>, <strong>Verlopen</strong> of <strong>Uit</strong> zijn. Elke melding toont in de kop haar naam, positie, planning en status, ook als ze is ingeklapt. De aantallen lopen mee terwijl je wijzigt.'],
+            ['label' => 'Kop van een melding', 'desc' => 'Met de schakelaar zet je een melding aan of uit. Daarnaast staan <strong>Dupliceren</strong>, <strong>Verwijderen</strong> en het pijltje om in of uit te klappen. Na verwijderen kun je dat nog <strong>Ongedaan maken</strong>; definitief is het pas na <strong>Opslaan</strong>.'],
+            ['label' => 'Live voorbeeld', 'desc' => 'Rechts naast elke melding staat een voorbeeld dat meteen meeverandert terwijl je typt, kleuren of een positie kiest. Op de website verschijnt de melding pas na <strong>Opslaan</strong>.'],
+            ['label' => 'Bekijk op website', 'desc' => 'Het oog-icoon in de kop opent de website met alleen deze melding erop, ook als hij nog gepland is of uit staat. Alleen jij ziet dat voorbeeld. Je ziet de opgeslagen versie: sla eerst op om nieuwe wijzigingen te zien.'],
+            ['label' => 'Meerdere meldingen', 'desc' => 'Klik op <strong>Melding toevoegen</strong>. Staan er meerdere tegelijk live op dezelfde plek, dan komen ze onder elkaar, in de volgorde van de lijst. Sleep een melding aan de puntjes links om de volgorde te wijzigen.'],
+            ['label' => 'Voorbeelden', 'desc' => 'Is de lijst leeg, dan kun je beginnen met een lege melding of met een voorbeeld: <strong>Gewijzigde openingstijden</strong>, <strong>Actie of korting</strong> of <strong>Storing</strong>. Pas het daarna aan.'],
         ]);
 
         $html .= mkbase_docs_section('melding-inhoud', 'Inhoud', 'dashicons-editor-paragraph', [
-            ['label' => 'Aan', 'desc' => 'De schakelaar per melding. Uit: de melding is nergens zichtbaar, ongeacht de planning.'],
+            ['label' => 'Aan', 'desc' => 'De schakelaar in de kop van elke melding. Uit: de melding is nergens zichtbaar, ongeacht de planning.'],
             ['label' => 'Naam', 'desc' => 'Alleen voor jezelf, om meldingen in het overzicht uit elkaar te houden. Niet zichtbaar op de website.'],
-            ['label' => 'Tekst', 'desc' => 'De inhoud van de melding, met opmaak (vet, cursief, links). Houd hem kort en krachtig.'],
+            ['label' => 'Tekst', 'desc' => 'De inhoud van de melding, met vet, cursief en links. Houd hem kort: één zin leest het best, zeker op mobiel.'],
             ['label' => 'Knop', 'desc' => 'Optioneel: een knop naast de tekst, bijv. "Bekijk de actie". Laat leeg voor geen knop.'],
         ]);
 
@@ -291,8 +342,14 @@
 
         $html .= mkbase_docs_section('melding-weergave', 'Weergave', 'dashicons-art', [
             ['label' => 'Stijl', 'desc' => 'Kies een vaste stijl (<strong>Info</strong>, <strong>Succes</strong>, <strong>Waarschuwing</strong> of <strong>Actie</strong>) of <strong>Eigen kleuren</strong>. Zorg bij eigen kleuren voor voldoende contrast tussen tekst en achtergrond.'],
-            ['label' => 'Positie', 'desc' => '<strong>Bovenaan, blijft staan</strong>: blijft in beeld tijdens het scrollen. <strong>Bovenaan, scrolt mee weg</strong>: staat boven de header en verdwijnt bij het scrollen. <strong>Onderaan, blijft staan</strong>: zwevende balk onderaan het scherm.'],
-            ['label' => 'Sluitbaar', 'desc' => 'Toont een kruisje waarmee de bezoeker de melding wegklikt. Kies wanneer hij weer verschijnt: bij een volgend bezoek, na een aantal dagen, of nooit meer. Wijzig je de tekst, knop of planning, dan ziet iedereen de melding opnieuw.'],
+            ['label' => 'Positie', 'desc' => '<ul><li><strong>Bovenaan, blijft staan</strong>: blijft in beeld tijdens het scrollen.</li><li><strong>Bovenaan, scrolt mee weg</strong>: staat boven de header en verdwijnt bij het scrollen.</li><li><strong>Onderaan, blijft staan</strong>: zwevende balk onderaan het scherm.</li><li><strong>Pop-up in het midden</strong>: een venster midden op het scherm. Standaard wordt de pagina erachter donker; zet <strong>Pagina erachter donker maken</strong> uit als de pagina gewoon bruikbaar moet blijven. Met <strong>Scrollen erachter blokkeren</strong> (standaard aan) staat de pagina stil zolang de pop-up open is.</li><li><strong>Zwevend blok</strong>: een kaartje op een vaste plek (links of rechts, boven, midden of onder) dat blijft staan tijdens het scrollen. De breedte stel je zelf in, standaard 360 px. Op een telefoon staan blokken onderaan, over de volle breedte.</li></ul>'],
+            ['label' => 'Eén per plek', 'desc' => 'Balken mogen onder elkaar staan. Een pop-up en elke plek van een zwevend blok hebben maar één melding tegelijk. Kies je een plek die in dezelfde periode al bezet is, dan staat er <strong>Bezet</strong> bij en kun je niet opslaan. Plan ze na elkaar in, of kies een andere plek.'],
+        ]);
+
+        $html .= mkbase_docs_section('melding-gedrag', 'Gedrag', 'dashicons-clock', [
+            ['label' => 'Wanneer verschijnen', 'desc' => '<strong>Direct</strong> bij het openen van de pagina, <strong>na een aantal seconden</strong> (bijv. 10), of <strong>na scrollen</strong>: pas als de bezoeker een stuk naar beneden is gegaan (een schermhoogte is ongeveer 800 px). Met "Bekijk op website" verschijnt hij altijd direct.'],
+            ['label' => 'Automatisch verdwijnen', 'desc' => 'De melding verdwijnt na het ingestelde aantal seconden; een dun balkje laat zien hoeveel tijd er nog is. Zolang de bezoeker er met de muis of het toetsenbord op staat, wacht hij. Daarna geldt <strong>Daarna weer tonen</strong>, net als bij wegklikken.'],
+            ['label' => 'Sluitbaar', 'desc' => 'Toont een kruisje waarmee de bezoeker de melding wegklikt. Kies wanneer hij weer verschijnt: op de volgende pagina, bij een volgend bezoek (na het sluiten van de browser), na een aantal dagen, of nooit meer. Wijzig je de tekst, knop of planning, dan ziet iedereen de melding opnieuw. Een pop-up heeft altijd een kruisje (en sluit ook met Esc of een klik ernaast); de keuze Sluitbaar staat er dan niet en "Daarna weer tonen" geldt altijd.'],
         ]);
 
         $html .= mkbase_docs_section('melding-zichtbaarheid', 'Zichtbaarheid', 'dashicons-visibility', [
@@ -302,8 +359,8 @@
         if (current_user_can('manage_options')) {
             $html .= mkbase_docs_section('melding-technisch', 'Technisch (developer)', 'dashicons-admin-tools', [
                 ['label' => 'Bestanden', 'desc' => 'Logica: <code>inc/notifications.php</code>. HTML: <code>template-parts/notifications/notifications.php</code>, aangeroepen vanuit <code>footer.php</code> van het child theme. CSS en JS laden alleen op pagina\'s met een zichtbare melding.'],
-                ['label' => 'Styling', 'desc' => 'Classes: <code>.mk-notifications--boven</code>, <code>--boven-scrollt</code>, <code>--onder</code>, en per melding <code>.mk-notification--{stijl}</code>, <code>__inner</code>, <code>__inner__txt</code>, <code>__button</code>, <code>__close</code>. Kleuren via <code>--mk-notification-bg</code> en <code>--mk-notification-color</code>. De hoogte van de balken staat op <code>&lt;html&gt;</code> in <code>--mk-notification-height</code> (boven) en <code>--mk-notification-bottom-height</code> (onder).'],
-                ['label' => 'CSS overschrijven', 'desc' => 'Tabblad Technisch. Op Ja laadt de opmaak niet uit het core thema en schuift de header niet mee; het child theme regelt dan alles zelf.'],
+                ['label' => 'Styling', 'desc' => 'Classes: <code>.mk-notifications--boven</code>, <code>--boven-scrollt</code>, <code>--onder</code>, en per melding <code>.mk-notification--{stijl}</code>, <code>__inner</code>, <code>__inner__txt</code>, <code>__button</code>, <code>__close</code>. Kleuren via <code>--mk-notification-bg</code> en <code>--mk-notification-color</code>. De hoogte van de balken staat op <code>&lt;html&gt;</code> in <code>--mk-notification-height</code> (boven) en <code>--mk-notification-bottom-height</code> (onder). Per vorm: <code>.mk-notification--balk</code>, <code>--blok</code> en <code>--popup</code> (een <code>&lt;dialog&gt;</code>; de donkere laag is <code>::backdrop</code>). Blokken staan in <code>.mk-notification-blokken</code> &gt; <code>.mk-notifications--blok.mk-notifications--rechts-onder</code> (enz.), met de breedte in <code>--mk-notification-width</code>. Het aftelbalkje is <code>.mk-notification__timer</code>.'],
+                ['label' => 'CSS overschrijven', 'desc' => 'Onderaan de pagina, in het ingeklapte blok <strong>Technisch</strong>. Op Ja laadt de opmaak niet uit het core thema en schuift de header niet mee; het child theme regelt dan alles zelf.'],
                 ['label' => 'Van 1.4.1 naar 1.5.0', 'desc' => 'De losse melding van vóór 1.5.0 wordt bij de update automatisch de eerste melding in de lijst, met dezelfde tekst, kleuren, datums en pagina\'s.'],
             ]);
         }
@@ -326,19 +383,19 @@
 
         /* ── BLOKKEN ──────────────────────────────────────── */
         $html .= '<div class="mkbase-docs-panel" data-panel="blokken">';
-        $html .= '<p class="mkbase-docs-intro">De MKBase blokken zijn beschikbaar via de Gutenberg-editor onder de categorie <strong>Mediakanjers</strong>. Voeg een blok toe via het <strong>+</strong>-icoon in de editor en zoek op de naam van het blok.</p>';
+        $html .= '<p class="mkbase-docs-intro">De MKBase blokken zijn beschikbaar via de Gutenberg-editor onder de categorie <strong>Mediakanjers</strong>. Voeg een blok toe via het <strong>+</strong>-icoon in de editor en zoek op de naam van het blok. Selecteer een blok en klik in de werkbalk op <strong>Bewerken</strong> om de instellingen te openen.</p>';
 
-        $html .= mkbase_docs_section('blok-breadcrumbs', 'Breadcrumbs', 'dashicons-arrow-right-alt', [
+        $html .= mkbase_docs_section('blok-breadcrumbs', 'Kruimelpad', 'dashicons-arrow-right-alt', [
             ['label' => 'Wat doet het?', 'desc' => 'Toont het navigatiepad van de huidige pagina, ook wel een "broodkruimelpad" genoemd. Bezoekers zien zo altijd waar ze zich bevinden binnen de website.'],
-            ['label' => 'Hoe gebruiken?', 'desc' => 'Voeg het blok toe aan een pagina of template. Er zijn geen instellingen — het pad wordt automatisch gegenereerd op basis van de paginastructuur.'],
+            ['label' => 'Hoe gebruiken?', 'desc' => 'Voeg het blok toe aan een pagina of template. Er zijn geen instellingen, dus het blok heeft ook geen knop Bewerken: het pad vult zich vanzelf op basis van de paginastructuur.'],
             ['label' => 'Tip', 'desc' => 'Zet de breadcrumbs bovenaan de pagina-inhoud, vóór de hoofdtitel. Zo geven ze de meeste navigatiewaarde.'],
         ]);
 
-        $html .= mkbase_docs_section('blok-loop', 'Post type loop', 'dashicons-list-view', [
+        $html .= mkbase_docs_section('blok-loop', 'Berichtenoverzicht', 'dashicons-list-view', [
             ['label' => 'Wat doet het?', 'desc' => 'Toont een grid van berichten of een ander post type. Ideaal voor nieuwsoverzichten, productlijsten of portfoliopagina\'s.'],
-            ['label' => 'Post type', 'desc' => 'Kies welk post type getoond wordt (bijv. Berichten, Pagina\'s of een eigen post type). De keuze wordt automatisch gevuld met alle beschikbare post types.'],
-            ['label' => 'Aantal berichten', 'desc' => 'Bepaal hoeveel berichten er getoond worden. Gebruik <code>-1</code> om alle berichten te tonen.'],
-            ['label' => 'Handmatige selectie', 'desc' => 'Selecteer specifieke berichten die je wilt tonen. Zodra je berichten selecteert, worden het ingestelde post type en aantal genegeerd — de handmatige selectie heeft prioriteit.'],
+            ['label' => 'Soort inhoud', 'desc' => 'Kies welk soort inhoud getoond wordt (bijv. Berichten, Pagina\'s of een eigen post type). De keuze wordt automatisch gevuld met alle beschikbare post types.'],
+            ['label' => 'Aantal berichten', 'desc' => 'Bepaal hoeveel berichten er getoond worden, de nieuwste eerst. Zet <strong>Alles tonen</strong> aan om alle berichten te tonen.'],
+            ['label' => 'Handmatige selectie', 'desc' => 'Selecteer specifieke berichten die je wilt tonen. Zodra je berichten selecteert, worden Soort inhoud en Aantal berichten niet meer gebruikt; die velden worden dan grijs.'],
             ['label' => 'Kolommen', 'desc' => 'Kies hoeveel kolommen het grid heeft: 1, 2, 3 of 4. Op mobiel worden de kolommen automatisch teruggebracht naar 1.'],
             ['label' => 'Breedte', 'desc' => '<strong>Ingesloten</strong>: de loop past binnen de standaard paginabreedte. <strong>Volledige breedte</strong>: de loop strekt zich uit tot de rand van het scherm.'],
             ['label' => 'Afbeeldingsformaat', 'desc' => 'Hoe groot de uitgelichte afbeeldingen worden ingeladen. Groter is scherper maar laadt trager; telefoons krijgen automatisch een kleinere versie. Standaard: <strong>Groot</strong>. Kies <strong>Origineel</strong> bij 1 kolom over de volledige breedte.'],
@@ -346,29 +403,29 @@
             ['label' => 'Knoptekst', 'desc' => 'De tekst op de knop. Standaard is dit "Meer lezen". Pas aan naar keuze, bijv. "Bekijk product" of "Lees verder". Zichtbaar zodra "Toon knop" ingeschakeld is.'],
         ]);
 
-        $html .= mkbase_docs_section('blok-slider', 'Image Slider', 'dashicons-images-alt2', [
+        $html .= mkbase_docs_section('blok-slider', 'Fotoslider', 'dashicons-images-alt2', [
             ['label' => 'Wat doet het?', 'desc' => 'Toont een scrollbare slider met afbeeldingen. Geschikt voor galerijen, logowanden of afbeeldingscarrousels.'],
-            ['label' => 'Items desktop', 'desc' => 'Hoeveel afbeeldingen er tegelijk zichtbaar zijn op een desktopscherm (1–4).'],
-            ['label' => 'Items tablet', 'desc' => 'Hoeveel afbeeldingen er tegelijk zichtbaar zijn op een tabletscherm (1–3). Op mobiel wordt altijd 1 item tegelijk getoond.'],
-            ['label' => 'Autoplay', 'desc' => 'Schakel in om de slider automatisch door de afbeeldingen te laten scrollen. De gebruiker kan de slider altijd handmatig bedienen.'],
-            ['label' => 'Aspect ratio', 'desc' => 'Bepaalt de verhouding van elke slide. Kies uit Vierkant (1:1), Standaard (4:3), Portret (3:4), Klassiek (3:2), Klassiek portret (2:3), Breed (16:9) of Groot (9:16). Laat leeg om de originele afmetingen van de afbeelding te gebruiken.'],
-            ['label' => 'Openen in lightbox', 'desc' => 'Schakel in om een afbeelding groot te openen als een bezoeker erop klikt. In de lightbox kan de bezoeker bladeren door alle afbeeldingen van deze slider.'],
+            ['label' => 'Naast elkaar (computer)', 'desc' => 'Hoeveel afbeeldingen er tegelijk zichtbaar zijn op een desktopscherm (1–4).'],
+            ['label' => 'Naast elkaar (tablet)', 'desc' => 'Hoeveel afbeeldingen er tegelijk zichtbaar zijn op een tabletscherm (1–3). Op mobiel wordt altijd 1 item tegelijk getoond.'],
+            ['label' => 'Automatisch afspelen', 'desc' => 'Schakel in om de slider automatisch door de afbeeldingen te laten scrollen. De gebruiker kan de slider altijd handmatig bedienen.'],
+            ['label' => 'Vorm', 'desc' => 'Bepaalt de verhouding van elke slide. Kies uit Vierkant (1:1), Standaard (4:3), Portret (3:4), Klassiek (3:2), Klassiek portret (2:3), Breed (16:9) of Groot (9:16). Laat leeg om de originele afmetingen van de afbeelding te gebruiken.'],
+            ['label' => 'Groot openen bij klikken', 'desc' => 'Schakel in om een afbeelding groot te openen als een bezoeker erop klikt. In de lightbox kan de bezoeker bladeren door alle afbeeldingen van deze slider.'],
             ['label' => 'Afbeeldingsformaat', 'desc' => 'Hoe groot de afbeeldingen worden ingeladen. Groter is scherper maar laadt trager; telefoons krijgen automatisch een kleinere versie. Standaard: <strong>Origineel</strong>. Bij 3 of 4 items naast elkaar is <strong>Groot</strong> meestal scherp genoeg en sneller.'],
-            ['label' => 'Slides', 'desc' => 'Voeg afbeeldingen toe via de repeater. Klik op "Nieuwe rij" om een extra slide toe te voegen. Sleep de rijen om de volgorde te wijzigen.'],
+            ['label' => 'Afbeeldingen', 'desc' => 'Klik op <strong>Afbeeldingen toevoegen</strong> en kies er in één keer meerdere (Ctrl of Shift ingedrukt houden). Ze staan als kleine tegels onder elkaar; sleep een tegel aan het nummer om de volgorde te wijzigen, of klik op het kruisje om hem te verwijderen.'],
         ]);
 
         $html .= mkbase_docs_section('blok-kolommen', 'Kolommen', 'dashicons-columns', [
             ['label' => 'Wat doet het?', 'desc' => 'Zet inhoud naast elkaar in 1 tot 4 kolommen, bijv. tekst naast een afbeelding of drie USP\'s naast elkaar. Op mobiel komen de kolommen onder elkaar te staan.'],
-            ['label' => 'Verhouding', 'desc' => 'Kies het aantal kolommen en hoe breed ze zijn, bijv. <strong>66 / 33</strong> voor een brede en een smalle kolom. Voeg daarna evenveel kolommen toe als gekozen.'],
-            ['label' => 'Kolommen', 'desc' => 'De bovenste kolom komt links op de pagina, de onderste rechts. Kies per kolom bij <strong>Type</strong> wat erin komt: Titel, Tekst, Afbeelding, Video, Knop, Icoon + tekst of Cijfer. Combineren mag, bijv. Titel + Tekst + Knop; de onderdelen verschijnen in die volgorde.'],
+            ['label' => 'Verhouding', 'desc' => 'Klik op het plaatje met de indeling die je wilt, bijv. <strong>66 / 33</strong> voor een brede en een smalle kolom. Ontbrekende kolommen worden vanzelf toegevoegd. <strong>Kolom toevoegen</strong> staat grijs zodra je het aantal van de verhouding hebt bereikt; kies dan een andere verhouding.'],
+            ['label' => 'Kolommen', 'desc' => 'De bovenste kolom komt links op de pagina, de onderste rechts. Elke kolom is een kaart met bovenin een samenvatting en de breedte. Kies per kolom bij <strong>Inhoud</strong> wat erin komt: Titel, Tekst, Afbeelding, Video, Knop, Icoon + tekst of Cijfer. Combineren mag, bijv. Titel + Tekst + Knop; de onderdelen verschijnen in die volgorde.'],
             ['label' => 'Video', 'desc' => 'Plak een YouTube- of Vimeo-link. Op de website staat eerst een voorbeeldafbeelding met afspeelknop; de video laadt pas als de bezoeker daarop klikt. Zo laadt de pagina sneller en plaatst YouTube geen cookies voordat de bezoeker kiest om af te spelen.'],
             ['label' => 'Meldingen in de editor', 'desc' => 'Past het aantal kolommen niet bij de gekozen verhouding, of is het blok nog leeg, dan staat er in de editor een oranje melding boven het blok. Op de website is die niet zichtbaar.'],
-            ['label' => 'Opmaak per kolom', 'desc' => 'Per kolom kun je een eigen achtergrondkleur, tekstkleur, afgeronde hoeken, binnenruimte (padding) en verticale uitlijning instellen.'],
-            ['label' => 'Opmaak van het blok', 'desc' => 'In het tabblad <strong>Opmaak</strong>: de verticale uitlijning van de kolommen ten opzichte van elkaar, een achtergrondkleur over de volle schermbreedte en/of binnen de paginabreedte, de tekstkleur, de binnenruimte en afgeronde hoeken.'],
+            ['label' => 'Opmaak per kolom', 'desc' => 'Klap in een kolom <strong>Opmaak van deze kolom</strong> open voor een eigen achtergrondkleur, tekstkleur, afgeronde hoeken, binnenruimte en uitlijning. Bij elke kleurkiezer staan de kleuren van de huisstijl bovenaan.'],
+            ['label' => 'Opmaak van het blok', 'desc' => 'In het tabblad <strong>Opmaak</strong>: de verticale uitlijning van de kolommen ten opzichte van elkaar, de <strong>kleur van de hele strook</strong> (tot de randen van het scherm) en/of de <strong>kleur achter de kolommen</strong> (binnen de paginabreedte), de tekstkleur, de binnenruimte en afgeronde hoeken.'],
             ['label' => 'Afbeeldingsformaat', 'desc' => 'Staat naast de afbeelding in de kolom. Bepaalt hoe groot de afbeelding getoond wordt: <strong>Klein</strong> (max. 150px), <strong>Middel</strong> (max. 300px), <strong>Groot</strong> (max. 1024px) of <strong>Origineel</strong>. Nooit breder dan de kolom, dus Origineel vult de kolom. Standaard: <strong>Origineel</strong>.'],
         ]);
 
-        $html .= mkbase_docs_section('blok-geavanceerd', 'Breedte en geavanceerd (Kolommen, Loop, Image Slider)', 'dashicons-admin-generic', [
+        $html .= mkbase_docs_section('blok-geavanceerd', 'Breedte en geavanceerd (Kolommen, Berichtenoverzicht, Fotoslider)', 'dashicons-admin-generic', [
             ['label' => 'Volledige breedte', 'desc' => 'Klik in de werkbalk boven het blok op het uitlijn-icoon en kies <strong>Volledige breedte</strong>. Het blok gaat dan buiten de normale inhoudsbreedte en vult de hele breedte van het scherm.'],
             ['label' => 'HTML-anker', 'desc' => 'Geef het blok een anker, bijv. <code>diensten</code>, via het tabblad <strong>Geavanceerd</strong> in de rechterkolom van de editor. Een link of menu-item naar <code>#diensten</code> scrolt dan naar dit blok.'],
             ['label' => 'Extra CSS-klasse(n)', 'desc' => 'Ook onder <strong>Geavanceerd</strong>. Bedoeld voor de developer, om één specifiek blok een eigen opmaak te geven.'],
@@ -562,6 +619,14 @@
             $html .= '</div>';
         }
 
+        /* ── STIJLGIDS (developer only) ──────────────────── */
+        if (current_user_can('manage_options')) {
+            $html .= '<div class="mkbase-docs-panel" data-panel="stijlgids">';
+            $html .= '<p class="mkbase-docs-intro">Alle bouwstenen van de MK-admin, met de klasse eronder. Gebruik deze klassen in nieuwe MK-pagina\'s, dan klopt de stijl vanzelf in licht en donker. Ze werken op pagina\'s met <code>body.mk-admin</code> (zie <code>mkbase_admin_pages()</code> in <code>inc/admin/ui.php</code>); de stijl staat in <code>assets/css/mk-admin.css</code>.</p>';
+            $html .= mkbase_docs_stijlgids();
+            $html .= '</div>';
+        }
+
         /* ── AFBEELDINGEN (developer only) ───────────────── */
         if (current_user_can('manage_options')) {
             $html .= '<div class="mkbase-docs-panel" data-panel="dev-afbeeldingen">';
@@ -642,6 +707,11 @@
             $html .= '</div>';
         }
 
+        $html .= '<p class="mk-docs__empty" hidden>Niets gevonden. Probeer een ander woord.</p>';
+        $html .= '<div class="mk-docs__help"><span>Kom je er niet uit? Mediakanjers helpt je graag verder.</span><a href="https://mediakanjers.nl/contact" target="_blank" rel="noopener">Neem contact op</a></div>';
+        if (function_exists('mkbase_startlijst_hidden') && mkbase_startlijst_hidden()) {
+            $html .= '<p class="mk-docs__restore">De startlijst op het dashboard is verborgen. <a href="' . esc_url(mkbase_startlijst_restore_url()) . '">Startlijst weer tonen</a></p>';
+        }
         $html .= '</div>'; // #mkbase-docs-panels
         $html .= '</div>'; // #mkbase-docs-layout
 

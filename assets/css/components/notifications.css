@@ -104,10 +104,11 @@
     transform: translateY(-50%) rotate(-45deg);
 }
 
+/* Rond, zodat de ring er niet scheef uitziet (de knop zelf staat 45° gedraaid) */
 .mk-notification__close:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline: none;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px currentColor;
 }
 
 .mk-notification__inner__closex__lineone,
@@ -127,4 +128,180 @@
         padding-left: 0;
         padding-right: 40px;
     }
+}
+
+/* Nog niet zichtbaar (verschijnt na een aantal seconden of na scrollen) */
+.mk-notification[hidden] {
+    display: none;
+}
+
+/* Verschijnen: zacht inschuiven */
+.mk-notification--blok.is-shown,
+.mk-notification--popup.is-shown {
+    animation: mk-notification-in 0.25s ease-out;
+}
+
+@keyframes mk-notification-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Balkje dat aftelt bij "automatisch verdwijnen"; staat stil zolang de bezoeker erop staat */
+.mk-notification__timer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background: currentColor;
+    opacity: 0.45;
+    transform-origin: left;
+    animation: mk-notification-timer linear forwards;
+}
+
+.mk-notification.is-paused .mk-notification__timer {
+    animation-play-state: paused;
+}
+
+@keyframes mk-notification-timer {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+
+.mk-notification--balk {
+    position: relative;
+}
+
+/* ── Zwevend blok: vaste plek op het scherm, blijft staan tijdens het scrollen ── */
+.mk-notifications--blok {
+    position: fixed;
+    left: auto;  /* de basisregel zet left én right op 0; de plek hieronder kiest één kant */
+    right: auto;
+    z-index: 9997;
+    width: var(--mk-notification-width, 360px);
+    max-width: calc(100vw - 40px);
+}
+
+.mk-notifications--links-boven,
+.mk-notifications--links-midden,
+.mk-notifications--links-onder { left: 20px; }
+
+.mk-notifications--rechts-boven,
+.mk-notifications--rechts-midden,
+.mk-notifications--rechts-onder { right: 20px; }
+
+.mk-notifications--links-boven,
+.mk-notifications--rechts-boven {
+    top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--mk-notification-fixed-height, 0px) + 20px);
+}
+
+.mk-notifications--links-midden,
+.mk-notifications--rechts-midden {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mk-notifications--links-onder,
+.mk-notifications--rechts-onder {
+    bottom: calc(var(--mk-notification-bottom-height, 0px) + 20px);
+}
+
+.mk-notification--blok {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.mk-notification--blok .mk-notification__inner,
+.mk-notification--popup .mk-notification__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 14px;
+    width: auto;
+    max-width: none;
+    margin: 0;
+}
+
+.mk-notification--blok .mk-notification__inner {
+    padding: 18px 48px 18px 20px;
+}
+
+.mk-notification--blok .mk-notification__close,
+.mk-notification--popup .mk-notification__close {
+    top: 10px;
+    right: 10px;
+    transform: rotate(45deg);
+}
+
+.mk-notification--blok .mk-notification__close:hover,
+.mk-notification--popup .mk-notification__close:hover {
+    transform: rotate(-45deg);
+}
+
+/* Telefoon: alle blokken samen onderaan, over de volle breedte, onder elkaar */
+@media screen and (max-width: 600px) {
+    .mk-notification-blokken {
+        position: fixed;
+        z-index: 9997;
+        left: 12px;
+        right: 12px;
+        bottom: calc(var(--mk-notification-bottom-height, 0px) + 12px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .mk-notification-blokken .mk-notifications--blok {
+        position: static;
+        width: auto;
+        max-width: none;
+        transform: none;
+    }
+}
+
+/* ── Pop-up in het midden (<dialog>) ── */
+dialog.mk-notification--popup {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    width: min(560px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    height: fit-content;
+    margin: auto;
+    padding: 0;
+    overflow: auto;
+    border: 0;
+    border-radius: 18px;
+    background-color: var(--mk-notification-bg);
+    color: var(--mk-notification-color);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+dialog.mk-notification--popup::backdrop {
+    background: rgba(15, 27, 45, 0.55);
+}
+
+/* "Scrollen erachter blokkeren": de pagina staat stil; de ruimte van de scrollbalk blijft, zodat niets verspringt */
+html.mk-notification-scroll-blok {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+}
+
+.mk-notification--popup .mk-notification__inner {
+    padding: 32px 56px 32px 32px;
+    font-size: 1.1em;
+}
+
+@media screen and (max-width: 600px) {
+    .mk-notification--popup .mk-notification__inner {
+        padding: 28px 48px 24px 22px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mk-notification--blok.is-shown,
+    .mk-notification--popup.is-shown { animation: none; }
+    .mk-notification__timer { display: none; }
 }

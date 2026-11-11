@@ -1,5 +1,58 @@
 # MKBase Theme — Changelog
 
+## v1.6.0
+
+### Nieuw
+- MK-balk toegevoegd bovenaan alle Mediakanjers-pagina's: kruimelpad, tabbladen naar alle MK-pagina's, een knop **Opslaan** die altijd in beeld blijft, en de WordPress-meldingen samen achter één knop.
+- Opslaan met **Ctrl+S** (Mac: Cmd+S) toegevoegd op de instellingenpagina's.
+- Bevestiging na opslaan toegevoegd, met de melding dat de cache van de website is geleegd en een knop **Bekijk website**. De cache wordt nu bij elke MK-instellingenpagina geleegd, niet alleen bij Meldingen.
+- Waarschuwing toegevoegd bij niet-opgeslagen wijzigingen: een bolletje in de MK-balk, en een venster met **Opslaan en verder**, **Niet opslaan** of **Blijven** als je de pagina verlaat. Zet je een wijziging terug, dan verdwijnt de waarschuwing weer.
+- Donkere modus wordt nu per gebruiker onthouden, dus ook op een andere computer of browser.
+- Uitleg met een **?** toegevoegd bij elk veld op de Mediakanjers-pagina's en in de MK-blokken in de editor. De ? toont een korte uitleg; **Meer uitleg** opent een zijpaneel met het juiste stuk uit de Documentatie, waarin het stuk over dat veld is uitgelicht. Onder het veld staat alleen nog een korte hint, zoals "Verplicht" of een voorbeeld. Alle teksten staan op één plek: `inc/admin/help.php`.
+- Meldingen uitgebreid met nieuwe vormen en gedrag:
+  - **Pop-up in het midden** van het scherm. Standaard wordt de pagina erachter donker en kan die niet scrollen (allebei uit te zetten). Sluiten kan met het kruisje, Esc of een klik ernaast. Een pop-up is altijd sluitbaar, dus de keuze Sluitbaar vervalt daar en "Daarna weer tonen" geldt altijd.
+  - **Daarna weer tonen** heeft een nieuwe keuze: **Op de volgende pagina**.
+  - **Zwevend blok** op een vaste plek: links of rechts, boven, midden of onder. Het blijft staan tijdens het scrollen, met een eigen **breedte** (standaard 360 px). Op een telefoon staan blokken onderaan, over de volle breedte.
+  - Nieuw tabblad **Gedrag**: **Wanneer verschijnen** (direct, na een aantal seconden, of na een aantal px scrollen) en **Automatisch verdwijnen** na een aantal seconden, met een aftelbalkje. Het aftellen pauzeert zolang de bezoeker erop staat; daarna geldt "Daarna weer tonen". Sluitbaar en Daarna weer tonen staan nu ook hier.
+  - Meerdere meldingen tegelijk kan, maar een pop-up en elke plek van een blok maar één tegelijk in dezelfde periode. Een bezette plek krijgt het label **Bezet** met uitleg, en opslaan wordt dan tegengehouden. Balken mogen onder elkaar.
+  - Het live voorbeeld en de kop van elke melding tonen de nieuwe vorm, plek en het gedrag. Bestaande meldingen blijven precies zoals ze waren.
+- Startlijst toegevoegd op het dashboard: zes dingen die op een nieuwe website ingevuld moeten zijn (logo, favicon, bedrijfsgegevens, sociale media, hoofdmenu en 404-pagina), met een voortgangsring en per stap een knop naar de juiste plek. Wat al is ingevuld, wordt automatisch afgevinkt; als alles klaar is, verdwijnt de lijst. Met **Verbergen** haal je hem per gebruiker weg; terugzetten kan onderaan **Mediakanjers → Documentatie**.
+- Live voorbeeld toegevoegd op **Mediakanjers → Website instellingen**: naast de velden een vereenvoudigde website met het logo, de favicon in het tabblad, het hoofdmenu en de footer met contactgegevens en sociale media. Het loopt mee terwijl je typt, het veld waar je in zit licht op, en je kunt wisselen tussen **Computer** en **Mobiel**. Met de knop **Live voorbeeld** in de MK-balk zet je het aan of uit; op smalle schermen staat het uit.
+- Live voorbeeld toegevoegd op **Mediakanjers → 404**: naast de velden zie je meteen hoe de 404-pagina eruitziet terwijl je typt.
+- Knop **Bekijk op website** toegevoegd bij elke opgeslagen melding: opent de website met alleen die melding erop, ook als hij nog gepland is of uit staat, met een balk "alleen jij ziet dit". Alleen voor ingelogde gebruikers die meldingen mogen bewerken; zo'n pagina komt niet in de cache.
+- Bij **Meldingen** toegevoegd: na verwijderen een melding met **Ongedaan maken** (definitief pas na Opslaan), en bij een lege lijst drie voorbeelden om mee te beginnen (gewijzigde openingstijden, actie of korting, storing).
+- Knop **Annuleren** toegevoegd in de MK-balk: verschijnt zodra er iets gewijzigd is en zet alles terug naar de laatst opgeslagen versie.
+- **Stijlgids** toegevoegd onder **Documentatie → Developer**: alle bouwstenen van de MK-admin (kleuren met hun waarde, tekst, knoppen, statuslabels, velden, schakelaar, bevestiging, sectie en de focusring), met de klasse eronder, in licht en donker. Nieuwe klassen voor eigen MK-pagina's: `.mk-h1`, `.mk-h2`, `.mk-text`, `.mk-hint`, `.mk-section`, `.mk-field` (met `--error`) en `.mk-switch`, plus de functie `mkbase_admin_section()`. Bestaande pagina's zijn niet veranderd.
+
+### Verbetering
+- WordPress-meldingen verbergen werkt nu blijvend: wat je wegklikt of met **Alles verbergen** verbergt, blijft per gebruiker weg, ook bij plugins die hun melding op elke pagina opnieuw tonen. Verandert de tekst, dan komt de melding terug. Elke melding heeft een kruisje, en onderaan staat "N verborgen · **Weer tonen**". Dit geldt in de MK-balk én op alle WordPress-pagina's (Dashboard, Berichten, Pagina's, Media, WooCommerce, ...; niet in de blokeditor), waar de oude zwart-groene knop is vervangen door dezelfde blauwe meldingenknop. Meldingen met de oude klasse `error` (bijv. van WooCommerce) tellen nu ook mee.
+- Sociale media tonen in de beheeromgeving de echte icoontjes (dezelfde als op de website, uit `assets/images/socials/` van het child theme) in plaats van letters.
+- Teksteditor (bijv. bij Meldingen en in het Kolommen-blok): de tekst staat niet meer tegen de rand en heeft een gewone lettergrootte.
+- Kleine opmaakpunten: de kleurkiezer heeft één doorlopende rand, alle sleepgrepen zijn hetzelfde blokje van 3 × 3 puntjes, het live voorbeeld (Website instellingen en 404) ligt gelijk met de kaart links, en de kaarten op Diagnose sluiten aan zonder gaten.
+- Bewerkvenster van de blokken in de editor verbeterd:
+  - In de werkbalk staat nu **Bewerken** bij het potlood. Het venster heeft een kop met icoon en een link **uitleg** naar het juiste stuk uit de Documentatie, en onderaan **Klaar**. Alles in MK-blauw.
+  - **Kolommen:** de verhouding kies je met plaatjes van de indeling. Elke kolom heeft een kop met wat erin staat en de breedte, en is daar in en uit te klappen. **Opmaak van deze kolom** staat ingeklapt in de kolom zelf. Bij een grijze **Kolom toevoegen** staat waarom. De twee achtergrondkleuren heten nu **Kleur van de hele strook** en **Kleur achter de kolommen**, met een schetsje. Het tekstveld heeft alleen nog vet, cursief, lijsten en links. "Knop / CTA" en "Cijfer / statistiek" heten nu **Knop** en **Cijfer**.
+  - **Kleuren:** bij elke kleurkiezer in een blok staan de huisstijlkleuren uit `theme.json` van het child theme bovenaan, plus wit en zwart.
+  - **Fotoslider:** met **Afbeeldingen toevoegen** kies je er meerdere tegelijk. De afbeeldingen staan als kleine tegels naast elkaar en zijn te verslepen.
+  - **Berichtenoverzicht:** **Alles tonen** in plaats van het getal -1 (bestaande blokken blijven werken). Kies je zelf berichten, dan worden Soort inhoud en Aantal grijs, met uitleg.
+  - **Kruimelpad:** geen knop Bewerken meer, want er valt niets in te stellen.
+- Bloknamen in gewone taal: **Berichtenoverzicht** (was Post type loop), **Fotoslider** (was Image Slider) en **Kruimelpad** (was Breadcrumbs), met een duidelijke omschrijving. Bij het toevoegen zie je van Kolommen en Berichtenoverzicht een voorbeeld. Bestaande blokken blijven gewoon werken.
+- Welkomstblok op het dashboard verbeterd naar de nieuwe stijl: knoppen **Bekijk de uitleg** en **Wat is er nieuw**, en tegels naar Meldingen, Website instellingen, Uitleg en Hulp. Bij Meldingen staat hoeveel meldingen er nu live zijn. De code staat nu in `inc/admin/dashboard.php`.
+- Admin-stijl van de Mediakanjers-pagina's verbeterd: Website instellingen, Geavanceerd en 404 zijn kaarten met links een korte uitleg en rechts de velden, in licht en donker. Toetsenbordgebruikers zien altijd duidelijk waar de focus staat.
+- Indeling verbeterd: Website instellingen is opgedeeld in **Huisstijl**, **Bedrijfsgegevens** en **Sociale media**, en Geavanceerd in **Scripts en tracking** en **Editor**. Alle velden en ingevulde waarden zijn gelijk gebleven.
+- Afbeeldingsvelden verbeterd: knoppen **Vervangen** en **Verwijderen** onder de afbeelding, met het bestandstype en de bestandsgrootte.
+- Sociale media verbeterd: elk kanaal is een eigen rij met een gekleurd icoon, te verslepen en met een kruisje te verwijderen.
+- Meldingen-pagina verbeterd naar de nieuwe stijl: elke melding is een kaart met in de kop naam, positie, planning, status, een aan/uit-schakelaar, dupliceren en verwijderen. De instellingen staan in tabbladen met het live voorbeeld ernaast, stijl en positie kies je met knoppen met een kleur of schets, en bij Planning laat een tijdlijn zien wanneer de melding zichtbaar is. De statuslabels naast de titel lopen mee terwijl je wijzigt.
+- Labels van velden verbeterd naar gewone taal, bijv. **Soort inhoud** (was Post type), **Vorm** (was Aspect ratio), **Automatisch afspelen** (was Autoplay), **Binnenruimte** (was Padding) en **Onderaan de pagina** (was Voor de sluitende /body). De velden en waarden zelf zijn gelijk gebleven.
+- Changelog verbeterd naar de nieuwe stijl: per versie een kaart met een label per wijziging (op basis van het kopje), **Jouw versie** bij de geïnstalleerde versie, rechts de updatestatus en een lijst om naar een versie te springen, en **zoeken** naast de filters.
+- Documentatie verbeterd naar de nieuwe stijl: menu links met **zoeken** door alle onderwerpen, per onderwerp een titel met knop naar de instellingen, genummerde kaarten met vragen die je los openklapt, en directe links naar een onderwerp (bijv. `#meldingen`). Nieuw onderwerp **Werken in het beheer** (opslaan, wijzigingen, uitleg bij velden, meldingen van WordPress en de startlijst) bovenaan, nieuw onderwerp **Editor** onder Geavanceerd, en de uitleg bij Bedrijfsgegevens past weer bij de velden.
+- Diagnose verbeterd naar de nieuwe stijl: samenvatting bovenaan, daaronder de bevindingen, en de controles per onderdeel in kaarten met statuslabels.
+- Codevelden onder Geavanceerd verbeterd: donkere code-weergave met regelnummers, en een waarschuwing boven aan de pagina.
+
+### Wijziging
+- De oude donkere kop, het tweede menu, de voortgangsbalk en de knop "naar boven" op Changelog, Documentatie en Diagnose zijn verwijderd; de MK-balk vervangt ze. `admin-shared.css` en `mkbase_admin_page_nav()` zijn daarmee vervallen.
+- Het veld **Alleen in de footer** onder **Mediakanjers → Geavanceerd** is opgegaan in **Onderaan de pagina** (was Voor de sluitende /body): beide laadden op dezelfde plek, onderaan elke pagina. Bij de update wordt bestaande code automatisch onder de code in **Onderaan de pagina** gezet, ook per taal bij WPML. De oude instelling blijft bewaard.
+
 ## v1.5.0
 
 ### Nieuw

@@ -28,7 +28,6 @@
         <custom-field action="copy">direct_na_body</custom-field>
         <custom-field action="copy">voor_de_sluitende_body</custom-field>
         <custom-field action="copy">alleen_op_de_homepage</custom-field>
-        <custom-field action="copy">alleen_in_de_footer</custom-field>
         <custom-field action="copy">alleen_thema_blokken</custom-field>
         <custom-field action="copy">extra_zichtbare_blokken</custom-field>
         <custom-field action="copy">bestandseditor_mediakanjers</custom-field>
@@ -52,6 +51,15 @@
         <custom-field action="copy">melding_achtergrond</custom-field>
         <custom-field action="copy">melding_tekstkleur</custom-field>
         <custom-field action="copy">melding_positie</custom-field>
+        <custom-field action="copy">melding_backdrop</custom-field>
+        <custom-field action="copy">melding_scroll_blok</custom-field>
+        <custom-field action="copy">melding_blok_plek</custom-field>
+        <custom-field action="copy">melding_blok_breedte</custom-field>
+        <custom-field action="copy">melding_tonen</custom-field>
+        <custom-field action="copy">melding_tonen_sec</custom-field>
+        <custom-field action="copy">melding_tonen_px</custom-field>
+        <custom-field action="copy">melding_auto</custom-field>
+        <custom-field action="copy">melding_auto_sec</custom-field>
         <custom-field action="copy">melding_sluitbaar</custom-field>
         <custom-field action="copy">melding_opnieuw</custom-field>
         <custom-field action="copy">melding_dagen</custom-field>

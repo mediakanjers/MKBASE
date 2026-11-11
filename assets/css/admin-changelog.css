@@ -1,926 +1,139 @@
-#mkbase-changelog-content {
-    max-width: 980px;
-    margin-top: 32px;
-    font-size: 13.5px;
-    color: #1d2327;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.75;
-}
+/* ════════════════════════════════════════════════════════════
+   Mediakanjers → Changelog. Bouwt op mk-admin.css (tokens, balk, knoppen,
+   zoekveld, filterknoppen). Zie inc/changelog.php en assets/js/admin-changelog.js.
+   ════════════════════════════════════════════════════════════ */
 
-/* Pagina-navigatie */
-.mkbase-page-nav {
+.mk-cl { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 28px; color: var(--mk-text); }
+.mk-cl__main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.mk-cl__aside { flex: 1 1 260px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: calc(var(--mk-top) + 140px); }
+
+.mk-cl__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.mk-cl__tools .mk-search { flex: 1 1 240px; }
+.mk-cl__empty { margin: 0; padding: 24px; border: 1px dashed var(--mk-input-border); border-radius: 16px; color: var(--mk-muted); text-align: center; }
+
+/* ── Versie ───────────────────────────────────────────────── */
+.mkbase-version-block { background: var(--mk-card); border: 1px solid var(--mk-border); border-radius: 16px; overflow: hidden; scroll-margin-top: calc(var(--mk-top) + 140px); }
+.mkbase-version-block[hidden] { display: none; }
+body.mk-admin .mkbase-version-header { margin: 0; padding: 0; font-size: inherit; }
+.mkbase-version-toggle {
+    width: 100%;
     display: flex;
-    gap: 4px;
-    margin-bottom: 28px;
-    border-bottom: 2px solid #e2e4e7;
-    padding-bottom: 0;
-}
-
-.mkbase-page-nav__tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #50575e;
-    text-decoration: none !important;
-    border-radius: 4px 4px 0 0;
-    margin-bottom: -2px;
-    border: 2px solid transparent;
-    border-bottom: none;
-    transition: color 0.15s ease, background 0.15s ease;
-}
-
-.mkbase-page-nav__tab:hover {
-    color: #1d2327;
-    background: #f6f7f7;
-}
-
-.mkbase-page-nav__tab.is-active {
-    color: #1d2327;
-    background: #fff;
-    border-color: #e2e4e7;
-    border-bottom-color: #fff;
-}
-
-.mkbase-page-nav__tab .dashicons {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
-    color: inherit;
-}
-
-/* Notice */
-.mkbase-notice {
-    gap: 10px;
-    background: #fff8e5;
-    border-left: 4px solid #f0b429;
-    border-radius: 4px;
-    padding: 12px 16px;
-    margin-bottom: 24px;
-    font-size: 13px;
-    color: #3d2e00;
-    line-height: 1.6;
-}
-
-.mkbase-notice .dashicons {
-    color: #f0b429;
-    font-size: 18px;
-    flex-shrink: 0;
-    margin-top: 1px;
-}
-
-/* Samenvatting */
-#mkbase-changelog-summary {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 32px;
     flex-wrap: wrap;
-}
-
-.mkbase-summary-stat {
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    border: 1px solid #e2e4e7;
-    border-radius: 8px;
-    padding: 14px 20px;
-    min-width: 120px;
-}
-
-.mkbase-summary-number {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1d2327;
-    line-height: 1.2;
-}
-
-.mkbase-summary-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #8c8f94;
-    margin-top: 4px;
-}
-
-/* Update-melding in samenvatting */
-.mkbase-summary-update {
-    display: flex;
     align-items: center;
     gap: 12px;
-    background: #fef8ec;
-    border: 1px solid #f0b849;
-    border-radius: 8px;
-    padding: 12px 18px;
-}
-
-.mkbase-update-text {
-    font-size: 13px;
-    font-weight: 500;
-    color: #3c2800;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.mkbase-update-text .dashicons {
-    color: #f0b849;
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-}
-
-.mkbase-update-btn {
-    display: inline-block;
-    background: #f0b849;
-    color: #3c2800 !important;
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none !important;
-    padding: 5px 14px;
-    border-radius: 4px;
-    transition: background 0.15s ease;
-    white-space: nowrap;
-}
-
-.mkbase-update-btn:hover {
-    background: #e0a030;
-}
-
-/* Changelog-tekst van de beschikbare update, onder de "beschikbaar"-melding */
-.mkbase-pending-changelog {
-    margin-top: 12px;
-    padding: 16px 18px;
-    background: #fff;
-    border: 1px solid #e2e4e9;
-    border-radius: 8px;
-}
-
-.mkbase-pending-changelog .mkbase-version-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1d2327;
-    margin-bottom: 8px;
-}
-
-.mkbase-pending-changelog .mkbase-version-date {
-    background: #f0f0f1;
-    border-color: #dcdcde;
-    color: #50575e;
-}
-
-.mkbase-pending-changelog h3 {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #646970;
-    margin: 14px 0 6px;
-}
-
-.mkbase-pending-changelog ul {
-    margin: 0 0 4px;
-    padding-left: 20px;
-}
-
-.mkbase-pending-changelog li {
-    font-size: 13px;
-    line-height: 1.6;
-    color: #3c434a;
-}
-
-/* Filterstabs — sticky */
-#mkbase-changelog-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 20px;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: #eef2f7;
-    padding: 10px 0 8px;
-    margin-left: -2px;
-}
-
-body.dark #mkbase-changelog-filters { background: #0d1117; }
-
-.mkbase-filter-tab {
-    appearance: none;
-    background: #f6f7f7;
-    border: 1px solid #e2e4e7 !important;
-    box-shadow: none !important;
-    border-radius: 20px;
-    padding: 4px 14px !important;
-    font-size: 12px;
-    font-weight: 600;
-    color: #50575e;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.mkbase-filter-tab:hover {
-    border-color: #8c8f94 !important;
-    color: #1d2327;
-}
-
-.mkbase-filter-tab.is-active {
-    background: #1d2327;
-    border-color: #1d2327 !important;
-    color: #fff;
-}
-
-/* Oudere versies toggle */
-#mkbase-older-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin: 32px 0 16px;
+    padding: 18px 22px;
+    border: 0;
     background: none;
-    border: 1px solid #e2e4e7;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #50575e;
-    cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
-    width: fit-content;
-}
-
-#mkbase-older-toggle:hover {
-    border-color: #8c8f94;
-    color: #1d2327;
-}
-
-#mkbase-older-toggle .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-}
-
-/* Versie accordion */
-.mkbase-version-block {
-    margin: 24px 0 0;
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.mkbase-version-block:first-of-type {
-    margin-top: 0;
-}
-
-.mkbase-version-header {
-    display: inline-flex;
-    align-items: center;
-    background: #1d2327;
-    border-radius: 6px;
-    overflow: hidden;
-    width: fit-content;
-}
-
-.mkbase-version-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 8px 12px 8px 16px !important;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 700;
-    color: #fff !important;
+    color: var(--mk-text);
     text-align: left;
+    cursor: pointer;
 }
-
-.mkbase-version-header:hover {
-    background: #2c3338;
+.mkbase-version-toggle[aria-expanded="true"] { border-bottom: 1px solid var(--mk-border); }
+.mkbase-version-title { font: 800 20px/1.2 var(--mk-font-head); }
+.mk-cl__current { padding: 4px 10px; border-radius: 999px; background: var(--mk-tint); color: var(--mk-accent-text); font-size: 12px; font-weight: 700; }
+.mkbase-version-date { margin-left: auto; color: var(--mk-muted); font-size: 13px; }
+.mk-cl__chevron {
+    width: 18px;
+    height: 18px;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+    transition: transform 0.15s;
 }
+.mkbase-version-date + .mk-cl__chevron { margin-left: 0; }
+.mkbase-version-title + .mk-cl__chevron,
+.mk-cl__current + .mk-cl__chevron { margin-left: auto; }
+.mkbase-version-toggle[aria-expanded="true"] .mk-cl__chevron { transform: rotate(180deg); }
 
-.mkbase-version-toggle-icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
-    opacity: 0.6;
-    margin-left: 2px;
-}
-
-.mkbase-version-body {
-    width: 100%;
-    margin-top: 8px;
-}
-
-
-.mkbase-version-title {
-    line-height: 1;
-}
-
-.mkbase-version-date {
-    display: inline-flex;
-    align-items: center;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.15);
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    opacity: 0.9;
-}
-
-.mkbase-badge-latest {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    background: #00a32a;
-    color: #fff;
-    padding: 2px 7px;
-    border-radius: 20px;
-    line-height: 1.6;
-}
-
-.mkbase-badge-outdated {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    background: #f0b849;
-    color: #3c2800;
-    padding: 2px 7px;
-    border-radius: 20px;
-    line-height: 1.6;
-}
-
-/* Sectie label — chapter eyebrow stijl van mobile guide */
-#mkbase-changelog-content h3 {
+.mkbase-version-body { padding: 8px 22px 14px; line-height: 1.6; }
+.mkbase-version-body[hidden] { display: none; }
+/* De soort staat al als label bij elk punt; de tussenkopjes uit de markdown zijn dubbel */
+.mkbase-version-body h3 { display: none; }
+.mkbase-version-body ul { list-style: none; margin: 0; padding: 0; }
+.mkbase-version-body li {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 10.5px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin: 28px 0 10px;
-    padding-left: 0;
-    color: transparent;
-    background: linear-gradient(90deg, #2563eb, #7c3aed);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-#mkbase-changelog-content h3::before {
-    content: '';
-    display: inline-block;
-    width: 3px;
-    height: 14px;
-    background: linear-gradient(180deg, #2563eb, #7c3aed);
-    border-radius: 2px;
-    flex-shrink: 0;
-}
-
-/* Lijst — ruimer en scherper zoals mobile guide */
-#mkbase-changelog-content ul {
-    margin: 0 0 10px 0;
-    padding: 0;
-    list-style: none;
-    background: #fff;
-    border: 1px solid #dde3ec;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
-}
-
-#mkbase-changelog-content li {
-    position: relative;
-    padding: 13px 18px 13px 42px;
-    border-bottom: 1px solid #f1f5f9;
-    line-height: 1.7;
-    font-size: 13.5px;
-    transition: background 0.1s;
-}
-
-#mkbase-changelog-content li:last-child {
-    border-bottom: none;
-}
-
-#mkbase-changelog-content li:hover {
-    background: #f8fafc;
-}
-
-#mkbase-changelog-content li::before {
-    content: "";
-    position: absolute;
-    left: 17px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 7px;
-    height: 7px;
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
-    border-radius: 50%;
-    box-shadow: 0 1px 4px rgba(37,99,235,0.3);
-}
-
-/* Type badges */
-.mkbase-type-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 1px 6px;
-    border-radius: 4px;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-right: 5px;
-}
-
-.mkbase-type-badge {
-    border: 1px solid transparent;
-    border-radius: 6px;
-}
-
-.mkbase-type-new {
-    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-    color: #15803d;
-    border-color: #86efac;
-}
-
-.mkbase-type-fix {
-    background: linear-gradient(135deg, #fee2e2, #fecaca);
-    color: #b91c1c;
-    border-color: #fca5a5;
-}
-
-.mkbase-type-improvement {
-    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-    color: #1d4ed8;
-    border-color: #93c5fd;
-}
-
-.mkbase-type-change {
-    background: linear-gradient(135deg, #fef9c3, #fef08a);
-    color: #a16207;
-    border-color: #fde047;
-}
-
-.mkbase-type-update {
-    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
-    color: #7c3aed;
-    border-color: #d8b4fe;
-}
-
-/* Code */
-#mkbase-changelog-content code {
-    background: #f0f6ff;
-    border: 1px solid #c5d9f0;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-size: 12px;
-    color: #2271b1;
-    font-family: "SFMono-Regular", Consolas, monospace;
-}
-
-#mkbase-changelog-content pre {
-    background: #1d2327;
-    border-radius: 6px;
-    padding: 16px 20px;
-    margin: 8px 0 16px;
-    overflow-x: auto;
-}
-
-#mkbase-changelog-content pre code {
-    background: none;
-    border: none;
-    padding: 0;
-    color: #a8d8a8;
-    font-size: 12px;
-    line-height: 1.7;
-    white-space: pre;
-}
-
-#mkbase-changelog-content strong {
-    font-weight: 600;
-    color: #1d2327;
-}
-
-#mkbase-changelog-content p {
-    line-height: 1.6;
-    margin: 6px 0;
-    color: #50575e;
-}
-
-/* ════════════════════════════════════════ PREMIUM STYLING */
-
-/* Nav + dark toggle — zie admin-shared.css */
-
-/* Summary stats — floating cards */
-.mkbase-summary-stat {
-    border-radius: 12px;
-    border-color: #dde3ec;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
-    transition: box-shadow 0.2s, transform 0.2s;
-}
-
-.mkbase-summary-stat:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
-}
-
-.mkbase-summary-number {
-    font-family: 'Inter', sans-serif;
-    font-weight: 800;
-    font-size: 22px;
-    letter-spacing: -0.5px;
-}
-
-.mkbase-summary-label {
-    font-family: 'Inter', sans-serif;
-    letter-spacing: 0.1em;
-}
-
-/* Filter tabs — gradient active */
-.mkbase-filter-tab {
-    font-family: 'Inter', sans-serif;
-    border-radius: 20px;
-    transition: all 0.15s;
-}
-
-.mkbase-filter-tab.is-active {
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    border-color: #1e293b !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-}
-
-/* Versie header — gradient */
-.mkbase-version-header {
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-}
-
-.mkbase-version-toggle {
-    font-family: 'Inter', sans-serif;
-    font-size: 18px !important;
-    font-weight: 900 !important;
-    letter-spacing: -0.4px;
-    padding: 20px 24px !important;
-    gap: 16px !important;
-    align-items: center !important;
-}
-
-.mkbase-version-header {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
-}
-
-.mkbase-version-header:hover {
-    background: linear-gradient(135deg, #2c3e50 0%, #1e293b 100%);
-}
-
-/* Sectie-label — gradient tekst */
-#mkbase-changelog-content h3 {
-    background: linear-gradient(90deg, #16a34a, #2563eb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-family: 'Inter', sans-serif;
-    font-size: 10.5px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    margin: 28px 0 8px;
-}
-
-/* Lijst — betere cards */
-#mkbase-changelog-content ul {
-    border-radius: 12px;
-    border-color: #dde3ec;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
-}
-
-#mkbase-changelog-content li {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    border-bottom-color: #f1f5f9;
-    transition: background 0.1s;
-}
-
-#mkbase-changelog-content li:hover {
-    background: #f8fafc;
-}
-
-/* Code blocks — mac style */
-#mkbase-changelog-content pre {
-    background: #0d1117;
-    border-radius: 0 0 10px 10px;
-    border: 1px solid #21262d;
-    border-top: none;
-    padding: 14px 18px;
-    position: relative;
-}
-
-#mkbase-changelog-content pre::before {
-    content: '● ● ●';
-    display: block;
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-bottom: none;
-    border-radius: 10px 10px 0 0;
-    padding: 6px 14px;
-    font-size: 10px;
-    color: #484f58;
-    letter-spacing: 3px;
-    margin: -14px -18px 12px;
-}
-
-#mkbase-changelog-content code {
-    background: linear-gradient(135deg, #f0f6ff, #dbeafe);
-    border-color: #bfdbfe;
-    color: #1d4ed8;
-    border-radius: 5px;
-    font-size: 11.5px;
-}
-
-/* Oudere versies knop */
-#mkbase-older-toggle {
-    font-family: 'Inter', sans-serif;
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all 0.15s;
-}
-
-#mkbase-older-toggle:hover {
-    background: #f0f4f8;
-    border-color: #94a3b8;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-/* ════════════════════════════════════════ DARK MODE */
-
-body.dark #mkbase-changelog-content { color: #c9d1d9; }
-body.dark .mkbase-page-nav { border-bottom-color: #21262d; }
-body.dark .mkbase-page-nav__tab { color: #64748b; }
-body.dark .mkbase-page-nav__tab:hover { background: rgba(255,255,255,0.05); color: #94a3b8; }
-body.dark .mkbase-page-nav__tab.is-active { background: #161b22; border-color: #21262d; border-bottom-color: #161b22; color: #e2e8f0; }
-body.dark .mk-dark-toggle { background: #1e2d45; color: #93c5fd; border-color: #2d4060 !important; }
-
-body.dark .mkbase-summary-stat { background: #161b22; border-color: #21262d; box-shadow: none; }
-body.dark .mkbase-summary-number { color: #f0f6fc; }
-body.dark .mkbase-summary-label { color: #4a6080; }
-body.dark .mkbase-summary-update { background: #1a1000; border-color: #4d3000; }
-body.dark .mkbase-update-text { color: #fbbf24; }
-body.dark .mkbase-pending-changelog { background: #161b22; border-color: #21262d; }
-body.dark .mkbase-pending-changelog .mkbase-version-title { color: #f0f6fc; }
-body.dark .mkbase-pending-changelog .mkbase-version-date { background: #21262d; border-color: #30363d; color: #8b949e; }
-body.dark .mkbase-pending-changelog h3 { color: #8b949e; }
-body.dark .mkbase-pending-changelog li { color: #c9d1d9; }
-
-body.dark .mkbase-filter-tab { background: #161b22; border-color: #21262d !important; color: #64748b; }
-body.dark .mkbase-filter-tab:hover { border-color: #30363d !important; color: #94a3b8; }
-body.dark .mkbase-filter-tab.is-active { background: linear-gradient(135deg, #1e3a5f, #0d1b2e); border-color: #1d3a6e !important; color: #60a5fa; }
-
-body.dark .mkbase-version-block { }
-body.dark #mkbase-changelog-content ul { background: #161b22; border-color: #21262d; box-shadow: none; border-radius: 14px; }
-body.dark #mkbase-changelog-content li { border-bottom-color: #21262d; color: #8b949e; }
-body.dark #mkbase-changelog-content li:hover { background: #1c2128; }
-body.dark #mkbase-changelog-content li::before { background: #3fb950; }
-body.dark #mkbase-changelog-content h3 { -webkit-text-fill-color: transparent; }
-body.dark #mkbase-changelog-content strong { color: #f0f6fc; }
-body.dark #mkbase-changelog-content p { color: #8b949e; }
-body.dark #mkbase-changelog-content code { background: linear-gradient(135deg, #0d1b2e, #0f2236); border-color: #1d3557; color: #79c0ff; }
-body.dark #mkbase-changelog-content pre { background: #0d1117; border-color: #21262d; }
-body.dark #mkbase-changelog-content pre::before { background: #161b22; border-color: #21262d; }
-body.dark .mkbase-notice { background: #1a1000; border-left-color: #d97706; color: #fbbf24; }
-body.dark #mkbase-older-toggle { background: #161b22; border-color: #21262d; color: #64748b; }
-body.dark #mkbase-older-toggle:hover { background: #1c2128; border-color: #30363d; color: #94a3b8; }
-
-body.dark .mkbase-type-new        { background: #0a2514; color: #3fb950; }
-body.dark .mkbase-type-fix        { background: #1a0000; color: #f87171; }
-body.dark .mkbase-type-improvement{ background: #0d1b2e; color: #79c0ff; }
-body.dark .mkbase-type-change     { background: #1a1000; color: #fbbf24; }
-body.dark .mkbase-type-update     { background: #1c2128; color: #8b949e; }
-
-/* ════════════════════════════════════════ VERSIE BADGE (zoals mobile guide sectie-nummers) */
-
-.mk-version-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 52px;
-    height: 36px;
-    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 900;
-    padding: 0 12px;
-    border-radius: 10px;
-    letter-spacing: -0.3px;
-    white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
-    flex-shrink: 0;
-    margin-right: 4px;
-}
-
-/* ════════════════════════════════════════ PAGINA ACHTERGROND */
-
-#mkbase-changelog-content { padding-bottom: 48px; }
-
-#mkbase-changelog-content {
-    padding-bottom: 48px;
-}
-
-/* ════════════════════════════════════════ VERSIE BLOKKEN ALS KAARTEN */
-
-/* Ruim de oude margin op en maak van elk blok een zwevende kaart */
-.mkbase-version-block {
-    background: #fff;
-    border: 1px solid #dde3ec;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.05);
-    margin: 0 0 16px !important;
-    gap: 0 !important;
-    transition: box-shadow 0.2s, transform 0.2s;
-}
-
-.mkbase-version-block:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.08);
-    transform: translateY(-2px);
-}
-
-/* Header loopt over volledige breedte van de kaart */
-.mkbase-version-header {
-    width: 100%;
-    border-radius: 0;
-    overflow: visible;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-
-.mkbase-version-header:hover {
-    background: linear-gradient(135deg, #2c3e50 0%, #1e293b 100%);
-}
-
-.mkbase-version-toggle {
-    width: 100%;
-    padding: 18px 24px !important;
-    font-size: 16px !important;
-    font-weight: 800 !important;
-    letter-spacing: -0.3px;
-}
-
-/* Versie-inhoud — ruime padding zoals mobile guide cards */
-.mkbase-version-body {
-    padding: 28px 32px 32px !important;
-    margin-top: 0 !important;
-    width: auto;
-}
-
-/* Lijsten zitten al in de body — verwijder dubbele borders */
-.mkbase-version-body > ul:first-child {
-    margin-top: 0;
-}
-
-/* Sectielabel boven de lijst */
-.mkbase-version-body h3 {
-    margin-top: 20px;
-    padding-left: 0;
-}
-
-.mkbase-version-body h3:first-child {
-    margin-top: 4px;
-}
-
-/* Summary - grotere, duidelijkere stats */
-#mkbase-changelog-summary {
-    margin-bottom: 24px;
     gap: 12px;
+    align-items: flex-start;
+    margin: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--mk-line);
 }
+.mkbase-version-body ul:last-child li:last-child { border-bottom: 0; }
+.mkbase-version-body li[hidden] { display: none; }
+.mk-cl__txt { flex: 1; min-width: 0; }
+.mkbase-version-body li:not(:has(.mkbase-type-badge)) { padding-left: 108px; }
+.mkbase-version-body p { margin: 10px 0; color: var(--mk-muted); }
+.mkbase-version-body code,
+.mk-cl__pending code { padding: 1px 6px; border-radius: 6px; background: var(--mk-soft); border: 1px solid var(--mk-line); font: 12.5px/1.5 var(--mk-font-mono); color: var(--mk-text); }
 
-.mkbase-summary-stat {
-    padding: 18px 24px;
-    min-width: 130px;
-    background: #fff;
-}
-
-.mkbase-summary-number {
-    font-size: 26px;
-    font-weight: 900;
-    letter-spacing: -0.8px;
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.mkbase-summary-label {
-    color: #64748b;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    margin-top: 6px;
-}
-
-/* Oudere versies toggle */
-#mkbase-older-toggle {
-    background: #fff;
-    font-family: 'Inter', sans-serif;
-}
-
-/* Badge — groter en met meer contrast */
-.mkbase-badge-latest {
-    background: linear-gradient(135deg, #16a34a, #15803d);
-    box-shadow: 0 2px 6px rgba(22,163,74,0.3);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-}
-
-.mkbase-badge-outdated {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #fff;
-    box-shadow: 0 2px 6px rgba(245,158,11,0.3);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-}
-
-/* ════════════════════════════════════════ DARK MODE CHANGELOG */
-
-/* WP admin wrappers — zie admin-shared.css */
-
-/* Versie kaarten */
-body.dark .mkbase-version-block { background: #161b22; border-color: #21262d; box-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 8px 28px rgba(0,0,0,0.2); }
-body.dark .mkbase-version-block:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 16px 40px rgba(0,0,0,0.25); }
-body.dark .mkbase-version-body { background: #161b22; }
-
-/* Summary */
-body.dark .mkbase-summary-stat { background: #161b22; border-color: #21262d; box-shadow: none; }
-body.dark .mkbase-summary-number { background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-body.dark .mkbase-summary-label { color: #4a6080; }
-
-/* Oudere versies */
-body.dark #mkbase-older-toggle { background: #161b22; border-color: #21262d; color: #64748b; }
-body.dark #mkbase-older-toggle:hover { background: #1c2128; color: #94a3b8; }
-
-/* Badges */
-body.dark .mkbase-badge-latest   { background: linear-gradient(135deg,#0a2514,#0d3318); box-shadow: none; color: #3fb950; }
-body.dark .mkbase-badge-outdated { background: linear-gradient(135deg,#1a1000,#2d1a00); box-shadow: none; color: #fbbf24; }
-
-/* ════════════════════════════════════════ FADE-IN VERSIE BLOKKEN */
-.mkbase-version-block.fade-ready {
-    opacity: 0;
-    transform: translateY(18px);
-    transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1), transform 0.45s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s;
-}
-.mkbase-version-block.fade-ready.is-visible { opacity: 1; transform: translateY(0); }
-
-/* ════════════════════════════════════════ LEGE STAAT */
-.mk-empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* Soort-labels */
+.mkbase-type-badge {
+    flex: 0 0 96px;
+    display: inline-flex;
     justify-content: center;
-    padding: 56px 32px;
-    background: #fff;
-    border: 1px solid #dde3ec;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.05);
-    animation: mkFadeIn 0.3s ease;
-}
-.mk-empty-state__icon {
-    font-size: 40px;
-    margin-bottom: 16px;
-    opacity: 0.5;
-}
-.mk-empty-state__title {
-    font-size: 16px;
+    padding: 3px 0;
+    border-radius: 999px;
+    background: var(--mk-line);
+    color: var(--mk-muted);
+    font-size: 11.5px;
     font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 6px;
-    letter-spacing: -0.2px;
+    line-height: 1.5;
 }
-.mk-empty-state__sub {
-    font-size: 13px;
-    color: #64748b;
+.mkbase-type-new { background: var(--mk-ok-bg); color: var(--mk-ok-text); }
+.mkbase-type-fix { background: var(--mk-err-bg); color: var(--mk-err-text); }
+.mkbase-type-improvement { background: var(--mk-tint); color: var(--mk-accent-text); }
+.mkbase-type-change { background: var(--mk-warn-bg); color: var(--mk-warn-text); }
+
+/* Waarschuwing (regels die met > beginnen) en codeblokken */
+.mkbase-notice { display: flex; gap: 10px; margin: 12px 0; padding: 12px 16px; border-radius: 12px; background: var(--mk-warn-bg); color: var(--mk-warn-text); }
+.mkbase-notice .dashicons { flex-shrink: 0; }
+.mkbase-version-body pre { position: relative; margin: 12px 0; padding: 14px 16px; border-radius: 12px; background: #0B1220; color: #E6EDF7; overflow-x: auto; font: 12.5px/1.75 var(--mk-font-mono); }
+.mkbase-version-body pre code { padding: 0; border: 0; background: none; color: inherit; }
+.mk-cl__copy { position: absolute; top: 8px; right: 8px; padding: 4px 10px; border: 1px solid #2F3D54; border-radius: 8px; background: #1A2740; color: #C5D0DE; font: 600 11.5px/1.4 var(--mk-font); cursor: pointer; }
+.mk-cl__copy:hover { color: #fff; }
+
+/* Wat de beschikbare update brengt */
+.mk-cl__pending { padding: 18px 22px; border: 1px solid var(--mk-tint-border); border-radius: 16px; background: var(--mk-tint); }
+body.mk-admin .mk-cl__pending h2 { margin: 0 0 8px; padding: 0; font: 800 17px/1.3 var(--mk-font-head); color: var(--mk-text); }
+.mk-cl__pending h3 { margin: 12px 0 4px; font-size: 13px; }
+.mk-cl__pending ul { margin: 0 0 0 18px; }
+
+/* ── Rechts: status en versies ────────────────────────────── */
+.mk-cl__status { padding: 18px; border: 1px solid var(--mk-border); border-radius: 16px; background: var(--mk-card); display: flex; flex-direction: column; gap: 10px; }
+.mk-cl__status-head { display: flex; align-items: center; gap: 10px; }
+.mk-cl__status-head strong { display: block; }
+.mk-cl__status-head span { color: var(--mk-muted); font-size: 12.5px; }
+.mk-cl__status-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--mk-ok-bg);
+    color: var(--mk-ok-text);
+    position: relative;
 }
+.mk-cl__status-icon::after {
+    content: '';
+    position: absolute;
+    inset: 9px;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.mk-cl__status.is-update .mk-cl__status-icon { background: var(--mk-tint); color: var(--mk-accent-text); }
+.mk-cl__status p { margin: 0; color: var(--mk-muted); font-size: 12.5px; line-height: 1.55; }
+.mk-cl__status .mk-btn { justify-content: center; }
 
-body.dark .mk-empty-state { background: #161b22; border-color: #21262d; }
-body.dark .mk-empty-state__title { color: #f0f6fc; }
-body.dark .mk-empty-state__sub { color: #4a6080; }
+.mk-cl__versions { padding: 10px; border: 1px solid var(--mk-border); border-radius: 16px; background: var(--mk-card); max-height: calc(100vh - var(--mk-top) - 340px); overflow-y: auto; }
+.mk-cl__versions-title { padding: 6px 10px 8px; color: var(--mk-muted); font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; }
+body.mk-admin .mk-cl__versions a { display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 8px; color: var(--mk-text); font-size: 13px; text-decoration: none; }
+.mk-cl__versions a span:first-child { font-weight: 600; }
+.mk-cl__versions a span:last-child { color: var(--mk-muted); }
+body.mk-admin .mk-cl__versions a:hover { background: var(--mk-soft); color: var(--mk-text); }
+body.mk-admin .mk-cl__versions a[aria-current] { background: var(--mk-tint); color: var(--mk-accent-text); }
 
-/* Dark mode badge kleuren */
-body.dark .mkbase-type-new        { background: linear-gradient(135deg,#0a2514,#0d3318); border-color: #238636; color: #3fb950; }
-body.dark .mkbase-type-fix        { background: linear-gradient(135deg,#1a0000,#2d0000); border-color: #7f1d1d; color: #f87171; }
-body.dark .mkbase-type-improvement{ background: linear-gradient(135deg,#0d1b2e,#0f2236); border-color: #1d3557; color: #79c0ff; }
-body.dark .mkbase-type-change     { background: linear-gradient(135deg,#1a1400,#2d2200); border-color: #4d3800; color: #fbbf24; }
-body.dark .mkbase-type-update     { background: linear-gradient(135deg,#1a0a2e,#220d40); border-color: #4c1d95; color: #c084fc; }
+@media (max-width: 900px) {
+    .mk-cl__aside { position: static; }
+    .mkbase-version-body li { flex-wrap: wrap; }
+    .mkbase-version-body li:not(:has(.mkbase-type-badge)) { padding-left: 0; }
+}
