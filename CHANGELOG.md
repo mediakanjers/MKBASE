@@ -1,8 +1,13 @@
 # MKBase Theme — Changelog
 
-## v1.7.01
+## v1.7.2
 
-> Update vanaf 1.3.0? Deze update bevat ook 1.4.0 t/m 1.7.0 (hieronder). Bij de eerste paginaweergave gebeurt eenmalig vanzelf: de oude melding wordt de eerste melding in de nieuwe lijst, de code bij "Alleen in de footer" komt onder "Voor de sluitende /body", en de tijdzone wordt Amsterdam als die nog op een vaste UTC-afwijking staat. De oude gegevens blijven bewaard. Het child theme wordt niet bijgewerkt: voor de opmaak van het blok Openingstijden, zie Documentatie → Openingstijden → Voor developers → Bestaande site bijwerken.
+> Update vanaf 1.3.0? Deze update bevat ook 1.4.0 t/m 1.7.1 (hieronder). Bij de eerste paginaweergave gebeurt eenmalig vanzelf: de oude melding wordt de eerste melding in de nieuwe lijst, de code bij "Alleen in de footer" komt onder "Voor de sluitende /body", en de tijdzone wordt Amsterdam als die nog op een vaste UTC-afwijking staat. De oude gegevens blijven bewaard. Het child theme wordt niet bijgewerkt: voor de opmaak van het blok Openingstijden, zie Documentatie → Openingstijden → Voor developers → Bestaande site bijwerken.
+
+### Verbetering
+- **Zoek- en archiefpagina** hebben een eigen basisopmaak in de core (`assets/css/components/mk-overzicht.css`): een container, het zoekveld, de resultatenlijst, het kaartenraster en de paginering, neutraal en alleen op die pagina's. Sinds 1.4.1 heeft de core een nieuwe `search.php` en `archive.php`; op een bestaande website waarvan het child theme die (nog) niet opmaakt, stond alles tegen de rand van het scherm. Het child theme wint altijd: op een website met de nieuwe opmaak verandert er niets. Uitleg in de documentatie onder **Developer → Zoek- en archiefpagina**.
+
+## v1.7.1
 
 ### Verbetering
 - **Owl Carousel, Fancybox 3 en Swiper 5 blijven werken op bestaande websites.** Tot en met 1.3.0 laadde de core hun CSS op elke pagina; sinds 1.4.0 alleen nog met het script. Staat er nu een `owl-carousel`, `data-fancybox` of `swiper-container` op de pagina zonder de bijbehorende CSS (bijvoorbeeld omdat het child theme de library zelf meebundelt), dan zet de core die CSS er alsnog bij, vóór `style-main.css`. Pagina's zonder zo'n slider of lightbox laden niets extra, en een stylesheet die het child theme zelf heeft uitgeschakeld, blijft uit.

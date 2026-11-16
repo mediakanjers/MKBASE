@@ -29,6 +29,13 @@
 
         // Meldingen (notificatiebalk): zie inc/notifications.php
 
+        // Zoek- en archiefpagina (search.php, archive.php): basisopmaak, alleen op die pagina's en
+        // vóór style-main.css. Nodig voor bestaande websites waarvan het child theme deze pagina's
+        // (sinds 1.4.1 nieuw in de core) niet opmaakt; het child theme wint altijd.
+        if (is_search() || is_archive()) {
+            wp_enqueue_style('mk-overzicht', $theme_uri . '/assets/css/components/mk-overzicht.css', [], mkbase_asset_version($theme_dir . '/assets/css/components/mk-overzicht.css'));
+        }
+
         // Main compiled SCSS from /dist
         wp_enqueue_style( 'mkbase-style-main', $child_uri . '/dist/css/style-main.css', array(), mkbase_asset_version($child_dir . '/dist/css/style-main.css') );
     }

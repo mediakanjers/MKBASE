@@ -852,6 +852,17 @@
                 ['label' => 'Gebruik', 'desc' => '<p>Dezelfde kaart als het Loop-blok en de archiefpagina, met de <code>.mk-loop__*</code>-classes.</p>' . mkbase_docs_code("get_template_part('template-parts/content/card', null, [\n    'post'       => \$post,\n    'image_size' => 'large',\n    'knop_tekst' => '',\n    'is_preview' => \$is_preview,\n]);")],
             ]);
 
+            $html .= mkbase_docs_section('dev-zoek-archief', 'Zoek- en archiefpagina', 'dashicons-search', [
+                ['label' => 'Templates', 'desc' => 'De core heeft <code>search.php</code> (zoekresultaten) en <code>archive.php</code> (categorie, tag, auteur, datum; met de berichtkaart in een raster). Een child theme met een eigen <code>search.php</code> of <code>archive.php</code> gaat voor.'],
+                ['label' => 'Basisopmaak', 'desc' => '<code>assets/css/components/mk-overzicht.css</code> geeft alleen de indeling (container, zoekveld, resultaten, raster, paginering), neutraal en alleen op deze pagina\'s, vóór <code>style-main.css</code>. Elke class-regel van het child theme wint. Zo zien ze er ook netjes uit op een website waarvan het child theme ze niet opmaakt.'],
+                ['label' => 'Opmaak per website', 'desc' => 'In het Mediakanjers child theme: <code>template-parts/_search.scss</code>, <code>template-parts/_archive.scss</code>, <code>components/_pagination.scss</code> en <code>blocks/_mk-loop.scss</code>.' . mkbase_docs_tabel([
+                    ['--mk-overzicht-breedte', 'Maximale breedte van de inhoud (standaard 1400px)'],
+                    ['--mk-overzicht-rand', 'Ruimte links en rechts op een smal scherm'],
+                    ['--mk-overzicht-ruimte', 'Ruimte boven en onder'],
+                    ['--mk-overzicht-radius', 'Afronding van zoekveld, knop en paginering'],
+                ], ['Variabele', 'Wat het is'])],
+            ]);
+
             $html .= '</div>';
         }
 
