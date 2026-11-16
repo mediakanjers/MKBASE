@@ -937,6 +937,7 @@
 
             $html .= mkbase_docs_section('lightbox-fancybox', 'Fancybox (verouderd)', 'dashicons-warning', [
                 ['label' => 'Bestaande websites', 'desc' => 'Fancybox (<code>fancybox-js</code>) blijft werken op websites die hem al gebruiken, maar wordt niet meer onderhouden en werkt niet met jQuery 4. Gebruik voor nieuwe blokken altijd <code>mk-lightbox</code>. Hetzelfde geldt voor Owl Carousel (<code>owl-carousel-js</code>): gebruik voor nieuwe sliders Swiper 14 (<code>swiper-v14-js</code>).'],
+                ['label' => 'CSS op bestaande websites', 'desc' => 'Laad je <code>owl-carousel-js</code>, <code>fancybox-js</code> of <code>swiper-js</code> via de core, dan komt de CSS vanzelf mee. Bundelt het child theme de library zelf, dan zet de core de CSS er alsnog bij zodra er een <code>owl-carousel</code>, <code>data-fancybox</code> of <code>swiper-container</code> op de pagina staat (tot en met 1.3.0 laadde die CSS op elke pagina). Wil je dat niet, bijv. omdat je een eigen versie gebruikt, schakel de stylesheet dan uit met <code>wp_deregister_style(\'owl-carousel-css\')</code>.'],
             ]);
 
             $html .= '</div>';

@@ -1,8 +1,16 @@
 # MKBase Theme — Changelog
 
-## v1.7.0
+## v1.7.01
 
-> Update vanaf 1.3.0? Deze update bevat ook 1.4.0 t/m 1.6.0 (hieronder). Bij de eerste paginaweergave gebeurt eenmalig vanzelf: de oude melding wordt de eerste melding in de nieuwe lijst, de code bij "Alleen in de footer" komt onder "Voor de sluitende /body", en de tijdzone wordt Amsterdam als die nog op een vaste UTC-afwijking staat. De oude gegevens blijven bewaard. Het child theme wordt niet bijgewerkt: voor de opmaak van het blok Openingstijden, zie Documentatie → Openingstijden → Voor developers → Bestaande site bijwerken.
+> Update vanaf 1.3.0? Deze update bevat ook 1.4.0 t/m 1.7.0 (hieronder). Bij de eerste paginaweergave gebeurt eenmalig vanzelf: de oude melding wordt de eerste melding in de nieuwe lijst, de code bij "Alleen in de footer" komt onder "Voor de sluitende /body", en de tijdzone wordt Amsterdam als die nog op een vaste UTC-afwijking staat. De oude gegevens blijven bewaard. Het child theme wordt niet bijgewerkt: voor de opmaak van het blok Openingstijden, zie Documentatie → Openingstijden → Voor developers → Bestaande site bijwerken.
+
+### Verbetering
+- **Owl Carousel, Fancybox 3 en Swiper 5 blijven werken op bestaande websites.** Tot en met 1.3.0 laadde de core hun CSS op elke pagina; sinds 1.4.0 alleen nog met het script. Staat er nu een `owl-carousel`, `data-fancybox` of `swiper-container` op de pagina zonder de bijbehorende CSS (bijvoorbeeld omdat het child theme de library zelf meebundelt), dan zet de core die CSS er alsnog bij, vóór `style-main.css`. Pagina's zonder zo'n slider of lightbox laden niets extra, en een stylesheet die het child theme zelf heeft uitgeschakeld, blijft uit.
+
+### Bugfix
+- **jQuery** laadt weer altijd vóór het script van het child theme (`dist/scripts/scripts.min.js`). Sinds 1.4.0 laadde de core jQuery niet meer zelf; op een website zonder plugin die jQuery laadt (zoals WooCommerce) opende het mobiele menu daardoor niet ("jQuery is not defined").
+
+## v1.7.0
 
 ### Nieuw
 - **Openingstijden** toegevoegd: één plek om de openingstijden in te vullen (**Mediakanjers → Openingstijden**), en een nieuw blok **Openingstijden** om ze op de website te tonen.
@@ -61,7 +69,6 @@
 - **Bekijk op website** van een melding die niet meer gekoppeld is, toont nu de juiste status.
 - Een lange pop-up met een knop opende onderaan gescrold (de focus ging naar de knop). Hij opent nu bovenaan, met de focus op het kruisje.
 - Changelog: een let-op-melding met vetgedrukte tekst viel uiteen in losse kolommen.
-- **jQuery** laadt weer altijd vóór het script van het child theme (`dist/scripts/scripts.min.js`). Sinds 1.4.0 laadde de core jQuery niet meer zelf; op een website zonder plugin die jQuery laadt (zoals WooCommerce) opende het mobiele menu daardoor niet ("jQuery is not defined").
 
 ## v1.6.0
 
