@@ -1,0 +1,326 @@
+/* Openingstijden — alleen de indeling (inc/openingstijden/output.php).
+   Laadt alleen waar het blok, de shortcode of mkbase_openingstijden() staat, en vóór style-main.css.
+
+   Bewust neutraal: geen merkkleuren, geen labels of afronding. Lijnen en gedempte tekst zijn afgeleid
+   van de tekstkleur, zodat het blok op elke website leesbaar is. De look (statuslabels, kleuren, het
+   label "Vandaag", ruimte rond het blok) staat in het child theme:
+   Mediakanjers/web/assets/scss/blocks/_mk-openingstijden.scss
+
+   Variabelen (op .mk-ot of hoger te zetten; Meldingen zet ze in de kleuren van de melding):
+   --mk-ot-lijn        scheidingslijnen
+   --mk-ot-gedempt     gesloten dagen, opmerkingen, datums
+   --mk-ot-vandaag-bg  achtergrond van de regel van vandaag */
+
+.mk-ot {
+    --mk-ot-lijn: color-mix(in srgb, currentColor 15%, transparent);
+    --mk-ot-gedempt: color-mix(in srgb, currentColor 70%, transparent);
+    --mk-ot-vandaag-bg: color-mix(in srgb, currentColor 6%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    /* WordPress zet in een kolom word-break: break-word; dan breekt "Maandag" middenin af */
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+
+/* Meerdere roosters: de tabel gaat onder elkaar zodra het blok zelf smal is (ook in een kolom op
+   een groot scherm), niet pas op een telefoon. Alleen hier: een container heeft een breedte nodig
+   van zijn ouder, en status of vandaag staan soms in een header of footer zonder vaste breedte. */
+.mk-ot--meer {
+    container: mk-ot / inline-size;
+    overflow-x: auto; /* vangnet: een tabel met veel roosters scrolt in plaats van uit het blok te steken */
+}
+
+.mk-ot__titel {
+    margin: 0;
+}
+
+.mk-ot dl,
+.mk-ot dt,
+.mk-ot dd {
+    margin: 0;
+}
+
+/* Een regel: dag(en) links, tijden rechts; op een smal scherm onder elkaar */
+.mk-ot__regel {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2px 16px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--mk-ot-lijn);
+}
+
+.mk-ot__regel dt {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mk-ot__regel dd {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    text-align: right;
+}
+
+/* Een tijdvak breekt niet halverwege af ("08:30 –" / "12:00") */
+.mk-ot__tijd {
+    white-space: nowrap;
+}
+
+/* "Alleen op afspraak" en "Gesloten" mogen wel over twee regels */
+:is(.mk-ot__regel--afspraak, .mk-ot__regel--gesloten, .mk-ot__cel--afspraak, .mk-ot__cel--gesloten) .mk-ot__tijd {
+    white-space: normal;
+}
+
+.mk-ot__extra,
+.mk-ot__toelichting,
+.mk-ot__datum,
+.mk-ot__regel--gesloten dd,
+.mk-ot__regel--afspraak dd,
+.mk-ot__cel--gesloten,
+.mk-ot__cel--afspraak {
+    color: var(--mk-ot-gedempt);
+}
+
+/* Vandaag (door assets/js/openingstijden.js gezet, ook als de pagina uit de cache komt) */
+.mk-ot__regel.is-vandaag {
+    background: var(--mk-ot-vandaag-bg);
+}
+
+.mk-ot__label {
+    align-self: flex-start;
+    font-size: 0.8em;
+    font-weight: 700;
+}
+
+/* Status: Nu open / Pauze / Gesloten, met een stip in de tekstkleur */
+/* Gewone tekstregel (geen flex), zodat "Balie: Gesloten · maandag open om 09:00" op een smal
+   scherm netjes doorloopt naar de volgende regel */
+.mk-ot__status {
+    align-self: flex-start;
+    margin: 0;
+}
+
+.mk-ot__stip {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    vertical-align: 0.1em;
+}
+
+/* Komende wijziging boven de week ("Let op: ..."); de browser toont de eerste die nog niet voorbij is */
+.mk-ot__wijziging {
+    margin: 0;
+}
+
+.mk-ot__wijzigingen[hidden],
+.mk-ot__wijziging[hidden] {
+    display: none;
+}
+
+/* Kalendertegel bij de afwijkingen: alleen in het child theme zichtbaar */
+.mk-ot__kalender {
+    display: none;
+}
+
+/* ── Tabjes (meerdere roosters, indeling "Tabjes") ──
+   Zonder JavaScript staan de roosters onder elkaar met hun naam; met JavaScript (.is-tabs) tabjes. */
+.mk-ot__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+}
+
+.mk-ot--tabs:not(.is-tabs) .mk-ot__tabs,
+.mk-ot--tabs.is-tabs .mk-ot__paneel-kop,
+.mk-ot__paneel[hidden] {
+    display: none;
+}
+
+.mk-ot__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.mk-ot__tab .mk-ot__stip {
+    margin-right: 0;
+}
+
+.mk-ot__tab[aria-selected="true"] {
+    border-bottom-color: currentColor;
+    font-weight: 700;
+}
+
+.mk-ot__paneel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.mk-ot__paneel-kop {
+    margin: 0;
+    font-weight: 700;
+}
+
+/* Weergave Vandaag */
+.mk-ot__vandaag {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+}
+
+/* ── Meerdere roosters ── */
+
+/* Status en vandaag: een regel per rooster */
+.mk-ot__statussen,
+.mk-ot__vandaag-lijst {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+/* Week: een tabel met per rooster een kolom */
+.mk-ot__tabel {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.mk-ot__tabel th,
+.mk-ot__tabel td {
+    padding: 10px 12px;
+    border-top: 1px solid var(--mk-ot-lijn);
+    text-align: left;
+    vertical-align: top;
+}
+
+.mk-ot__tabel thead th {
+    border-top: 0;
+    border-bottom: 1px solid var(--mk-ot-lijn);
+}
+
+.mk-ot__tabel thead + tbody .mk-ot__regel:first-child > * {
+    border-top: 0;
+}
+
+/* Een rij is hier een tabelrij, niet de flex-regel van het gewone overzicht */
+.mk-ot__tabel .mk-ot__regel {
+    display: table-row;
+    padding: 0;
+    border: 0;
+}
+
+.mk-ot__tabel tbody th,
+.mk-ot__tabel .mk-ot__cel {
+    display: table-cell;
+}
+
+.mk-ot__tabel tbody th > span,
+.mk-ot__tabel .mk-ot__cel > span {
+    display: block;
+}
+
+.mk-ot__tabel .mk-ot__regel.is-vandaag {
+    background: none;
+}
+
+.mk-ot__tabel .mk-ot__regel.is-vandaag > * {
+    background: var(--mk-ot-vandaag-bg);
+}
+
+/* Alleen voor schermlezers (niet afhankelijk van .screen-reader-text in het child theme) */
+.mk-ot__verborgen {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* Smal blok (telefoon, of een kolom): per dag de roosters onder elkaar, met de naam ervoor */
+@container mk-ot (max-width: 480px) {
+    .mk-ot__tabel thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .mk-ot__tabel,
+    .mk-ot__tabel tbody,
+    .mk-ot__tabel .mk-ot__regel,
+    .mk-ot__tabel tbody th {
+        display: block;
+    }
+
+    .mk-ot__tabel .mk-ot__regel {
+        padding: 10px 12px;
+        border-top: 1px solid var(--mk-ot-lijn);
+    }
+
+    .mk-ot__tabel tbody th,
+    .mk-ot__tabel .mk-ot__cel {
+        padding: 0;
+        border: 0;
+    }
+
+    .mk-ot__tabel .mk-ot__cel {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 8px;
+        margin-top: 4px;
+    }
+
+    .mk-ot__tabel .mk-ot__cel::before {
+        content: attr(data-label) ':';
+        color: var(--mk-ot-gedempt);
+    }
+
+    .mk-ot__tabel .mk-ot__cel > span {
+        display: inline;
+    }
+
+    .mk-ot__tabel .mk-ot__regel.is-vandaag {
+        background: var(--mk-ot-vandaag-bg);
+    }
+
+    .mk-ot__tabel .mk-ot__regel.is-vandaag > * {
+        background: none;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .mk-ot__regel {
+        flex-direction: column;
+    }
+
+    .mk-ot__regel dd {
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+
+/* Link naar het beheer, alleen in de editor */
+.mk-ot__beheer {
+    margin: 10px 0 0;
+    font-size: 13px;
+}

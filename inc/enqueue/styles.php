@@ -70,7 +70,7 @@
     // Prioriteit 20: ná WordPress' eigen filter (10) dat de laat geprinte CSS naar de <head> verplaatst.
     function mkbase_move_vendor_styles_before_main($html) {
         $main    = '/<link\b[^>]*\bid=([\'"])mkbase-style-main-css\1[^>]*>/';
-        $handles = array_merge(array_values(mkbase_vendor_styles()), ['mk-image-slider', 'mk-align']);
+        $handles = array_merge(array_values(mkbase_vendor_styles()), ['mk-image-slider', 'mk-align', 'mk-openingstijden']);
 
         foreach ($handles as $handle) {
             if (!preg_match($main, $html, $m, PREG_OFFSET_CAPTURE)) return $html;

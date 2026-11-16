@@ -18,6 +18,11 @@
 
     require_once get_template_directory() . '/inc/migrations.php';
     require_once get_template_directory() . '/inc/notifications.php';
+    require_once get_template_directory() . '/inc/openingstijden/data.php';
+    require_once get_template_directory() . '/inc/openingstijden/fields.php';
+    require_once get_template_directory() . '/inc/openingstijden/output.php';
+    require_once get_template_directory() . '/inc/openingstijden/admin.php';
+    require_once get_template_directory() . '/inc/openingstijden/meldingen.php';
 
     require_once get_template_directory() . '/inc/breadcrumbs.php';
     require_once get_template_directory() . '/inc/menu.php';

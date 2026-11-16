@@ -269,7 +269,20 @@ body.mk-admin .mk-bar__tabs a {
     border-radius: 8px 8px 0 0;
 }
 body.mk-admin .mk-bar__tabs a:hover { color: var(--mk-text); }
+/* Meer tabbladen dan er passen: de rand vervaagt aan de kant waar er nog meer zijn (zie mk-admin.js) */
+.mk-bar__tabs.is-meer-rechts { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent); }
+.mk-bar__tabs.is-meer-links { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 48px), transparent); }
+.mk-bar__tabs.is-meer-links.is-meer-rechts { -webkit-mask-image: linear-gradient(to right, transparent, #000 48px, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(to right, transparent, #000 48px, #000 calc(100% - 48px), transparent); }
 body.mk-admin .mk-bar__tabs a[aria-current] { color: var(--mk-accent-text); box-shadow: inset 0 -2px 0 var(--mk-accent-text); }
+/* Twee groepen: links de instellingen van de website, rechts naslag en hulp (Changelog, Documentatie,
+   Diagnose), los ervan met een lijn. Elk tabblad heeft een icoon voor het label. */
+.mk-bar__tabgroep { display: flex; flex-shrink: 0; gap: 4px; }
+.mk-bar__tabgroep--hulp { position: relative; margin-left: auto; padding-left: 16px; }
+.mk-bar__tabgroep--hulp::before { content: ''; position: absolute; top: 9px; bottom: 9px; left: 0; width: 1px; background: var(--mk-border); }
+body.mk-admin .mk-bar__tabs a { display: inline-flex; align-items: center; gap: 7px; padding-left: 12px; padding-right: 12px; }
+.mk-bar__tabgroep { gap: 2px; }
+.mk-bar__tabs a svg { flex-shrink: 0; opacity: 0.75; }
+.mk-bar__tabs a[aria-current] svg, .mk-bar__tabs a:hover svg { opacity: 1; }
 
 /* Schermopties hebben op de MK-pagina's geen functie */
 body.mk-admin #screen-meta-links,

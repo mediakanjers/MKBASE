@@ -166,6 +166,14 @@
         $melding_als = function ($field, $value, $operator = '==') {
             return array(array(array('field' => $field, 'operator' => $operator, 'value' => $value)));
         };
+        // Koppeling met Openingstijden (sinds 1.7.0); uit als de openingstijden zijn uitgezet
+        $ot = function_exists('mkbase_ot_actief') && mkbase_ot_actief();
+        $plan_zelf = $ot
+            ? array(array(
+                array('field' => 'field_mk_melding_planning', 'operator' => '==', 'value' => '1'),
+                array('field' => 'field_mk_melding_ot_koppelen', 'operator' => '!=', 'value' => '1'),
+            ))
+            : $melding_als('field_mk_melding_planning', '1');
 
         acf_add_local_field_group(array(
             'key' => 'group_68ff64b408f4e',
@@ -221,7 +229,7 @@
                             'label'        => 'Tekst',
                             'name'         => 'melding_tekst',
                             'type'         => 'wysiwyg',
-                            'toolbar'      => 'mk_melding', // vet, cursief, link (inc/notifications.php)
+                            'toolbar'      => 'mk_melding', // koppen, vet, lijsten, uitlijnen, link (inc/notifications.php)
                             'media_upload' => 0,
                             'tabs'         => 'visual',
                             'delay'        => 0,
@@ -233,9 +241,121 @@
                             'type'         => 'link',
                             'instructions' => 'optioneel',
                         ),
+                        // Hoe de knop eruitziet en waar hij staat (sinds 1.7.0); alleen met een knop
+                        array(
+                            'key'               => 'field_mk_melding_knop_stijl',
+                            'label'             => 'Knop',
+                            'name'              => 'melding_knop_stijl',
+                            'type'              => 'button_group',
+                            'choices'           => array('omlijnd' => 'Omlijnd', 'gevuld' => 'Gevuld'),
+                            'default_value'     => 'omlijnd',
+                            'wrapper'           => array('width' => '50'),
+                            'conditional_logic' => $melding_als('field_mk_melding_knop', '', '!=empty'),
+                        ),
+                        array(
+                            'key'               => 'field_mk_melding_knop_plek',
+                            'label'             => 'Knop staat',
+                            'name'              => 'melding_knop_plek',
+                            'type'              => 'button_group',
+                            'choices'           => array('naast' => 'Naast de tekst', 'onder' => 'Onder de tekst'),
+                            'default_value'     => 'naast',
+                            'instructions'      => 'Bij een pop-up en zwevend blok altijd onder de tekst',
+                            'wrapper'           => array('width' => '50'),
+                            'conditional_logic' => $melding_als('field_mk_melding_knop', '', '!=empty'),
+                        ),
+                        // Openingstijden in de melding (sinds 1.7.0, zie inc/openingstijden/)
+                        ...($ot ? array(
+                            array(
+                                'key'          => 'field_mk_melding_ot',
+                                'label'        => 'Openingstijden in de melding',
+                                'name'         => 'melding_ot',
+                                'type'         => 'true_false',
+                                'ui'           => 1,
+                                'instructions' => 'Uit Mediakanjers → Openingstijden; altijd actueel, ook met feestdagen',
+                                'wrapper'      => array('class' => 'mk-melding-ot-aan'),
+                            ),
+                            array(
+                                'key'               => 'field_mk_melding_ot_roosters',
+                                'label'             => 'Roosters',
+                                'name'              => 'melding_ot_roosters',
+                                'type'              => 'checkbox',
+                                'choices'           => array(), // de roosters, zie inc/openingstijden/admin.php
+                                'layout'            => 'horizontal',
+                                'instructions'      => 'Niets aangevinkt: het eerste rooster',
+                                'wrapper'           => array('width' => '40', 'class' => 'mk-melding-ot'),
+                                'conditional_logic' => $melding_als('field_mk_melding_ot', '1'),
+                            ),
+                            array(
+                                'key'               => 'field_mk_melding_ot_weergave',
+                                'label'             => 'Weergave',
+                                'name'              => 'melding_ot_weergave',
+                                'type'              => 'button_group',
+                                'choices'           => array('week' => 'Week', 'vandaag' => 'Vandaag', 'status' => 'Status', 'afwijkingen' => 'Afwijkingen'),
+                                'default_value'     => 'week',
+                                'wrapper'           => array('width' => '40', 'class' => 'mk-melding-ot'),
+                                'conditional_logic' => $melding_als('field_mk_melding_ot', '1'),
+                            ),
+                            array(
+                                'key'               => 'field_mk_melding_ot_status',
+                                'label'             => 'Status "nu open"',
+                                'name'              => 'melding_ot_status',
+                                'type'              => 'true_false',
+                                'ui'                => 1,
+                                'default_value'     => 1,
+                                'wrapper'           => array('width' => '20', 'class' => 'mk-melding-ot'),
+                                // Alleen bij Week en Vandaag: Status toont hem altijd, Afwijkingen nooit
+                                'conditional_logic' => array(
+                                    array(array('field' => 'field_mk_melding_ot', 'operator' => '==', 'value' => '1'), array('field' => 'field_mk_melding_ot_weergave', 'operator' => '==', 'value' => 'week')),
+                                    array(array('field' => 'field_mk_melding_ot', 'operator' => '==', 'value' => '1'), array('field' => 'field_mk_melding_ot_weergave', 'operator' => '==', 'value' => 'vandaag')),
+                                ),
+                            ),
+                        ) : array()),
 
                         // ── Planning ──
                         $melding_tab('field_mk_melding_tab_planning', 'Planning'),
+                        // Volgens openingstijden: de planning volgt een feestdag of afwijking (sinds 1.7.0)
+                        ...($ot ? array(
+                            array(
+                                'key'          => 'field_mk_melding_ot_koppelen',
+                                'label'        => 'Volgens openingstijden',
+                                'name'         => 'melding_ot_koppelen',
+                                'type'         => 'true_false',
+                                'ui'           => 1,
+                                'instructions' => 'De melding volgt een feestdag of afwijking',
+                            ),
+                            array(
+                                'key'               => 'field_mk_melding_ot_bron',
+                                'label'             => 'Volgt',
+                                'name'              => 'melding_ot_bron',
+                                'type'              => 'select',
+                                'choices'           => array(), // feestdagen en afwijkingen, zie inc/openingstijden/admin.php
+                                'allow_null'        => 1,
+                                'placeholder'       => 'Kies een feestdag of afwijking',
+                                'wrapper'           => array('width' => '60'),
+                                'conditional_logic' => $melding_als('field_mk_melding_ot_koppelen', '1'),
+                            ),
+                            array(
+                                'key'               => 'field_mk_melding_ot_vooraf',
+                                'label'             => 'Vooraf tonen',
+                                'name'              => 'melding_ot_vooraf',
+                                'type'              => 'number',
+                                'min'               => 0,
+                                'max'               => 365,
+                                'append'            => 'dagen',
+                                'instructions'      => 'Leeg: zoals bij Openingstijden',
+                                'wrapper'           => array('width' => '40'),
+                                'conditional_logic' => $melding_als('field_mk_melding_ot_koppelen', '1'),
+                            ),
+                            array(
+                                'key'               => 'field_mk_melding_ot_tijdlijn',
+                                'label'             => '',
+                                'name'              => '',
+                                'type'              => 'message',
+                                'message'           => '<div class="mk-melding-tijdlijn" data-mk-melding-tijdlijn></div>',
+                                'esc_html'          => 0,
+                                'conditional_logic' => $melding_als('field_mk_melding_ot_koppelen', '1'),
+                            ),
+                        ) : array()),
                         array(
                             'key'          => 'field_mk_melding_planning',
                             'label'        => 'Inplannen',
@@ -243,6 +363,7 @@
                             'type'         => 'true_false',
                             'ui'           => 1,
                             'instructions' => 'Alleen zichtbaar tussen de begin- en eindtijd',
+                            'conditional_logic' => $ot ? $melding_als('field_mk_melding_ot_koppelen', '1', '!=') : 0,
                         ),
                         array(
                             'key'               => 'field_mk_melding_start',
@@ -254,7 +375,7 @@
                             'return_format'     => 'Y-m-d H:i:s',
                             'first_day'         => 1,
                             'wrapper'           => array('width' => '50'),
-                            'conditional_logic' => $melding_als('field_mk_melding_planning', '1'),
+                            'conditional_logic' => $plan_zelf,
                         ),
                         array(
                             'key'               => 'field_mk_melding_eind',
@@ -266,7 +387,7 @@
                             'return_format'     => 'Y-m-d H:i:s',
                             'first_day'         => 1,
                             'wrapper'           => array('width' => '50'),
-                            'conditional_logic' => $melding_als('field_mk_melding_planning', '1'),
+                            'conditional_logic' => $plan_zelf,
                         ),
 
                         // ── Weergave ──
@@ -369,6 +490,36 @@
                             'append'            => 'px',
                             'wrapper'           => array('width' => '34'),
                             'conditional_logic' => $melding_als('field_mk_melding_positie', 'blok'),
+                        ),
+                        // Opmaak van de melding als geheel (sinds 1.7.0); per alinea uitlijnen kan in de tekst zelf
+                        array(
+                            'key'           => 'field_mk_melding_uitlijning',
+                            'label'         => 'Uitlijning',
+                            'name'          => 'melding_uitlijning',
+                            'type'          => 'button_group',
+                            'choices'       => array('auto' => 'Automatisch', 'links' => 'Links', 'midden' => 'Midden'),
+                            'default_value' => 'auto',
+                            'instructions'  => 'Automatisch: een balk in het midden, een pop-up en blok links',
+                            'wrapper'       => array('width' => '34'),
+                        ),
+                        array(
+                            'key'           => 'field_mk_melding_tekstgrootte',
+                            'label'         => 'Tekstgrootte',
+                            'name'          => 'melding_tekstgrootte',
+                            'type'          => 'button_group',
+                            'choices'       => array('klein' => 'Klein', 'normaal' => 'Normaal', 'groot' => 'Groot'),
+                            'default_value' => 'normaal',
+                            'wrapper'       => array('width' => '33'),
+                        ),
+                        array(
+                            'key'           => 'field_mk_melding_ruimte',
+                            'label'         => 'Ruimte',
+                            'name'          => 'melding_ruimte',
+                            'type'          => 'button_group',
+                            'choices'       => array('compact' => 'Compact', 'normaal' => 'Normaal', 'ruim' => 'Ruim'),
+                            'default_value' => 'normaal',
+                            'instructions'  => 'De ruimte rond de tekst',
+                            'wrapper'       => array('width' => '33'),
                         ),
 
                         // ── Gedrag ──

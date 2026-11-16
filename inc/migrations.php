@@ -32,6 +32,7 @@
             'meldingen_repeater_1_5_0'   => 'mkbase_migrate_notifications_to_repeater',
             'opruimen_veldgroepen_1_5_0' => 'mkbase_remove_disabled_core_field_groups',
             'footercode_samenvoegen_1_6_0' => 'mkbase_merge_footer_code',
+            'tijdzone_stad_1_7_0'        => 'mkbase_set_timezone_city',
         ];
 
         $changed = false;
@@ -122,6 +123,25 @@
             update_option($target, $current === '' ? $code : $current . "\n" . $code);
             update_option('_' . $target, 'field_681c7a512e60a');
         }
+    }
+
+    // 1.7.0: staat de tijdzone nog op een vaste afwijking van UTC (WordPress begint met "UTC+0"), dan
+    // wordt het Amsterdam. Een stad gaat vanzelf mee met de zomer- en wintertijd, zodat "Nu open" bij
+    // Openingstijden en de planning van Meldingen het hele jaar kloppen. Eén keer per site: wie daarna
+    // zelf iets anders kiest bij Instellingen → Algemeen, houdt dat. Een al gekozen stad blijft staan.
+    // Andere stad of uitzetten: filter 'mkbase_tijdzone_automatisch' (false of bijv. 'Europe/Brussels').
+    function mkbase_set_timezone_city() {
+        if ((string) get_option('timezone_string') !== '') return;
+        $stad = apply_filters('mkbase_tijdzone_automatisch', 'Europe/Amsterdam');
+        if (!$stad || !in_array($stad, timezone_identifiers_list(), true)) return;
+
+        update_option('timezone_string', $stad);
+        update_option('gmt_offset', ''); // zoals WordPress het opslaat bij een stad
+
+        // De nachtelijke controle opnieuw inplannen (om 00:05 in de nieuwe tijdzone) en de cache legen,
+        // zodat gecachte pagina's de nieuwe tijdzone meekrijgen
+        wp_clear_scheduled_hook('mkbase_ot_dagelijks');
+        if (function_exists('rocket_clean_domain')) rocket_clean_domain();
     }
 
     // Actieve kopieën van core-veldgroepen: in de database of als JSON in het child theme.

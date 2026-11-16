@@ -50,7 +50,13 @@
         navItems.forEach(function (b) {
             var on = b.getAttribute('data-panel') === key;
             b.classList.toggle('is-active', on);
-            if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+            if (on) {
+                b.setAttribute('aria-current', 'true');
+                var groep = b.closest('.mkbase-docs-group');
+                if (groep) zetGroep(groep, true, false); // de groep van het actieve onderwerp staat altijd open
+            } else {
+                b.removeAttribute('aria-current');
+            }
         });
         if (window.history.replaceState) window.history.replaceState(null, '', '#' + key);
         if (focus) {
@@ -67,10 +73,61 @@
             show(btn.getAttribute('data-panel'), true);
         });
         btn.addEventListener('keydown', function (e) {
-            var i = navItems.indexOf(btn);
-            var next = e.key === 'ArrowDown' ? navItems[i + 1] : e.key === 'ArrowUp' ? navItems[i - 1] : null;
+            // Alleen zichtbare onderwerpen (een ingeklapte groep slaat hij over)
+            var zichtbaar = navItems.filter(function (b) { return b.offsetParent !== null; });
+            var i = zichtbaar.indexOf(btn);
+            var next = e.key === 'ArrowDown' ? zichtbaar[i + 1] : e.key === 'ArrowUp' ? zichtbaar[i - 1] : null;
             if (next) { e.preventDefault(); next.focus(); next.click(); }
         });
+    });
+
+    // ── Groepen in het menu in- en uitklappen (onthouden in deze browser) ──
+    var OPSLAG = 'mkbase-docs-dicht';
+    function dichteGroepen() {
+        try { return JSON.parse(localStorage.getItem(OPSLAG) || '[]'); } catch (e) { return []; }
+    }
+    function zetGroep(groep, open, onthoud) {
+        var knop = groep.querySelector('.mkbase-docs-group__label');
+        var items = groep.querySelector('.mkbase-docs-group__items');
+        if (!knop || !items) return;
+        knop.setAttribute('aria-expanded', open ? 'true' : 'false');
+        items.hidden = !open;
+        if (!onthoud) return;
+        var dicht = dichteGroepen().filter(function (g) { return g !== groep.getAttribute('data-group'); });
+        if (!open) dicht.push(groep.getAttribute('data-group'));
+        try { localStorage.setItem(OPSLAG, JSON.stringify(dicht)); } catch (e) {}
+    }
+    var dicht = dichteGroepen();
+    content.querySelectorAll('.mkbase-docs-group').forEach(function (groep) {
+        if (dicht.indexOf(groep.getAttribute('data-group')) > -1) zetGroep(groep, false, false);
+        var knop = groep.querySelector('.mkbase-docs-group__label');
+        if (knop) knop.addEventListener('click', function () {
+            zetGroep(groep, knop.getAttribute('aria-expanded') !== 'true', true);
+        });
+    });
+
+    // ── Voorbeelden: een regel in de tabel aanwijzen laat dat onderdeel oplichten ──
+    function aanwijzen(rij, aan) {
+        var antwoord = rij.closest('.mkbase-docs-a');
+        var voorbeeld = antwoord && antwoord.querySelector('.mk-docs__voorbeeld-inhoud');
+        if (!voorbeeld) return;
+        voorbeeld.querySelectorAll('.mk-docs__aangewezen').forEach(function (el) { el.classList.remove('mk-docs__aangewezen'); });
+        if (!aan) return;
+        var treffers;
+        try { treffers = voorbeeld.querySelectorAll(rij.getAttribute('data-mk-doc-sel')); } catch (e) { return; }
+        treffers.forEach(function (el) { el.classList.add('mk-docs__aangewezen'); });
+        // Zorg dat het voorbeeld in beeld is
+        if (treffers.length && aan === 'focus') treffers[0].scrollIntoView({ block: 'nearest' });
+    }
+    content.querySelectorAll('tr[data-mk-doc-sel]').forEach(function (rij) {
+        rij.addEventListener('mouseenter', function () { aanwijzen(rij, true); });
+        rij.addEventListener('mouseleave', function () { aanwijzen(rij, false); });
+        rij.addEventListener('focus', function () { aanwijzen(rij, 'focus'); });
+        rij.addEventListener('blur', function () { aanwijzen(rij, false); });
+    });
+    // Links in een voorbeeld doen niets (het is alleen een voorbeeld)
+    content.querySelectorAll('.mk-docs__voorbeeld-inhoud a').forEach(function (a) {
+        a.addEventListener('click', function (e) { e.preventDefault(); });
     });
 
     // #onderwerp of #onderwerp/sectie in de URL (bijv. vanuit "Meer uitleg")

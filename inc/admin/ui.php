@@ -8,22 +8,33 @@
     // Alle MK-pagina's, in de volgorde van de tabbladen. 'acf' = instellingenpagina met opslaan,
     // 'intro' = korte uitleg onder de paginatitel, 'note' = waarschuwing boven de kaarten.
     function mkbase_admin_pages() {
-        return [
-            'acf-options-website-instellingen' => ['label' => 'Website instellingen', 'acf' => true,
+        $pages = [
+            // 'icoon': path(s) van een 24x24 lijnicoon voor het tabblad in de MK-balk
+            'acf-options-website-instellingen' => ['label' => 'Website instellingen', 'acf' => true, 'icoon' => 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6',
                 'intro' => 'De gegevens van je bedrijf en je huisstijl. Ze worden op de hele website gebruikt, bijvoorbeeld in de header en de footer.'],
-            'acf-options-geavanceerd'          => ['label' => 'Geavanceerd',          'acf' => true,
+            'acf-options-geavanceerd'          => ['label' => 'Geavanceerd',          'acf' => true, 'cap' => 'unfiltered_html', 'icoon' => 'M16 18l6-6-6-6M8 6l-6 6 6 6',
                 'intro' => 'Code voor tracking en externe diensten, en de instellingen van de editor.',
                 'note'  => '<strong>Let op:</strong> een fout in deze code kan de hele website breken. Twijfel je, vraag het dan aan Mediakanjers.'],
-            'acf-options-meldingen'            => ['label' => 'Meldingen',            'acf' => true,
+            'acf-options-meldingen'            => ['label' => 'Meldingen',            'acf' => true, 'icoon' => 'M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM16 9a3 3 0 0 1 0 6M19 6a7 7 0 0 1 0 12',
                 'intro' => 'Toon een balk boven- of onderaan de website, voor een actie, gewijzigde openingstijden of een storing. Plan ze vooraf in en kies per melding waar hij verschijnt.'],
-            'acf-options-404'                  => ['label' => '404',                  'acf' => true,
+            'acf-options-404'                  => ['label' => '404',                  'acf' => true, 'icoon' => 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9.5 12.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 19h.01',
                 'intro' => 'Wat een bezoeker ziet als een pagina niet bestaat. Een vriendelijke tekst en een duidelijke weg terug houden bezoekers op je website.'],
-            'mkbase-changelog'                 => ['label' => 'Changelog',            'acf' => false,
+            // 'hulp': geen instelling van de website, maar naslag en hulp; staat los, rechts in de MK-balk
+            'mkbase-changelog'                 => ['label' => 'Changelog',            'acf' => false, 'hulp' => true, 'icoon' => 'M12 8v4l3 2M3.05 11a9 9 0 1 1 .5 4M3 4v5h5',
                 'intro' => 'Alles wat er per versie van het MKBase-thema is veranderd.'],
-            'mkbase-docs'                      => ['label' => 'Documentatie',         'acf' => false],
-            'mkbase-diagnose'                  => ['label' => 'Diagnose',             'acf' => false,
+            'mkbase-docs'                      => ['label' => 'Documentatie',         'acf' => false, 'hulp' => true, 'icoon' => 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'],
+            'mkbase-diagnose'                  => ['label' => 'Diagnose',             'acf' => false, 'cap' => 'manage_options', 'hulp' => true, 'icoon' => 'M22 12h-4l-3 9L9 3l-3 9H2',
                 'intro' => 'Controleert omgeving, performance, server en het thema. Bevindingen staan ook in de PHP-errorlog, zodat je ze ziet als de admin niet bereikbaar is.'],
         ];
+        // Openingstijden direct na Meldingen (sinds 1.7.0)
+        if (function_exists('mkbase_ot_actief') && mkbase_ot_actief()) {
+            $pos   = array_search('acf-options-meldingen', array_keys($pages), true) + 1;
+            $pages = array_slice($pages, 0, $pos, true)
+                + ['acf-options-openingstijden' => ['label' => 'Openingstijden', 'acf' => true, 'icoon' => 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6v6l4 2',
+                    'intro' => 'Vul hier één keer de openingstijden in. Het blok Openingstijden en Google gebruiken ze vanzelf. Feestdagen en afwijkende dagen verschijnen op de website zodra ze dichtbij komen.']]
+                + array_slice($pages, $pos, null, true);
+        }
+        return $pages;
     }
 
     // Slug van de huidige MK-pagina, of null buiten de MK-pagina's
@@ -147,10 +158,28 @@
                     <div class="mk-notices-panel__list"></div>
                 </div>
             </div>
+            <?php
+            // Twee groepen: links de instellingen van de website, rechts naslag en hulp (Changelog,
+            // Documentatie, Diagnose), los ervan met een scheidingslijn. Elk tabblad heeft een icoon.
+            $groepen = ['instellingen' => [], 'hulp' => []];
+            foreach ($pages as $slug => $page) {
+                if (!empty($page['cap']) && !current_user_can($page['cap'])) continue;
+                $groepen[empty($page['hulp']) ? 'instellingen' : 'hulp'][$slug] = $page;
+            }
+            $tab = function ($slug, $page) use ($current) {
+                $icoon = empty($page['icoon']) ? '' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' . esc_attr($page['icoon']) . '"/></svg>';
+                printf('<a href="%s"%s>%s%s</a>', esc_url(admin_url('admin.php?page=' . $slug)), $slug === $current ? ' aria-current="page"' : '', $icoon, esc_html($page['label']));
+            };
+            ?>
             <nav class="mk-bar__tabs" aria-label="Mediakanjers">
-                <?php foreach ($pages as $slug => $page): ?>
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . $slug)); ?>"<?php echo $slug === $current ? ' aria-current="page"' : ''; ?>><?php echo esc_html($page['label']); ?></a>
-                <?php endforeach; ?>
+                <div class="mk-bar__tabgroep" role="group" aria-label="Instellingen van de website">
+                    <?php foreach ($groepen['instellingen'] as $slug => $page) $tab($slug, $page); ?>
+                </div>
+                <?php if ($groepen['hulp']): ?>
+                    <div class="mk-bar__tabgroep mk-bar__tabgroep--hulp" role="group" aria-label="Hulp en informatie">
+                        <?php foreach ($groepen['hulp'] as $slug => $page) $tab($slug, $page); ?>
+                    </div>
+                <?php endif; ?>
             </nav>
         </div>
         <?php

@@ -103,7 +103,7 @@
                 $notice = htmlspecialchars(substr($raw, 2), ENT_QUOTES, 'UTF-8');
                 $notice = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $notice);
                 $notice = preg_replace('/`(.+?)`/', '<code>$1</code>', $notice);
-                $html .= '<div class="mkbase-notice"><span class="dashicons dashicons-warning"></span>' . $notice . '</div>';
+                $html .= '<div class="mkbase-notice"><span class="dashicons dashicons-warning"></span><span>' . $notice . '</span></div>';
             } elseif (trim($raw) === '') {
                 if ($in_list) { $html .= '</ul>'; $in_list = false; }
             } else {
@@ -270,7 +270,7 @@
                 $notice = htmlspecialchars(substr($raw, 2), ENT_QUOTES, 'UTF-8');
                 $notice = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $notice);
                 $notice = preg_replace('/`(.+?)`/', '<code>$1</code>', $notice);
-                $html .= '<div class="mkbase-notice"><span class="dashicons dashicons-warning"></span>' . $notice . '</div>';
+                $html .= '<div class="mkbase-notice"><span class="dashicons dashicons-warning"></span><span>' . $notice . '</span></div>';
 
             } elseif (trim($raw) === '') {
                 if ($in_list) { $html .= '</ul>'; $in_list = false; }

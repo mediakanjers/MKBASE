@@ -28,16 +28,27 @@
         $voorbeeld = !empty($melding['mk_voorbeeld']);
         $tonen     = $voorbeeld ? 'direct' : ($melding['melding_tonen'] ?? 'direct');
 
+        // Opmaak (sinds 1.7.0): uitlijning, tekstgrootte, ruimte en de plek van de knop
+        $kies = function ($naam, $mag, $standaard) use ($melding) {
+            $w = $melding[$naam] ?? '';
+            return in_array($w, $mag, true) ? $w : $standaard;
+        };
+        $opmaak = ' mk-notification--uitlijnen-' . $kies('melding_uitlijning', ['auto', 'links', 'midden'], 'auto')
+            . ' mk-notification--tekst-' . $kies('melding_tekstgrootte', ['klein', 'normaal', 'groot'], 'normaal')
+            . ' mk-notification--ruimte-' . $kies('melding_ruimte', ['compact', 'normaal', 'ruim'], 'normaal')
+            . ($vorm === 'balk' && $kies('melding_knop_plek', ['naast', 'onder'], 'naast') === 'onder' ? ' mk-notification--knop-onder' : '');
+        $knop_stijl = $kies('melding_knop_stijl', ['omlijnd', 'gevuld'], 'omlijnd');
+
         $attr = [
-            'class'      => 'mk-notification mk-notification--' . $stijl . ' mk-notification--' . $vorm,
+            'class'      => 'mk-notification mk-notification--' . $stijl . ' mk-notification--' . $vorm . $opmaak,
             'aria-label' => __('Melding', 'mk'),
             'data-id'    => mkbase_notification_id($melding) . ($voorbeeld ? '-voorbeeld' : ''),
             'style'      => '--mk-notification-bg: ' . $bg . '; --mk-notification-color: ' . $color . ';',
         ];
         if ($tag === 'div') $attr['role'] = 'region';
         if ($sluitbaar) {
-            $attr['data-opnieuw'] = $melding['melding_opnieuw'] ?: 'sessie';
-            $attr['data-dagen']   = (int) ($melding['melding_dagen'] ?: 7);
+            $attr['data-opnieuw'] = ($melding['melding_opnieuw'] ?? '') ?: 'sessie';
+            $attr['data-dagen']   = (int) (($melding['melding_dagen'] ?? 0) ?: 7);
         }
         if ($tonen === 'tijd')   $attr['data-tonen-sec'] = max(1, (int) ($melding['melding_tonen_sec'] ?: 10));
         if ($tonen === 'scroll') $attr['data-tonen-px']  = max(1, (int) ($melding['melding_tonen_px'] ?: 600));
@@ -52,16 +63,22 @@
             <div class="mk-notification__inner">
                 <div class="mk-notification__inner__txt"><?php echo wp_kses_post($melding['melding_tekst']); ?></div>
 
+                <?php // Openingstijden in de melding (sinds 1.7.0, inc/openingstijden/meldingen.php)
+                if (!empty($melding['melding_ot']) && function_exists('mkbase_ot_melding_html')): ?>
+                    <div class="mk-notification__openingstijden"><?php echo mkbase_ot_melding_html($melding); ?></div>
+                <?php endif; ?>
+
                 <?php if (!empty($knop['url'])):
                     $target = $knop['target'] ?: '_self';
                 ?>
-                    <a class="mk-notification__button" href="<?php echo esc_url($knop['url']); ?>" target="<?php echo esc_attr($target); ?>"<?php echo $target === '_blank' ? ' rel="noopener noreferrer"' : ''; ?>>
+                    <a class="mk-notification__button mk-notification__button--<?php echo esc_attr($knop_stijl); ?>" href="<?php echo esc_url($knop['url']); ?>" target="<?php echo esc_attr($target); ?>"<?php echo $target === '_blank' ? ' rel="noopener noreferrer"' : ''; ?>>
                         <?php echo esc_html($knop['title'] ?: __('Lees meer', 'mk')); ?>
                     </a>
                 <?php endif; ?>
 
                 <?php if ($kruisje): ?>
-                    <button type="button" class="mk-notification__close mk-notification__inner__closex" aria-label="<?php esc_attr_e('Melding sluiten', 'mk'); ?>">
+                    <?php // Pop-up: de focus start op het kruisje (rechtsboven), zodat een lange pop-up bovenaan opent ?>
+                    <button type="button" class="mk-notification__close mk-notification__inner__closex" aria-label="<?php esc_attr_e('Melding sluiten', 'mk'); ?>"<?php echo $vorm === 'popup' ? ' autofocus' : ''; ?>>
                         <span class="mk-notification__inner__closex__lineone" aria-hidden="true"></span>
                         <span class="mk-notification__inner__closex__linetwo" aria-hidden="true"></span>
                     </button>

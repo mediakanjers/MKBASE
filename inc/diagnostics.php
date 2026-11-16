@@ -127,6 +127,20 @@
             }
         }
 
+        // Openingstijden (sinds 1.7.0)
+        if (function_exists('mkbase_ot_actief') && mkbase_ot_actief() && mkbase_ot_ingevuld()) {
+            foreach (mkbase_ot_roosters() as $rooster) {
+                $open = array_filter($rooster['week'], function ($d) { return $d['status'] !== 'gesloten'; });
+                if (!$open) mkbase_report_issue('Openingstijden: rooster "' . esc_html($rooster['naam']) . '" is elke dag gesloten. Klopt dat? (Mediakanjers → Openingstijden → Vaste week)', 'info', false);
+            }
+            if ($advies = mkbase_ot_tijdzone_advies()) {
+                mkbase_report_issue('Openingstijden: ' . esc_html($advies['kop'] . ' ' . $advies['tekst']), $advies['ernst'] === 'fout' ? 'warning' : 'info', false);
+            }
+            if (!wp_next_scheduled('mkbase_ot_dagelijks')) {
+                mkbase_report_issue('Openingstijden: de nachtelijke controle is niet ingepland. Feestdagen en afwijkingen verschijnen dan pas na opslaan of na het legen van de cache. Controleer of WP-Cron werkt.', 'warning', false);
+            }
+        }
+
         foreach (mkbase_core_field_group_copies() as $kopie) {
             $waar = $kopie['where'] === 'database'
                 ? 'in de database (verwijder hem bij ACF → Veldgroepen)'

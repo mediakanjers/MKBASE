@@ -17,16 +17,20 @@
         ];
     }
 
+    // De meldingen zoals ze gelden: een melding die een feestdag of afwijking volgt, krijgt haar planning
+    // en tekst uit Openingstijden (inc/openingstijden/meldingen.php)
     function mkbase_get_notifications() {
         if (!function_exists('get_field')) return [];
         $rows = get_field('meldingen', 'option');
-        return is_array($rows) ? $rows : [];
+        if (!is_array($rows)) return [];
+        return function_exists('mkbase_ot_melding_effectief') ? array_map('mkbase_ot_melding_effectief', $rows) : $rows;
     }
 
-    // 'uit' | 'leeg' | 'gepland' | 'verlopen' | 'live'
+    // 'uit' | 'leeg' | 'ontkoppeld' | 'gepland' | 'verlopen' | 'live'
     function mkbase_notification_status($row, $now = null) {
         if (empty($row['melding_actief'])) return 'uit';
-        if (trim(wp_strip_all_tags($row['melding_tekst'] ?? '')) === '' && empty($row['melding_knop']['url'])) return 'leeg';
+        if (!empty($row['mk_ontkoppeld'])) return 'ontkoppeld';
+        if (trim(wp_strip_all_tags($row['melding_tekst'] ?? '')) === '' && empty($row['melding_knop']['url']) && empty($row['melding_ot'])) return 'leeg';
 
         if (!empty($row['melding_planning'])) {
             $now = $now ?? current_time('mysql'); // Tijdzone van WordPress, zelfde notatie als de velden
@@ -103,12 +107,15 @@
             'melding_actief' => 'field_mk_melding_actief', 'melding_naam' => 'field_mk_melding_naam',
             'melding_positie' => 'field_mk_melding_positie', 'melding_blok_plek' => 'field_mk_melding_blok_plek',
             'melding_planning' => 'field_mk_melding_planning', 'melding_start' => 'field_mk_melding_start', 'melding_eind' => 'field_mk_melding_eind',
+            'melding_ot_koppelen' => 'field_mk_melding_ot_koppelen', 'melding_ot_bron' => 'field_mk_melding_ot_bron', 'melding_ot_vooraf' => 'field_mk_melding_ot_vooraf',
         ];
         $rows = [];
         foreach ($value as $raw) {
             if (!is_array($raw)) continue;
             $row = [];
             foreach ($k as $name => $key) $row[$name] = $raw[$key] ?? '';
+            // Datumvelden komen binnen als 'Y-m-d H:i:s'; een gekoppelde melding krijgt haar periode uit Openingstijden
+            if (function_exists('mkbase_ot_melding_effectief')) $row = mkbase_ot_melding_effectief($row);
             if (empty($row['melding_actief']) || !mkbase_notification_slot($row)) continue;
             foreach ($rows as $other) {
                 if (mkbase_notification_slot($other) === mkbase_notification_slot($row) && mkbase_notifications_overlap($other, $row)) {
@@ -141,7 +148,9 @@
         }
 
         $bezet = []; // vangnet: per plek alleen de eerste (opslaan houdt dubbele al tegen)
-        foreach (mkbase_get_notifications() as $row) {
+        // Automatische meldingen uit Openingstijden komen na de eigen meldingen
+        $auto = function_exists('mkbase_ot_auto_meldingen') ? mkbase_ot_auto_meldingen() : [];
+        foreach (array_merge(mkbase_get_notifications(), $auto) as $row) {
             if (mkbase_notification_status($row) !== 'live' || !mkbase_notification_on_this_page($row)) continue;
             $slot = mkbase_notification_slot($row);
             if ($slot && isset($bezet[$slot])) continue;
@@ -201,6 +210,7 @@
             'verlopen' => 'Verlopen',
             'uit'      => 'Staat uit',
             'leeg'     => 'Nog zonder tekst',
+            'ontkoppeld' => 'Niet gekoppeld, staat niet op de website',
         ];
         ?>
         <div class="mk-voorbeeldbalk" role="region" aria-label="Voorbeeld van een melding">
@@ -279,7 +289,9 @@
 
     // Eenvoudige werkbalk voor de meldingtekst: een melding is één zin, geen opgemaakt artikel
     add_filter('acf/fields/wysiwyg/toolbars', function ($toolbars) {
-        $toolbars['mk_melding'] = [1 => ['bold', 'italic', 'link', 'unlink']];
+        // Tekst van een melding: koppen (alleen H2 t/m H4, zie admin-notifications.js), vet, cursief,
+        // onderstrepen, lijsten, uitlijnen, link en opmaak wissen (bijv. na plakken uit Word)
+        $toolbars['mk_melding'] = [1 => ['formatselect', 'bold', 'italic', 'underline', 'bullist', 'numlist', 'alignleft', 'aligncenter', 'alignright', 'link', 'unlink', 'removeformat']];
         // Tekst in het Kolommen-blok: alleen wat een klant nodig heeft
         $toolbars['mk_tekst'] = [1 => ['bold', 'italic', 'bullist', 'numlist', 'link', 'unlink']];
         return $toolbars;
@@ -299,12 +311,13 @@
             'verlopen' => 'Verlopen',
             'uit'      => 'Uit',
             'leeg'     => 'Geen tekst',
+            'ontkoppeld' => 'Niet gekoppeld',
         ][$status] ?? $status;
     }
 
     // Statuslabels naast de paginatitel. Het script werkt de aantallen bij terwijl je wijzigt.
     function mkbase_notifications_overview() {
-        $counts = array_fill_keys(['live', 'gepland', 'verlopen', 'uit', 'leeg'], 0);
+        $counts = array_fill_keys(['live', 'gepland', 'verlopen', 'uit', 'leeg', 'ontkoppeld'], 0);
         foreach (mkbase_get_notifications() as $row) $counts[mkbase_notification_status($row)]++;
 
         $html = '<div class="mk-stats" aria-label="Status van de meldingen">';
@@ -316,6 +329,24 @@
 
         if ($counts['leeg']) {
             $html .= '<p class="mk-stats__hint">' . (int) $counts['leeg'] . ' melding(en) staan aan maar hebben nog geen tekst of knop, en worden daarom niet getoond.</p>';
+        }
+        if ($counts['ontkoppeld']) {
+            $html .= '<p class="mk-stats__hint">' . (int) $counts['ontkoppeld'] . ' melding(en) volgen een feestdag of afwijking die niet meer bestaat, en worden daarom niet getoond.</p>';
+        }
+
+        // Automatische meldingen uit Openingstijden: alleen om te bekijken; aanpassen bij Openingstijden
+        $auto = function_exists('mkbase_ot_auto_meldingen') ? mkbase_ot_auto_meldingen() : [];
+        if ($auto) {
+            $html .= '<section class="mk-auto-meldingen"><div class="mk-auto-meldingen__kop"><strong>Vanuit Openingstijden</strong>'
+                . '<span>Automatische meldingen bij feestdagen en afwijkingen. Aanpassen of uitzetten doe je bij <a href="' . esc_url(admin_url('admin.php?page=acf-options-openingstijden#afwijkend')) . '">Openingstijden</a>.</span></div><ul>';
+            foreach ($auto as $row) {
+                $status = mkbase_notification_status($row);
+                $html .= '<li><span class="mk-pill mk-pill--' . esc_attr($status) . '">' . esc_html(mkbase_notification_status_label($status)) . '</span>'
+                    . '<strong>' . esc_html($row['melding_naam']) . '</strong>'
+                    . '<span class="mk-auto-meldingen__wanneer">' . esc_html(mysql2date('j M', $row['melding_start']) . ' – ' . mysql2date('j M Y', $row['melding_eind'])) . '</span>'
+                    . '<span class="mk-auto-meldingen__tekst">' . esc_html(wp_strip_all_tags($row['melding_tekst'])) . '</span></li>';
+            }
+            $html .= '</ul></section>';
         }
         return $html;
     }

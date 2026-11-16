@@ -855,6 +855,58 @@
 .acf-block-form-modal .mk-overruled .mk-overruled-note { display: block; }
 .acf-block-form-modal .mk-overruled .acf-input { pointer-events: none; }
 
+/* ── Groepen in het bewerkvenster (bijv. Openingstijden: Wat toon je · Indeling · Onderdelen) ──
+   Een kopje is een message-veld met class mk-bv-groepkop; zie inc/openingstijden/fields.php. */
+.acf-block-form-modal .acf-field.mk-bv-groepkop {
+    clear: both;
+    width: 100% !important;
+    padding: 18px 16px 2px !important; /* zelfde inspringing als de velden eronder */
+    border-top: 1px solid #E3E8EF;
+    background: transparent !important;
+}
+.acf-block-form-modal .acf-fields > .acf-field.mk-bv-groepkop:first-child { padding-top: 4px !important; border-top: 0; }
+.acf-block-form-modal .mk-bv-groepkop > .acf-label { display: none; }
+.acf-block-form-modal .mk-bv-groepkop__tekst { color: #56667A; font: 800 11px/1.3 'Inter', sans-serif; letter-spacing: 0.4px; text-transform: uppercase; }
+
+/* Schakelaars als compacte lijst, twee naast elkaar: schakelaar links, label rechts, geen "Yes" */
+.acf-block-form-modal .acf-field.mk-bv-schakel {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    min-height: 0;
+    padding: 8px 12px 8px 16px !important; /* zelfde inspringing als de andere velden */
+}
+.acf-block-form-modal .acf-field.mk-bv-schakel.acf-hidden { display: none !important; }
+.acf-block-form-modal .mk-bv-schakel > .acf-input { order: -1; flex: none; }
+.acf-block-form-modal .mk-bv-schakel > .acf-label { flex: 1; min-width: 0; margin: 0 !important; }
+.acf-block-form-modal .mk-bv-schakel > .acf-label label { margin: 0; font-weight: 600; font-size: 13px; }
+.acf-block-form-modal .mk-bv-schakel > .acf-label .description { display: none; }
+.acf-block-form-modal .mk-bv-schakel .acf-switch { min-width: 0; width: 38px; height: 22px; padding: 0; border-radius: 999px; }
+.acf-block-form-modal .mk-bv-schakel .acf-switch .acf-switch-on,
+.acf-block-form-modal .mk-bv-schakel .acf-switch .acf-switch-off { visibility: hidden; padding: 0; min-width: 0; width: 0; }
+.acf-block-form-modal .mk-bv-schakel .acf-switch .acf-switch-slider { top: 2px; bottom: 2px; left: 2px; right: 18px; width: auto; border-radius: 999px; }
+.acf-block-form-modal .mk-bv-schakel .acf-switch.-on .acf-switch-slider { left: 18px; right: 2px; }
+
+/* Velden die (nog) niet van toepassing zijn, bijv. "Meerdere roosters" bij één rooster (editor-blocks.js) */
+.acf-block-form-modal .acf-field.mk-bv-niet-nodig { display: none !important; }
+
+/* Stijl (Kaart / Plat / Donker) als knoppen in het venster (editor-blocks.js) */
+.acf-block-form-modal .mk-bv-stijl .mk-bv-stijl__keuzes { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Zelfde look als de knoppengroepen hierboven (.acf-button-group) */
+.acf-block-form-modal .mk-bv-stijl__keuze {
+    padding: 7px 12px;
+    border: 1px solid var(--mk-border, #CFD8E3);
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: inherit;
+    font: 600 12.5px/1.2 inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.acf-block-form-modal .mk-bv-stijl__keuze:hover { border-color: var(--mk-accent-1, #0B6FB8); background: var(--mk-accent-soft, #E7F1FB); color: var(--mk-accent-1, #0B6FB8); }
+.acf-block-form-modal .mk-bv-stijl__keuze[aria-pressed="true"] { border-color: transparent; background: linear-gradient(135deg, var(--mk-accent-1, #0B6FB8), var(--mk-accent-2, #0B6FB8)); color: #FFFFFF; box-shadow: 0 2px 8px rgba(11, 111, 184, 0.35); }
+.acf-block-form-modal .mk-bv-stijl__keuze:focus-visible { outline: 2px solid #0B6FB8; outline-offset: 2px; }
+
 /* ── Meldingen in de blok-preview (mkbase_block_notice()) ────
    Alleen in de editor: bijv. een leeg blok of een verkeerd aantal kolommen. */
 .acf-block-preview .mk-block-notice {

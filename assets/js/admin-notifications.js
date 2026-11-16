@@ -35,7 +35,9 @@
         view: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
         chevron: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
         bell: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
-        plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'
+        plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+        link: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>',
+        klok: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
     };
 
     function esc(text) {
@@ -56,6 +58,38 @@
         return field.val();
     }
 
+    // Koppen in de tekst van een melding: alleen H2 t/m H4 (de H1 is de titel van de pagina), met
+    // namen die een klant begrijpt. De werkbalk zelf staat in inc/notifications.php (mk_melding).
+    // (ACF geeft het veld hier niet altijd mee; het id van het tekstvak wel)
+    acf.add_filter('wysiwyg_tinymce_settings', function (init, id) {
+        var ta = id && document.getElementById(id);
+        if (ta && ta.closest('[data-key="field_mk_melding_tekst"]')) {
+            init.block_formats = 'Gewone tekst=p;Kop groot=h2;Kop middel=h3;Kop klein=h4';
+            init.content_style = (init.content_style || '') +
+                'h2,h3,h4{margin:0 0 6px;line-height:1.25}h2{font-size:20px}h3{font-size:17px}h4{font-size:15px}ul,ol{margin:0 0 8px;padding-left:20px}';
+        }
+        return init;
+    });
+
+    // Platte tekst uit HTML, zonder dat de browser iets uitvoert (DOMParser laadt geen afbeeldingen of scripts)
+    function alsTekst(html) {
+        var body = new DOMParser().parseFromString(String(html || ''), 'text/html').body;
+        body.querySelectorAll('p, br, div, li').forEach(function (n) { n.after(' '); }); // "zijn.Wij" → "zijn. Wij"
+        return (body.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    // De tekst voor het voorbeeld, net als op de website (wp_kses_post): zonder scripts, frames en on…-attributen
+    function veiligeHtml(html) {
+        var body = new DOMParser().parseFromString(String(html || ''), 'text/html').body;
+        body.querySelectorAll('script, style, iframe, object, embed, form, input, textarea, button, link, meta').forEach(function (n) { n.remove(); });
+        body.querySelectorAll('*').forEach(function (n) {
+            Array.prototype.slice.call(n.attributes).forEach(function (a) {
+                if (/^on/i.test(a.name) || (/^(href|src|xlink:href|action|formaction)$/i.test(a.name) && /^\s*(javascript|data|vbscript):/i.test(a.value))) n.removeAttribute(a.name);
+            });
+        });
+        return body.innerHTML;
+    }
+
     function aan(v) { return v === true || v === 1 || v === '1'; }
 
     // 'Y-m-d H:i:s' → '20 dec 08:00'
@@ -68,19 +102,48 @@
         return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) : null;
     }
 
+    // ── Koppeling met Openingstijden (inc/openingstijden/meldingen.php) ──
+    var OT = window.mkOtMeldingen || null;
+    function plusDagen(ymd, n) {
+        var p = ymd.split('-'), d = new Date(+p[0], +p[1] - 1, +p[2] + n);
+        return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    }
+    // Zelfde als mkbase_ot_bron_periode() en mkbase_ot_vul_in() in PHP
+    function otPeriode(bron, vooraf) {
+        var v = vooraf === '' || vooraf == null ? OT.vooruit : Math.max(0, parseInt(vooraf, 10) || 0);
+        return { start: plusDagen(bron.van, -v) + ' 00:00:00', eind: bron.tot + ' 23:59:59' };
+    }
+    function otVulIn(tekst, bron) {
+        Object.keys(bron.invullers).forEach(function (k) { tekst = tekst.split(k).join(esc(bron.invullers[k])); });
+        return tekst.replace(/ {2,}/g, ' ').replace(/ ([.,!?])/g, '$1').replace(/\(\)/g, '');
+    }
+
     function rij($row) {
         var tekst = waarde($row, 'field_mk_melding_tekst') || '';
+        var koppelen = !!OT && aan(waarde($row, 'field_mk_melding_ot_koppelen'));
+        var bronKey = koppelen ? waarde($row, 'field_mk_melding_ot_bron') : '';
+        var bron = koppelen && bronKey && OT.bronnen[bronKey] ? OT.bronnen[bronKey] : null;
+        var periode = bron ? otPeriode(bron, waarde($row, 'field_mk_melding_ot_vooraf')) : null;
+        if (bron) tekst = otVulIn(tekst, bron);
+        var otAan = !!OT && aan(waarde($row, 'field_mk_melding_ot'));
         var knop = waarde($row, 'field_mk_melding_knop') || {};
         var stijl = waarde($row, 'field_mk_melding_stijl') || 'info';
         return {
             naam: waarde($row, 'field_mk_melding_naam'),
             tekst: tekst,
-            tekstLeeg: $('<div>').html(tekst).text().trim() === '',
+            tekstLeeg: alsTekst(tekst).trim() === '' && !otAan,
             knop: typeof knop === 'object' && knop ? knop : {},
             actief: aan(waarde($row, 'field_mk_melding_actief')),
-            planning: aan(waarde($row, 'field_mk_melding_planning')),
-            start: waarde($row, 'field_mk_melding_start'),
-            eind: waarde($row, 'field_mk_melding_eind'),
+            planning: periode ? true : aan(waarde($row, 'field_mk_melding_planning')),
+            start: periode ? periode.start : waarde($row, 'field_mk_melding_start'),
+            eind: periode ? periode.eind : waarde($row, 'field_mk_melding_eind'),
+            koppelen: koppelen,
+            bron: bron,
+            ontkoppeld: koppelen && !bron,
+            ot: otAan,
+            otWeergave: otAan ? (waarde($row, 'field_mk_melding_ot_weergave') || 'week') : '',
+            otStatus: otAan && aan(waarde($row, 'field_mk_melding_ot_status')),
+            otRoosters: otAan ? [].concat(waarde($row, 'field_mk_melding_ot_roosters') || []) : [],
             stijl: stijl,
             kleur: config.styles[stijl] || [waarde($row, 'field_mk_melding_achtergrond') || '#ff0000', waarde($row, 'field_mk_melding_tekstkleur') || '#ffffff'],
             positie: waarde($row, 'field_mk_melding_positie') || 'boven',
@@ -92,7 +155,13 @@
             tonenPx: parseInt(waarde($row, 'field_mk_melding_tonen_px'), 10) || 600,
             auto: aan(waarde($row, 'field_mk_melding_auto')),
             autoSec: parseInt(waarde($row, 'field_mk_melding_auto_sec'), 10) || 8,
-            sluitbaar: aan(waarde($row, 'field_mk_melding_sluitbaar'))
+            sluitbaar: aan(waarde($row, 'field_mk_melding_sluitbaar')),
+            // Opmaak (sinds 1.7.0)
+            uitlijning: waarde($row, 'field_mk_melding_uitlijning') || 'auto',
+            tekstgrootte: waarde($row, 'field_mk_melding_tekstgrootte') || 'normaal',
+            ruimte: waarde($row, 'field_mk_melding_ruimte') || 'normaal',
+            knopStijl: waarde($row, 'field_mk_melding_knop_stijl') || 'omlijnd',
+            knopPlek: waarde($row, 'field_mk_melding_knop_plek') || 'naast'
         };
     }
 
@@ -137,6 +206,7 @@
     // Zelfde logica als mkbase_notification_status() in PHP
     function status(r) {
         if (!r.actief) return 'uit';
+        if (r.ontkoppeld) return 'ontkoppeld';
         if (r.tekstLeeg && !r.knop.url) return 'leeg';
         if (r.planning) {
             if (r.start && config.now < r.start) return 'gepland';
@@ -144,9 +214,10 @@
         }
         return 'live';
     }
-    var LABEL = { live: 'Live', gepland: 'Gepland', verlopen: 'Verlopen', uit: 'Uit', leeg: 'Geen tekst' };
+    var LABEL = { live: 'Live', gepland: 'Gepland', verlopen: 'Verlopen', uit: 'Uit', leeg: 'Geen tekst', ontkoppeld: 'Niet gekoppeld' };
 
     function planningTekst(r) {
+        if (r.koppelen) return r.bron ? 'volgt ' + r.bron.naam + ': ' + kortDatum(r.start).replace(/ \d\d:\d\d$/, '') + ' – ' + kortDatum(r.eind).replace(/ \d\d:\d\d$/, '') : 'volgt nog niets';
         if (!r.planning || (!r.start && !r.eind)) return 'altijd zichtbaar';
         if (r.start && r.eind) return kortDatum(r.start) + ' – ' + kortDatum(r.eind);
         return r.start ? 'vanaf ' + kortDatum(r.start) : 'tot ' + kortDatum(r.eind);
@@ -187,6 +258,14 @@
         var gedrag = gedragTekst(r);
         $head.find('.mk-mhead__meta').text(plaatsTekst(r) + ' · ' + planningTekst(r) + (gedrag ? ' · ' + gedrag : ''));
         $head.find('.mk-mhead__status').attr('class', 'mk-pill mk-pill--' + s + ' mk-mhead__status').text(LABEL[s]);
+        // "Gekoppeld aan Openingstijden" naast de naam
+        var $kp = $head.find('.mk-mhead__koppeling');
+        if (r.koppelen && r.bron) {
+            if (!$kp.length) $kp = $('<span class="mk-mhead__koppeling"></span>').insertAfter($head.find('.mk-mhead__title'));
+            $kp.html(ICON.link + 'Gekoppeld aan Openingstijden');
+        } else {
+            $kp.remove();
+        }
         $head.find('.mk-mhead__switch').attr('aria-pressed', r.actief ? 'true' : 'false');
         $head.find('[data-act="toggle"]').attr('aria-expanded', open ? 'true' : 'false');
         $head.find('.mk-mhead__chevron').attr('aria-label', open ? 'Inklappen' : 'Uitklappen');
@@ -211,10 +290,13 @@
         var vorm = r.positie === 'popup' ? 'popup' : r.positie === 'blok' ? 'blok' : 'balk';
         // Pop-up is altijd te sluiten (zie de template); blok en balk alleen als "Sluitbaar" aan staat
         var kruisje = r.sluitbaar || vorm === 'popup';
-        var bar = '<div class="mk-pv__bar mk-pv__bar--' + vorm + '" style="background:' + esc(r.kleur[0]) + ';color:' + esc(r.kleur[1]) +
+        var opmaak = ' mk-pv__bar--uitlijnen-' + esc(r.uitlijning) + ' mk-pv__bar--tekst-' + esc(r.tekstgrootte) + ' mk-pv__bar--ruimte-' + esc(r.ruimte)
+            + (vorm === 'balk' && r.knop.url && r.knopPlek === 'onder' ? ' mk-pv__bar--knop-onder' : '');
+        var bar = '<div class="mk-pv__bar mk-pv__bar--' + vorm + opmaak + (r.ot ? ' mk-pv__bar--ot' : '') + '" style="background:' + esc(r.kleur[0]) + ';color:' + esc(r.kleur[1]) + ';--mk-pv-bg:' + esc(r.kleur[0]) + ';--mk-pv-fg:' + esc(r.kleur[1]) +
                 (vorm === 'blok' ? ';width:' + Math.round(Math.min(r.breedte, 640) / 1280 * 100 * 1.6) + '%' : '') + '">'
-            + '<span class="mk-pv__txt">' + (r.tekstLeeg ? '<em>Nog geen tekst</em>' : r.tekst) + '</span>'
-            + (r.knop.url ? '<span class="mk-pv__btn">' + esc(r.knop.title || 'Lees meer') + '</span>' : '')
+            + '<span class="mk-pv__txt">' + (r.tekstLeeg ? '<em>Nog geen tekst</em>' : veiligeHtml(r.tekst))
+            + (r.ot ? otVoorbeeld($row, r) : '') + '</span>'
+            + (r.knop.url ? '<span class="mk-pv__btn mk-pv__btn--' + esc(r.knopStijl) + '">' + esc(r.knop.title || 'Lees meer') + '</span>' : '')
             + (kruisje ? '<span class="mk-pv__close" aria-hidden="true">×</span>' : '')
             + (r.auto ? '<span class="mk-pv__timer" aria-hidden="true"></span>' : '')
             + '</div>';
@@ -240,12 +322,73 @@
         );
     }
 
-    // ── Planning: tijdlijn onder de datums ───────────────────
+    // De echte openingstijden in het voorbeeld: dezelfde HTML als op de website (één keer per keuze opgehaald)
+    var otCache = {}, otBezig = {};
+    function otVoorbeeld($row, r) {
+        var sleutel = r.otRoosters.slice().sort().join(',') + '|' + r.otWeergave + '|' + (r.otStatus ? 1 : 0);
+        if (otCache[sleutel] != null) return '<span class="mk-pv__ot-html">' + otCache[sleutel] + '</span>';
+        if (!otBezig[sleutel] && OT.ajax) {
+            otBezig[sleutel] = true;
+            var data = new FormData();
+            data.append('action', 'mkbase_ot_voorbeeld');
+            data.append('_ajax_nonce', OT.nonce);
+            r.otRoosters.forEach(function (id) { data.append('roosters[]', id); });
+            data.append('weergave', r.otWeergave);
+            if (r.otStatus) data.append('status', '1');
+            fetch(OT.ajax, { method: 'POST', body: data, credentials: 'same-origin' })
+                .then(function (res) { return res.json(); })
+                .then(function (j) {
+                    otCache[sleutel] = j && j.success ? j.data.html : '';
+                    renderAll();
+                    if (window.mkOtBijwerken) window.mkOtBijwerken();
+                })
+                .catch(function () { otCache[sleutel] = ''; });
+        }
+        return '<span class="mk-pv__ot">' + ICON.klok + esc(otLabel(r)) + '</span>';
+    }
+
+    // "Openingstijden: week · Winkel en Werkplaats" (zolang het echte voorbeeld nog laadt)
+    function otLabel(r) {
+        var namen = (r.otRoosters.length ? r.otRoosters : Object.keys(OT.roosters).slice(0, 1)).map(function (id) { return OT.roosters[id] || id; });
+        var w = { week: 'week', vandaag: 'vandaag', status: 'nu open', afwijkingen: 'afwijkingen' }[r.otWeergave] || r.otWeergave;
+        return 'Openingstijden (' + w + ') · ' + namen.join(' en ');
+    }
+
+    // ── Planning: tijdlijn onder de datums (of bij "Volgens openingstijden" onder de keuze) ──
     function renderTimeline($row, r) {
-        var $eind = $row.find('[data-key="field_mk_melding_eind"]').first();
-        if (!$eind.length) return;
-        var $tl = $eind.children('.mk-timeline');
-        if (!$tl.length) $tl = $('<div class="mk-timeline" aria-live="polite"></div>').appendTo($eind);
+        var $plek = r.koppelen ? $row.find('[data-mk-melding-tijdlijn]').first() : $row.find('[data-key="field_mk_melding_eind"]').first();
+        $row.find('[data-key="field_mk_melding_eind"] > .mk-timeline').toggle(!r.koppelen);
+        if (!$plek.length) return;
+        var $tl = $plek.children('.mk-timeline');
+        if (!$tl.length) $tl = $('<div class="mk-timeline" aria-live="polite"></div>').appendTo($plek);
+        if (r.koppelen && !r.bron) {
+            $tl.html('<p class="mk-conflict">' + (waarde($row, 'field_mk_melding_ot_bron')
+                ? 'Deze feestdag of afwijking bestaat niet meer bij Openingstijden. De melding staat daarom niet op de website. Kies een andere, of plan hem zelf.'
+                : 'Kies welke feestdag of afwijking deze melding volgt.') + '</p>');
+            return;
+        }
+        if (r.koppelen) {
+            // Twee stukken: "Melding vooraf" en de feestdag of afwijking zelf
+            var nu2 = alsDatum(config.now), st = alsDatum(r.start), ei = alsDatum(r.eind);
+            var bv = alsDatum(r.bron.van + ' 00:00');
+            var mn = st, mx = ei; // alleen de zichtbare periode; "nu" staat er alleen in als die erbinnen valt
+            var sp = Math.max(mx - mn, 1);
+            var pc = function (d) { return Math.max(0, Math.min(100, ((d - mn) / sp) * 100)); };
+            var dg = function (ms) { return Math.round(ms / 864e5); };
+            var datum = function (v) { return kortDatum(v).replace(/ \d\d:\d\d$/, ''); };
+            var zin2 = nu2 > ei ? 'Voorbij.' : (nu2 < st ? 'Begint over ' + dg(st - nu2) + ' dagen.' : 'Nu zichtbaar, nog ' + Math.max(dg(ei - nu2), 0) + ' dagen.');
+            $tl.html(
+                '<div class="mk-timeline__labels"><span>' + esc(datum(r.start)) + '</span><span>' + esc(datum(r.bron.van + ' 00:00')) + '</span><span>' + esc(datum(r.eind)) + '</span></div>' +
+                '<div class="mk-timeline__track mk-timeline__track--ot">' +
+                    '<span class="mk-timeline__vooraf" style="left:' + pc(st) + '%;right:' + (100 - pc(bv)) + '%">Melding vooraf</span>' +
+                    '<span class="mk-timeline__bron" style="left:' + pc(bv) + '%;right:' + (100 - pc(ei)) + '%">' + esc(r.bron.naam) + '</span>' +
+                    (nu2 >= mn && nu2 <= mx ? '<span class="mk-timeline__now" style="left:' + pc(nu2) + '%"></span>' : '') +
+                '</div>' +
+                '<p class="mk-timeline__txt"><strong>Zichtbaar van ' + esc(datum(r.start)) + ' tot en met ' + esc(datum(r.eind)) + '.</strong> ' + esc(zin2) +
+                    ' Verschuift ' + esc(r.bron.naam) + ' bij Openingstijden, dan schuift deze melding mee.</p>'
+            );
+            return;
+        }
 
         var now = alsDatum(config.now), start = alsDatum(r.start), eind = alsDatum(r.eind);
         if (!start && !eind) { $tl.html('<p class="mk-timeline__txt">Zonder datums is de melding meteen en altijd zichtbaar zolang hij aan staat.</p>'); return; }
@@ -264,9 +407,99 @@
         $tl.html(
             '<div class="mk-timeline__labels"><span>Vandaag</span><span>' + esc(start ? kortDatum(r.start).replace(/ \d\d:\d\d$/, '') : '') + '</span><span>' + esc(eind ? kortDatum(r.eind).replace(/ \d\d:\d\d$/, '') : '') + '</span></div>' +
             '<div class="mk-timeline__track"><span class="mk-timeline__range" style="left:' + pct(van) + '%;right:' + (100 - pct(tot)) + '%"></span><span class="mk-timeline__now" style="left:' + pct(now) + '%"></span></div>' +
-            '<p class="mk-timeline__txt">' + esc(zin) + ' De cache wordt op beide momenten automatisch geleegd.</p>'
+            '<p class="mk-timeline__txt">' + esc(zin) + (r.koppelen
+                ? ' Verschuift ' + esc(r.bron.naam) + ' bij Openingstijden, dan schuift deze melding mee.'
+                : ' De cache wordt op beide momenten automatisch geleegd.') + '</p>'
         );
     }
+
+    // ── Invullers bij de tekst (alleen bij "Volgens openingstijden") ──
+    function renderInvullers($row, r) {
+        var $tekst = $row.find('[data-key="field_mk_melding_tekst"]').first();
+        var $iv = $tekst.children('.mk-invullers');
+        if (!r.koppelen) { $iv.remove(); return; }
+        if (!$iv.length) {
+            $iv = $('<div class="mk-invullers"><span>Invoegen:</span></div>').appendTo($tekst);
+            OT.invullers.forEach(function (code) {
+                $('<button type="button" class="mk-invuller"></button>').text(code).attr('data-invuller', code).appendTo($iv);
+            });
+            $('<p class="mk-invullers__uitleg"></p>').appendTo($iv);
+        }
+        $iv.find('.mk-invuller').each(function () {
+            var code = $(this).attr('data-invuller');
+            $(this).attr('title', r.bron ? 'Wordt: ' + r.bron.invullers[code] : 'Kies eerst bij Planning wat deze melding volgt');
+        });
+        $iv.find('.mk-invullers__uitleg').text(r.bron ? 'Wordt op de website: ' + alsTekst(r.tekst) : 'De invullers krijgen hun waarde zodra je bij Planning kiest wat deze melding volgt.');
+    }
+
+    // ── Tips bij openingstijden in een melding ──
+    function tip($row, key, tekst) {
+        var $veld = $row.find('[data-key="' + key + '"]').first();
+        var $tip = $veld.children('.mk-veld-tip');
+        if (!tekst) { $tip.remove(); return; }
+        if (!$tip.length) $tip = $('<p class="mk-veld-tip" role="status"></p>').appendTo($veld);
+        $tip.text(tekst);
+    }
+    // Een balk is kort: bij veel tekst, koppen of een lijst een tip om te kiezen voor een pop-up of blok
+    function renderTekstTip($row, r) {
+        var balk = r.positie !== 'popup' && r.positie !== 'blok';
+        var tekst = alsTekst(r.tekst);
+        var html = String(r.tekst || '');
+        var melding = '';
+        if (balk && tekst.length > 140) {
+            melding = 'Deze tekst is lang voor een balk: op een telefoon wordt dat al snel meer dan drie regels. Maak hem korter, of kies bij Weergave een pop-up of zwevend blok.';
+        } else if (balk && /<(ul|ol)[\s>]/i.test(html)) {
+            melding = 'Een lijst past slecht in een balk. Kies bij Weergave een pop-up of zwevend blok, of zet de punten achter elkaar.';
+        } else if (balk && /<h[2-4][\s>]/i.test(html)) {
+            melding = 'In een balk worden koppen klein getoond, zodat de balk niet te hoog wordt.';
+        }
+        tip($row, 'field_mk_melding_tekst', melding);
+    }
+
+    function renderOtTips($row, r) {
+        // De melding volgt al een afwijking en toont daarnaast de afwijkingen: dan staat hij er twee keer in
+        tip($row, 'field_mk_melding_ot_weergave', r.ot && r.koppelen && r.bron && r.otWeergave === 'afwijkingen'
+            ? 'De tekst noemt ' + r.bron.naam + ' al, en bij Afwijkingen staat ' + r.bron.naam + ' er nog een keer in. Kies Week of Vandaag, of zet "Openingstijden in de melding" uit.'
+            : '');
+        // Openingstijden lezen kost tijd: een melding die snel vanzelf verdwijnt, is dan lastig te lezen
+        tip($row, 'field_mk_melding_auto', r.ot && r.auto && r.autoSec < 20
+            ? 'Met openingstijden erin is ' + r.autoSec + ' seconden kort om alles te lezen. Zet Automatisch verdwijnen uit, of kies minstens 20 seconden.'
+            : '');
+    }
+
+    // ── Planning: één keuze "Altijd · Zelf plannen · Volgens openingstijden" ──
+    // Zet de twee schakelaars (Inplannen en Volgens openingstijden) eronder; die zijn zelf verborgen.
+    function renderPlanKeuze($row, r) {
+        var $veld = $row.find('[data-key="field_mk_melding_ot_koppelen"]').first();
+        if (!$veld.length) return;
+        $veld.addClass('mk-plan-heeft-keuze');
+        var $k = $veld.children('.mk-plan-keuze');
+        if (!$k.length) {
+            $k = $('<div class="mk-plan-keuze"><span class="mk-plan-keuze__label">Wanneer zichtbaar</span><div class="mk-segmented" role="group" aria-label="Wanneer zichtbaar">' +
+                '<button type="button" data-plan="altijd">Altijd</button><button type="button" data-plan="zelf">Zelf plannen</button><button type="button" data-plan="ot">Volgens openingstijden</button></div></div>').appendTo($veld);
+        }
+        var stand = r.koppelen ? 'ot' : (aan(waarde($row, 'field_mk_melding_planning')) ? 'zelf' : 'altijd');
+        $k.find('[data-plan]').each(function () { $(this).attr('aria-pressed', $(this).attr('data-plan') === stand ? 'true' : 'false'); });
+    }
+    $(document).on('click', REPEATER + ' [data-plan]', function () {
+        var $row = $(this).closest('.acf-row');
+        var plan = $(this).attr('data-plan');
+        zet($row, 'field_mk_melding_ot_koppelen', plan === 'ot');
+        if (plan !== 'ot') zet($row, 'field_mk_melding_planning', plan === 'zelf');
+        if (window.mkAdminDirty) window.mkAdminDirty();
+        later($row);
+    });
+
+    $(document).on('click', REPEATER + ' .mk-invuller', function () {
+        var code = $(this).attr('data-invuller');
+        var $row = $(this).closest('.acf-row');
+        var textarea = $row.find('[data-key="field_mk_melding_tekst"] textarea.wp-editor-area')[0];
+        var ed = textarea && window.tinymce && tinymce.get(textarea.id);
+        if (ed && !ed.isHidden()) { ed.insertContent(code); ed.focus(); }
+        else if (textarea) { textarea.value += code; }
+        if (window.mkAdminDirty) window.mkAdminDirty();
+        later($row);
+    });
 
     // ── Weergave: kleurvlak bij stijl, schets bij positie ────
     function decorateChoices($row) {
@@ -323,6 +556,8 @@
         renderHead($row, r, s);
         renderPreview($row, r);
         renderTimeline($row, r);
+        if (OT) { renderInvullers($row, r); renderPlanKeuze($row, r); renderOtTips($row, r); }
+        renderTekstTip($row, r);
         renderBezet($row, r);
         $row.attr('data-status', s);
     }
@@ -514,9 +749,46 @@
     });
     acf.addAction('append', function ($el) { later($el && $el.hasClass('acf-row') ? $el : null); });
     acf.addAction('remove', function () { later(); });
+    // ── "Melding maken" vanuit Openingstijden: ?mk_ot_nieuw=<bron> ──
+    // Een nieuwe melding die deze feestdag of afwijking volgt, met de standaardtekst; alleen nog opslaan.
+    function nieuwVanuitOpeningstijden() {
+        var m = /[?&]mk_ot_nieuw=([^&#]+)/.exec(window.location.search);
+        if (!m || !OT) return;
+        var sleutel = decodeURIComponent(m[1]);
+        var bron = OT.bronnen[sleutel];
+        if (window.history.replaceState) window.history.replaceState(null, '', window.location.pathname + '?page=acf-options-meldingen');
+        if (!bron) return;
+
+        var $row = nieuweRij();
+        var naam = acf.getFields({ key: 'field_mk_melding_naam', parent: $row })[0];
+        if (naam) naam.val(bron.naam);
+        kies($row, 'field_mk_melding_stijl', 'waarschuwing');
+        kies($row, 'field_mk_melding_positie', 'boven');
+        zet($row, 'field_mk_melding_sluitbaar', true);
+        zet($row, 'field_mk_melding_ot_koppelen', true);
+        var veld = acf.getFields({ key: 'field_mk_melding_ot_bron', parent: $row })[0];
+        if (veld) veld.$input().val(sleutel).trigger('change');
+        var tekst = '<p>' + esc(OT.tekst) + '</p>';
+        var textarea = $row.find('[data-key="field_mk_melding_tekst"] textarea.wp-editor-area')[0];
+        if (textarea) textarea.value = tekst;
+        var tries = 0;
+        (function zetTekst() {
+            var ed = textarea && window.tinymce && tinymce.get(textarea.id);
+            if (ed && ed.initialized) { ed.setContent(tekst); later($row); }
+            else if (tries++ < 40) setTimeout(zetTekst, 100);
+        })();
+        if (window.mkAdminDirty) window.mkAdminDirty();
+        later($row);
+        setTimeout(function () {
+            $row[0].scrollIntoView({ block: 'start', behavior: 'smooth' });
+            if (window.mkToast) window.mkToast({ title: 'Melding klaargezet voor "' + bron.naam + '"', sub: 'Controleer de tekst en sla op', tone: 'neutral' });
+        }, 300);
+    }
+
     acf.addAction('ready', function () {
         buildPageHead();
         buildTechnisch();
         renderAll();
+        nieuwVanuitOpeningstijden();
     });
 })(jQuery);

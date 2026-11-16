@@ -658,6 +658,70 @@
         syncOver();
     }
 
+    // ── Openingstijden: "Meerdere roosters" pas bij twee roosters, en de stijl als knoppen ──
+    // De stijl is de blokstijl van WordPress (className is-style-…, ook in de zijbalk bij Stijlen);
+    // Kaart is de standaard en heeft geen eigen class nodig.
+    var OT_STIJLEN = [['kaart', 'Kaart'], ['plat', 'Plat'], ['donker', 'Donker']];
+    function otStijl(className) {
+        var m = /(?:^|\s)is-style-(\S+)/.exec(className || '');
+        return m ? m[1] : 'kaart';
+    }
+    function decorateOpeningstijden($fields) {
+        var $rooster = $fields.find('.acf-field[data-key="field_mk_ot_rooster"]').first();
+        var $indeling = $fields.find('.acf-field[data-key="field_mk_ot_indeling"]').first();
+        var $breedte = $fields.find('.acf-field[data-key="field_mk_ot_breedte"]').first();
+        if (!$rooster.length) return;
+
+        function syncRoosters() {
+            $indeling.toggleClass('mk-bv-niet-nodig', $rooster.find('input[type="checkbox"]:checked').length < 2);
+        }
+
+        if (!$fields.data('mkOt')) {
+            $fields.data('mkOt', true);
+            $rooster.on('change', 'input', syncRoosters);
+
+            var block = wp.data.select('core/block-editor').getSelectedBlock();
+            if (block && block.name === 'mk/openingstijden' && $breedte.length) {
+                var clientId = block.clientId;
+                var $stijl = $('<div class="acf-field mk-bv-stijl"><div class="acf-label"><label>Stijl</label>' +
+                    '<p class="description">Ook te kiezen in de zijbalk, bij Stijlen</p></div>' +
+                    '<div class="acf-input"><div class="mk-bv-stijl__keuzes" role="group" aria-label="Stijl"></div></div></div>');
+                var $keuzes = $stijl.find('.mk-bv-stijl__keuzes');
+                OT_STIJLEN.forEach(function (s) {
+                    $('<button type="button" class="mk-bv-stijl__keuze"></button>').text(s[1]).attr('data-stijl', s[0]).appendTo($keuzes);
+                });
+                $stijl.insertAfter($breedte);
+
+                var sync = function () {
+                    var b = wp.data.select('core/block-editor').getBlock(clientId);
+                    var huidig = otStijl(b && b.attributes.className);
+                    $keuzes.children().each(function () {
+                        this.setAttribute('aria-pressed', this.getAttribute('data-stijl') === huidig ? 'true' : 'false');
+                    });
+                };
+                $keuzes.on('click', '[data-stijl]', function () {
+                    var b = wp.data.select('core/block-editor').getBlock(clientId);
+                    if (!b) return;
+                    var naam = this.getAttribute('data-stijl');
+                    var cls = (b.attributes.className || '').replace(/(^|\s)is-style-\S+/g, ' ').replace(/\s+/g, ' ').trim();
+                    if (naam !== 'kaart') cls = (cls + ' is-style-' + naam).trim();
+                    wp.data.dispatch('core/block-editor').updateBlockAttributes(clientId, { className: cls || undefined });
+                    sync();
+                });
+                // Ook als de stijl in de zijbalk verandert
+                var vorige = null;
+                var stop = wp.data.subscribe(function () {
+                    if (!$stijl[0].isConnected) { stop(); return; }
+                    var b = wp.data.select('core/block-editor').getBlock(clientId);
+                    var nu = b && b.attributes.className;
+                    if (nu !== vorige) { vorige = nu; sync(); }
+                });
+                sync();
+            }
+        }
+        syncRoosters();
+    }
+
     // ── Alles toepassen zodra het venster (of een nieuw veld) verschijnt ──
     function scan() {
         document.querySelectorAll('.acf-block-form-modal').forEach(function (modal) {
@@ -665,6 +729,7 @@
             var $m = $(modal);
             $m.find('.acf-field[data-name="slides"]').each(function () { decorateSlider($(this)); });
             $m.find('.acf-field[data-name="number_of_posts"]').each(function () { decorateLoop($(this).closest('.acf-fields')); });
+            $m.find('.acf-field[data-key="field_mk_ot_rooster"]').each(function () { decorateOpeningstijden($(this).closest('.acf-fields')); });
         });
     }
 

@@ -24,8 +24,13 @@
 
             // ── Meldingen ──
             'field_mk_melding_naam'         => ['help' => 'Een naam om de melding terug te vinden, bijv. "Feestdagen 2026". Bezoekers zien hem niet.', 'below' => 'alleen voor jou', 'docs' => 'meldingen/melding-inhoud'],
-            'field_mk_melding_tekst'        => ['help' => 'De tekst in de balk. Eén zin leest het best, zeker op mobiel. Links krijgen vanzelf de tekstkleur.', 'below' => '', 'docs' => 'meldingen/melding-inhoud'],
+            'field_mk_melding_tekst'        => ['help' => 'De tekst van de melding. In de werkbalk kies je een kop (groot, middel of klein), vet, cursief, onderstrepen, een opsomming, de uitlijning en een link. Met de gum haal je opmaak weg, bijv. na plakken uit Word. Bij een balk leest één zin het best, zeker op een telefoon; voor meer tekst of een lijst past een pop-up of zwevend blok beter.', 'below' => '', 'docs' => 'meldingen/melding-inhoud'],
             'field_mk_melding_knop'         => ['help' => 'Een knop achter de tekst, bijv. "Bekijk de actie". Laat leeg voor geen knop.', 'below' => 'optioneel', 'docs' => 'meldingen/melding-inhoud'],
+            'field_mk_melding_knop_stijl'   => ['help' => 'Omlijnd: een rand in de tekstkleur. Gevuld: een vlak in de tekstkleur met de achtergrondkleur als tekst; dat valt meer op.', 'below' => '', 'docs' => 'meldingen/melding-inhoud'],
+            'field_mk_melding_knop_plek'    => ['help' => 'Bij een balk: naast de tekst (één regel) of eronder. Bij een pop-up en zwevend blok staat de knop altijd onder de tekst.', 'below' => '', 'docs' => 'meldingen/melding-inhoud'],
+            'field_mk_melding_uitlijning'   => ['help' => 'Automatisch: een balk in het midden, een pop-up en zwevend blok links. Of kies zelf links of midden voor de hele melding. Per alinea kan ook, met de uitlijnknoppen in de tekst.', 'below' => '', 'docs' => 'meldingen/melding-weergave'],
+            'field_mk_melding_tekstgrootte' => ['help' => 'De lettergrootte van de hele melding. Koppen in de tekst schalen mee.', 'below' => '', 'docs' => 'meldingen/melding-weergave'],
+            'field_mk_melding_ruimte'       => ['help' => 'Hoeveel ruimte er rond de tekst zit. Compact voor een smalle balk, Ruim voor een opvallende pop-up.', 'below' => '', 'docs' => 'meldingen/melding-weergave'],
             'field_mk_melding_planning'     => ['help' => 'Uit: zichtbaar zolang de melding aan staat. Aan: alleen tussen de begin- en eindtijd.', 'below' => 'Alleen zichtbaar tussen de begin- en eindtijd', 'docs' => 'meldingen/melding-planning'],
             'field_mk_melding_start'        => ['help' => 'Vanaf dit moment staat de melding op de website, in de tijdzone van de website. De cache wordt dan vanzelf geleegd.', 'below' => 'Leeg: direct', 'docs' => 'meldingen/melding-planning'],
             'field_mk_melding_eind'         => ['help' => 'Tot dit moment staat de melding op de website. Daarna verdwijnt hij vanzelf, maar hij blijft bewaard.', 'below' => 'Leeg: geen einde', 'docs' => 'meldingen/melding-planning'],
@@ -64,6 +69,50 @@
             'field_mkbase_extra_zichtbare_blokken'   => ['help' => 'Standaardblokken die naast de thema-blokken beschikbaar blijven, bijv. Kop of Lijst.', 'below' => '', 'docs' => 'geavanceerd/editor'],
             'field_mkbase_bestandseditor_mediakanjers' => ['help' => 'Zet de thema- en plugin-bestandseditor aan, alleen voor het account mediakanjers. Voor iedereen anders blijft hij altijd uit.', 'below' => 'Alleen Mediakanjers', 'docs' => 'geavanceerd/editor'],
             'field_mkbase_volgorde_vergrendeld'      => ['help' => 'Op elke pagina kan niemand nog blokken toevoegen, verwijderen of verplaatsen; de inhoud blijft wel te bewerken. Zet de volgorde eerst goed voordat je dit aanzet.', 'below' => 'Alleen Mediakanjers', 'docs' => 'geavanceerd/editor'],
+
+            // ── Openingstijden (sinds 1.7.0) ──
+            'field_mkbase_ot_vooruit'        => ['help' => 'Hoeveel dagen van tevoren feestdagen en afwijkende dagen onder de openingstijden verschijnen. Valt er een in de week die op de website staat, dan staat hij altijd op zijn eigen dag.', 'below' => '', 'docs' => 'openingstijden/ot-start'],
+            'field_mkbase_ot_notatie'        => ['help' => 'Hoe tijden op de website staan, overal hetzelfde.', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
+            'field_mkbase_ot_google'         => ['help' => 'Google kan de openingstijden van dit rooster bij je bedrijf tonen, ook die van feestdagen en afwijkende dagen. Kies het rooster van je hoofdlocatie.', 'below' => '', 'docs' => 'openingstijden/ot-google'],
+            'field_mkbase_ot_r_naam'         => ['help' => 'Bijvoorbeeld Winkel, Werkplaats of Telefonisch bereikbaar. Staat in de lijst bij het blok; bezoekers zien hem alleen als je hem als titel gebruikt.', 'below' => '', 'docs' => 'openingstijden/ot-week'],
+            'field_mkbase_ot_feestdagen'     => ['help' => 'Kies de feestdag; de datum wordt elk jaar vanzelf uitgerekend. Staat hij er niet tussen? Kies Eigen feestdag en vul een naam en datum in.', 'below' => '', 'docs' => 'openingstijden/ot-feestdagen'],
+            'field_mkbase_ot_fd_feestdag'    => ['help' => 'De datum wordt elk jaar vanzelf uitgerekend, ook voor Pasen, Hemelvaart en Pinksteren.', 'below' => '', 'docs' => 'openingstijden/ot-feestdagen'],
+            'field_mkbase_ot_fd_datum'       => ['help' => 'Dag en maand, bijvoorbeeld 14-09. Elk jaar op dezelfde datum.', 'below' => 'dag-maand', 'docs' => 'openingstijden/ot-feestdagen'],
+            'field_mkbase_ot_fd_status'      => ['help' => 'Gesloten, andere tijden (met maximaal twee tijdvakken) of alleen op afspraak.', 'below' => '', 'docs' => 'openingstijden/ot-feestdagen'],
+            'field_mkbase_ot_fd_voor'        => ['help' => 'Voor welke roosters deze feestdag geldt. Niets aangevinkt: voor alle. Een rooster dat je niet aanvinkt, volgt die dag gewoon de vaste week.', 'docs' => 'openingstijden/ot-feestdagen'],
+            'field_mkbase_ot_afw_naam'       => ['help' => 'Bezoekers zien deze omschrijving, bijv. "Bedrijfsvakantie".', 'below' => '', 'docs' => 'openingstijden/ot-afwijkend'],
+            'field_mkbase_ot_afw_tot'        => ['help' => 'Voor een periode, zoals een vakantie. Laat leeg voor één dag.', 'docs' => 'openingstijden/ot-afwijkend'],
+            'field_mkbase_ot_afw_status'     => ['help' => 'Gewoon open: de vaste week, bijvoorbeeld op een feestdag waarop jullie toch open zijn.', 'below' => '', 'docs' => 'openingstijden/ot-afwijkend'],
+            'field_mkbase_ot_afw_voor'       => ['help' => 'Voor welke roosters dit geldt. Niets aangevinkt: voor alle.', 'docs' => 'openingstijden/ot-afwijkend'],
+            'field_mkbase_ot_afw_toelichting' => ['help' => 'Een korte extra zin onder de afwijking, bijvoorbeeld hoe men je dan wel bereikt.', 'below' => 'Optioneel', 'docs' => 'openingstijden/ot-afwijkend'],
+
+            'field_mkbase_ot_auto'           => ['help' => 'Maakt voor elke feestdag en afwijking vanzelf een balk op de website, vanaf het aantal dagen vooraf tot en met de laatste dag. Per feestdag of afwijking zet je hem uit met "Geen melding", of vervang je hem door een eigen melding.', 'below' => 'Standaard uit', 'docs' => 'openingstijden/ot-meldingen'],
+            'field_mkbase_ot_auto_positie'   => ['help' => 'Waar de automatische meldingen staan. Ze zijn altijd een balk, zodat ze niet botsen met een pop-up of blok.', 'below' => '', 'docs' => 'openingstijden/ot-meldingen'],
+            'field_mkbase_ot_auto_stijl'     => ['help' => 'De kleuren van de automatische meldingen.', 'below' => '', 'docs' => 'openingstijden/ot-meldingen'],
+            'field_mkbase_ot_auto_tekst'     => ['help' => 'De tekst van elke automatische melding, en de begintekst bij "Melding maken". Invullers krijgen vanzelf de waarde van de feestdag of afwijking.', 'docs' => 'openingstijden/ot-meldingen'],
+
+            // ── Meldingen ↔ Openingstijden ──
+            'field_mk_melding_ot'          => ['help' => 'Zet de openingstijden onder de tekst van deze melding, bijvoorbeeld in een pop-up "Onze openingstijden". Ze komen uit Mediakanjers → Openingstijden en zijn altijd actueel.', 'docs' => 'openingstijden/ot-meldingen'],
+            'field_mk_melding_ot_roosters' => ['help' => 'Welke roosters in de melding staan. Meerdere roosters staan naast elkaar.', 'docs' => 'openingstijden/ot-meldingen'],
+            'field_mk_melding_ot_weergave' => ['help' => 'Week: het hele overzicht. Vandaag: één regel. Status: alleen "Nu open". Afwijkingen: alleen de afwijkende dagen. In een balk passen Vandaag en Status het best.', 'below' => '', 'docs' => 'openingstijden/ot-meldingen'],
+            'field_mk_melding_ot_status'   => ['help' => 'Toont of je nu open bent, met wanneer je sluit of weer opengaat.', 'below' => '', 'docs' => 'openingstijden/ot-meldingen'],
+            'field_mk_melding_ot_koppelen' => ['help' => 'De melding verschijnt en verdwijnt vanzelf met een feestdag of afwijking uit Openingstijden. Verschuift die, dan schuift de melding mee; een feestdag komt elk jaar terug.', 'docs' => 'openingstijden/ot-meldingen'],
+            'field_mk_melding_ot_bron'     => ['help' => 'De feestdag of afwijking die deze melding volgt. In de tekst kun je dan de invullers {naam}, {datum}, {tijden}, {rooster} en {toelichting} gebruiken.', 'below' => '', 'docs' => 'openingstijden/ot-meldingen'],
+            'field_mk_melding_ot_vooraf'   => ['help' => 'Hoeveel dagen van tevoren de melding verschijnt. Leeg: zoals bij Openingstijden (Afwijkingen vooraf tonen).', 'docs' => 'openingstijden/ot-meldingen'],
+
+            // ── Blok: Openingstijden ──
+            'field_mk_ot_rooster'     => ['help' => 'Welke roosters dit blok toont. Kies je er meer, dan staan ze in één overzicht naast elkaar (in de week een kolom per rooster). De tijden zelf staan bij Mediakanjers → Openingstijden.', 'below' => 'Niets aangevinkt: het eerste rooster', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_weergave'    => ['help' => 'Week: het hele overzicht. Vandaag: één regel, bijv. voor de footer. Status: alleen "Nu open" of "Gesloten". Afwijkingen: alleen de afwijkende dagen.', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_indeling'    => ['help' => 'Bij meer dan één aangevinkt rooster. Naast elkaar: één tabel met een kolom per rooster. Tabjes: per rooster een tabje (met een stip die laat zien of het nu open is) en daaronder het weekoverzicht van dat rooster. Tabjes lezen rustiger, zeker op een telefoon. Verschijnt zodra je twee of meer roosters aanvinkt.', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_wijziging'   => ['help' => 'Een opvallende regel boven de week, bijv. "Let op: maandag 29 maart gesloten (Tweede paasdag)", voor de eerstvolgende feestdag of afwijking. Verdwijnt vanzelf als die voorbij is.', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_link'        => ['help' => 'Een link onder Vandaag of Status, bijv. naar je contactpagina met het hele weekoverzicht. Zonder eigen linktekst staat er "Alle openingstijden".', 'below' => 'Optioneel', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_breedte'     => ['help' => 'Inhoudsbreedte: zoals de andere blokken, maximaal 1400 px en in het midden. Volle breedte: het blok vult precies de plek waar het staat, zonder eigen marges. Kies dat in een kolom of naast tekst, zodat het gelijk staat met de tekst links en rechts.', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_titel'       => ['help' => 'Een kop boven de tijden. Laat leeg als er al een kop boven het blok staat.', 'below' => 'Optioneel', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_toon_status' => ['help' => 'Toont of je nu open bent, met wanneer je sluit of weer opengaat. Klopt altijd, ook als de pagina uit de cache komt.', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_vandaag'     => ['help' => 'Licht de regel van vandaag op met het label Vandaag.', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_samenvoegen' => ['help' => 'Dagen na elkaar met dezelfde tijden op één regel, bijv. "Maandag t/m vrijdag".', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_gesloten'    => ['help' => 'Uit: gewone dagen waarop jullie dicht zijn (zoals zondag) staan niet in het overzicht. Een gesloten feestdag staat er wel.', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
+            'field_mk_ot_afwijkingen' => ['help' => 'Feestdagen en afwijkende dagen na deze week onder het overzicht, vanaf het ingestelde aantal dagen van tevoren.', 'below' => '', 'docs' => 'openingstijden/ot-blok'],
 
             // ── Blok: Kolommen ──
             'field_mk_kolommen_verhouding'      => ['help' => 'Het aantal kolommen en hoe breed ze zijn. Ontbrekende kolommen worden vanzelf toegevoegd.', 'below' => '', 'docs' => 'blokken/blok-kolommen'],

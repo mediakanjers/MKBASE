@@ -346,6 +346,32 @@ body.mk-admin [data-key="field_mk_melding_blok_plek"] .acf-button-group label.se
 .mk-pv__txt p { margin: 0; }
 .mk-pv__txt a { color: inherit; }
 .mk-pv__btn { padding: 2px 8px; border: 1.5px solid currentColor; border-radius: 5px; font-weight: 700; white-space: nowrap; }
+/* Opmaak van de tekst en de melding (sinds 1.7.0), zoals assets/css/components/notifications.css op de website */
+/* body.mk-admin: de algemene MK-admin-opmaak van koppen en lijsten mag hier niet gelden */
+body.mk-admin .mk-pv__txt :is(h2, h3, h4) { margin: 0 0 3px; padding: 0; color: inherit; font-family: inherit; font-weight: 700; line-height: 1.25; }
+body.mk-admin .mk-pv__txt h2 { font-size: 1.45em; }
+body.mk-admin .mk-pv__txt h3 { font-size: 1.25em; }
+body.mk-admin .mk-pv__txt h4 { font-size: 1.1em; }
+body.mk-admin .mk-pv__txt :is(ul, ol) { margin: 0 0 4px; padding-left: 1.3em; }
+body.mk-admin .mk-pv__txt ul { list-style: disc; }
+body.mk-admin .mk-pv__txt ol { list-style: decimal; }
+body.mk-admin .mk-pv__txt li { margin: 0; }
+.mk-pv__txt p + p { margin-top: 4px; }
+body.mk-admin .mk-pv__bar--balk .mk-pv__txt :is(h2, h3, h4) { font-size: 1.1em; }
+.mk-pv__bar--uitlijnen-midden .mk-pv__txt { text-align: center; }
+.mk-pv__bar--uitlijnen-midden .mk-pv__txt :is(ul, ol) { padding-left: 0; list-style-position: inside; }
+.mk-pv__bar--uitlijnen-midden:is(.mk-pv__bar--popup, .mk-pv__bar--blok) { align-items: center; }
+.mk-pv__bar--uitlijnen-links .mk-pv__txt { text-align: left; }
+.mk-pv__bar--uitlijnen-links.mk-pv__bar--balk { justify-content: flex-start; }
+.mk-pv__bar--tekst-klein { font-size: 10.5px; }
+.mk-pv__bar--tekst-groot { font-size: 13.5px; }
+.mk-pv__bar--ruimte-compact.mk-pv__bar--balk { padding-top: 5px; padding-bottom: 5px; }
+.mk-pv__bar--ruimte-ruim.mk-pv__bar--balk { padding-top: 17px; padding-bottom: 17px; }
+.mk-pv__bar--ruimte-compact:is(.mk-pv__bar--popup, .mk-pv__bar--blok) { padding-top: 8px; padding-bottom: 8px; }
+.mk-pv__bar--ruimte-ruim:is(.mk-pv__bar--popup, .mk-pv__bar--blok) { padding-top: 26px; padding-bottom: 26px; }
+.mk-pv__bar--knop-onder { flex-direction: column; }
+.mk-pv__bar--knop-onder.mk-pv__bar--uitlijnen-links { align-items: flex-start; }
+.mk-pv__btn--gevuld { border-color: var(--mk-pv-fg, currentColor); background: var(--mk-pv-fg, currentColor); color: var(--mk-pv-bg, #fff); }
 .mk-pv__close { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 15px; }
 
 /* Pop-up en blok in het voorbeeld: een laag boven de pagina */
@@ -438,7 +464,7 @@ body.mk-admin .mk-empty > .mk-btn { height: 44px; padding: 0 22px; margin-top: 6
 
 /* ── Smaller scherm: voorbeeld onder de velden ────────────── */
 @media (max-width: 1100px) {
-    [data-key="field_mk_meldingen"] .acf-row > .acf-fields { padding-right: 12px; }
+    [data-key="field_mk_meldingen"] .acf-row > td.acf-fields { padding-right: 12px !important; } /* zelfde selector als de basisregel, die ook !important heeft */
     .mk-mhead { margin-right: -12px; }
     [data-key="field_mk_meldingen"] .acf-field[data-key="field_mk_melding_voorbeeld"] { position: static !important; width: auto; margin: 0 8px 20px; }
 }
@@ -447,6 +473,13 @@ body.mk-admin .mk-empty > .mk-btn { height: 44px; padding: 0 22px; margin-top: 6
     .mk-mhead__title { flex-basis: calc(100% - 60px); order: 1; }
     .mk-mhead__swatch { order: 0; }
     .mk-mhead__status { order: 2; }
+    .mk-mhead__koppeling { order: 2; }
+    /* Openingstijden in de melding: Roosters, Weergave en Status onder elkaar */
+    [data-key="field_mk_meldingen"] .acf-field[data-key="field_mk_melding_ot_roosters"],
+    [data-key="field_mk_meldingen"] .acf-field[data-key="field_mk_melding_ot_weergave"],
+    [data-key="field_mk_meldingen"] .acf-field[data-key="field_mk_melding_ot_status"],
+    [data-key="field_mk_meldingen"] .acf-field[data-key="field_mk_melding_ot_bron"],
+    [data-key="field_mk_meldingen"] .acf-field[data-key="field_mk_melding_ot_vooraf"] { width: 100% !important; }
     .mk-mhead__switch { order: 3; margin-left: auto; }
     .mk-mhead__actions { order: 4; }
     [data-key="field_mk_melding_positie"] .acf-button-group,
@@ -454,3 +487,71 @@ body.mk-admin .mk-empty > .mk-btn { height: 44px; padding: 0 22px; margin-top: 6
     .mk-timeline { position: static; width: auto; margin-top: 10px; }
     [data-key="field_mk_meldingen"] .acf-field[data-key="field_mk_melding_eind"] { padding-bottom: 16px !important; }
 }
+
+/* ── Koppeling met Openingstijden (sinds 1.7.0) ───────────── */
+.mk-pv__ot { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.22); font-size: 11px; font-weight: 700; }
+.mk-pill--ontkoppeld { --mk-pill-bg: var(--mk-err-bg); --mk-pill-fg: var(--mk-err-text); }
+.mk-invullers { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; color: var(--mk-muted); font-size: 12.5px; }
+.mk-invuller { height: 28px; padding: 0 10px; border: 1px solid var(--mk-border); border-radius: 8px; background: var(--mk-card); color: var(--mk-accent-text); font: 600 12px/1 var(--mk-font-mono); cursor: pointer; }
+.mk-invuller:hover { background: var(--mk-tint); }
+.mk-invullers__uitleg { flex-basis: 100%; margin: 4px 0 0; color: var(--mk-muted); font-size: 12.5px; line-height: 1.5; }
+.mk-melding-tijdlijn:empty { display: none; }
+/* Bij "Volgens openingstijden" staat de tijdlijn gewoon onder de keuze (niet onder de einddatum) */
+.mk-melding-tijdlijn .mk-timeline { position: static; width: auto; left: auto; top: auto; }
+[data-key="field_mk_melding_ot_tijdlijn"] > .acf-label { display: none; }
+.mk-auto-meldingen { margin-top: 14px; padding: 16px 18px; border: 1px solid var(--mk-border); border-radius: 14px; background: var(--mk-card); }
+.mk-auto-meldingen__kop { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 10px; }
+.mk-auto-meldingen__kop span { color: var(--mk-muted); font-size: 13px; }
+.mk-auto-meldingen ul { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.mk-auto-meldingen li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--mk-soft); }
+.mk-auto-meldingen__wanneer { color: var(--mk-muted); font-size: 12.5px; }
+.mk-auto-meldingen__tekst { flex-basis: 100%; color: var(--mk-muted); font-size: 12.5px; }
+
+/* De echte openingstijden in het live voorbeeld, in de kleuren van de melding (zoals op de website) */
+.mk-pv__bar--ot { flex-wrap: wrap; }
+.mk-pv__ot-html { display: block; margin-top: 8px; font-size: 11px; line-height: 1.4; text-align: left; }
+.mk-pv__ot-html .mk-ot {
+    --mk-ot-lijn: color-mix(in srgb, currentColor 22%, transparent);
+    --mk-ot-gedempt: color-mix(in srgb, currentColor 75%, transparent);
+    --mk-ot-vandaag-bg: color-mix(in srgb, currentColor 12%, transparent);
+    --mk-ot-label-bg: var(--mk-pv-fg);
+    --mk-ot-label-color: var(--mk-pv-bg);
+    --mk-ot-afwijkend-color: currentColor;
+    max-width: 420px;
+}
+.mk-pv__ot-html .mk-ot__titel { display: none; }
+/* Look zoals het child theme hem standaard geeft (de core-CSS is alleen de indeling) */
+.mk-pv__ot-html .mk-ot__status { padding: 4px 10px; border-radius: 999px; background: #EEF1F5; color: #3D4B5C; font-weight: 700; }
+.mk-pv__ot-html .mk-ot__status--open { background: #E3F6EC; color: #146C3A; }
+.mk-pv__ot-html :is(.mk-ot__status--bijna, .mk-ot__status--pauze, .mk-ot__status--afspraak) { background: #FDF1DC; color: #7A4A00; }
+.mk-pv__ot-html :is(.mk-ot__dag, .mk-ot__rooster, .mk-ot__kop, .mk-ot__tabel thead th) { font-weight: 700; }
+.mk-pv__ot-html .mk-ot__label { display: inline-block; margin-top: 2px; padding: 1px 6px; border-radius: 999px; background: var(--mk-ot-label-bg); color: var(--mk-ot-label-color); }
+.mk-pv__ot-html .mk-ot__regel { border-radius: 6px; }
+/* Past niet alles in het voorbeeld, dan scrollt de melding (zoals een pop-up op een klein scherm) */
+.mk-pv__bar--ot { flex-wrap: nowrap; justify-content: flex-start; max-height: 100%; overflow-x: hidden; overflow-y: auto; }
+.mk-pv__bar--ot .mk-pv__txt { flex: 0 0 auto; align-self: stretch; max-width: 100%; } /* volle breedte: de tabel is een container (core-CSS) */
+.mk-pv__ot-html { font-size: 10px; }
+.mk-pv__ot-html .mk-ot__tabel { width: 100%; table-layout: fixed; }
+.mk-pv__ot-html .mk-ot__tabel th,
+.mk-pv__ot-html .mk-ot__tabel td { padding: 4px 6px; overflow-wrap: anywhere; }
+.mk-pv__ot-html .mk-ot__tijd { white-space: normal; }
+
+/* Tip bij een veld (bijv. dubbele inhoud of te snel verdwijnen) */
+.mk-veld-tip { margin: 8px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--mk-warn-bg); color: var(--mk-warn-text); font-size: 12.5px; line-height: 1.5; }
+
+/* "Gekoppeld aan Openingstijden" in de kop van een melding */
+.mk-mhead__koppeling { display: inline-flex; flex-shrink: 0; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border-radius: 999px; background: var(--mk-tint); color: var(--mk-accent-text); font-size: 12px; font-weight: 700; white-space: nowrap; }
+
+/* Planning: één keuze "Altijd · Zelf plannen · Volgens openingstijden"; de schakelaars zelf zijn verborgen */
+.acf-field.mk-plan-heeft-keuze > .acf-label,
+.acf-field.mk-plan-heeft-keuze > .acf-input { display: none; }
+.mk-plan-heeft-keuze ~ .acf-field[data-key="field_mk_melding_planning"] { display: none !important; }
+.mk-plan-keuze__label { display: block; margin-bottom: 8px; color: var(--mk-text); font-size: 13px; font-weight: 700; }
+
+/* Tijdlijn bij een koppeling: "Melding vooraf" (gestreept) en de feestdag of afwijking zelf */
+.mk-timeline__track--ot { height: 26px; border-radius: 8px; background: var(--mk-soft); }
+.mk-timeline__vooraf,
+.mk-timeline__bron { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; overflow: hidden; padding: 0 8px; font-size: 11.5px; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; }
+.mk-timeline__vooraf { border: 1.5px dashed var(--mk-primary); border-radius: 8px 0 0 8px; background: var(--mk-tint); color: var(--mk-accent-text); }
+.mk-timeline__bron { border-radius: 0 8px 8px 0; background: var(--mk-primary); color: #fff; }
+.mk-timeline__track--ot .mk-timeline__now { z-index: 1; }

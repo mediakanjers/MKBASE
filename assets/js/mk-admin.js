@@ -281,6 +281,28 @@
         window.addEventListener('load', collectNotices);
     }
 
+    // ── Tabbladen in de MK-balk: op een smal scherm het huidige in beeld, en een vervaagde rand waar er meer zijn ──
+    var tabs = document.querySelector('.mk-bar__tabs');
+    if (tabs) {
+        var huidig = tabs.querySelector('[aria-current]');
+        // Huidige tabblad in het midden zetten als het (deels) buiten beeld valt; ook na het draaien
+        // of smaller maken van het scherm. Positie ten opzichte van het menu (er zijn twee groepen).
+        var inBeeld = function () {
+            if (!huidig || tabs.scrollWidth <= tabs.clientWidth) return;
+            var a = huidig.getBoundingClientRect(), b = tabs.getBoundingClientRect();
+            if (a.left >= b.left - 1 && a.right <= b.right + 1) return;
+            tabs.scrollLeft = a.left - b.left + tabs.scrollLeft - (tabs.clientWidth - huidig.offsetWidth) / 2;
+        };
+        var randen = function () {
+            tabs.classList.toggle('is-meer-links', tabs.scrollLeft > 2);
+            tabs.classList.toggle('is-meer-rechts', tabs.scrollLeft + tabs.clientWidth < tabs.scrollWidth - 2);
+        };
+        inBeeld();
+        tabs.addEventListener('scroll', randen, { passive: true });
+        window.addEventListener('resize', function () { inBeeld(); randen(); });
+        randen();
+    }
+
     // ── Introductie en waarschuwing onder de paginatitel ─────
     var h1 = document.querySelector('#wpbody-content > .wrap > h1');
     if (h1 && (cfg.intro || cfg.note)) {

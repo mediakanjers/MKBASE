@@ -25,6 +25,13 @@
         $theme_uri = get_template_directory_uri();
         wp_enqueue_style('mk-admin-docs', $theme_uri . '/assets/css/admin-docs.css', ['mk-admin'], mkbase_asset_version($theme_dir . '/assets/css/admin-docs.css'));
         wp_enqueue_script('mk-admin-docs', $theme_uri . '/assets/js/admin-docs.js', ['mk-admin'], mkbase_asset_version($theme_dir . '/assets/js/admin-docs.js'), true);
+        // De voorbeelden bij de developer-uitleg gebruiken de echte CSS van de website (alleen de core;
+        // de look van het child theme laadt hier niet)
+        wp_enqueue_style('mk-docs-meldingen', $theme_uri . '/assets/css/components/notifications.css', [], mkbase_asset_version($theme_dir . '/assets/css/components/notifications.css'));
+        if (function_exists('mkbase_ot_actief') && mkbase_ot_actief()) {
+            wp_enqueue_style('mk-openingstijden');
+            wp_enqueue_script('mk-openingstijden');
+        }
     });
 
     add_action('admin_footer', function() {
@@ -40,9 +47,10 @@
 
     // Een kaart met een titel en vragen die je los openklapt ($icon wordt sinds 1.6.0 niet meer getoond;
     // de kaarten zijn genummerd). Elke vraag heeft een eigen id, zodat er naartoe gelinkt kan worden.
-    function mkbase_docs_section($id, $title, $icon, $items) {
-        $html  = '<section class="mkbase-docs-section" id="docs-' . esc_attr($id) . '" data-section="' . esc_attr($id) . '">';
-        $html .= '<h2 class="mkbase-docs-section__title">' . esc_html($title) . '</h2>';
+    // $dev: een kaart voor developers (label "Dev" bij de titel), los van de uitleg voor klanten.
+    function mkbase_docs_section($id, $title, $icon, $items, $dev = false) {
+        $html  = '<section class="mkbase-docs-section' . ($dev ? ' mkbase-docs-section--dev' : '') . '" id="docs-' . esc_attr($id) . '" data-section="' . esc_attr($id) . '">';
+        $html .= '<h2 class="mkbase-docs-section__title">' . esc_html($title) . ($dev ? ' <span class="mk-dev-tag">Dev</span>' : '') . '</h2>';
         foreach ($items as $i => $item) {
             $qid   = 'docs-' . $id . '-' . $i;
             $html .= '<div class="mkbase-docs-item">';
@@ -52,6 +60,33 @@
         }
         $html .= '</section>';
         return $html;
+    }
+
+    // ── Bouwstenen voor de developer-uitleg (sinds 1.7.0) ──
+
+    // Codeblok; de kopieerknop zet admin-docs.js erbij
+    function mkbase_docs_code($code) {
+        return '<pre><code>' . esc_html(trim($code)) . '</code></pre>';
+    }
+
+    // Tabel met classes, variabelen of opties. $rijen: [[naam, uitleg], ...]; de eerste kolom wordt code.
+    // Met een derde waarde (een CSS-selector) licht dat onderdeel op in het voorbeeld erboven
+    // (mkbase_docs_voorbeeld) als je de regel aanwijst.
+    function mkbase_docs_tabel($rijen, $koppen = ['Class', 'Wat het is']) {
+        $html = '<div class="mk-docs__tabel-wrap"><table class="mk-docs__tabel"><thead><tr><th scope="col">' . esc_html($koppen[0]) . '</th><th scope="col">' . esc_html($koppen[1]) . '</th></tr></thead><tbody>';
+        foreach ($rijen as $r) {
+            $sel = $r[2] ?? '';
+            $html .= '<tr' . ($sel !== '' ? ' class="is-aanwijsbaar" tabindex="0" data-mk-doc-sel="' . esc_attr($sel) . '"' : '') . '>'
+                . '<td><code>' . esc_html($r[0]) . '</code></td><td>' . $r[1] . '</td></tr>';
+        }
+        return $html . '</tbody></table></div>';
+    }
+
+    // Een echt voorbeeld van een onderdeel (met de echte CSS); regels in de tabel eronder lichten het aan
+    function mkbase_docs_voorbeeld($html, $uitleg = 'Wijs een regel in de tabel aan: dat onderdeel licht hier op.') {
+        if ($html === '') return '';
+        return '<div class="mk-docs__voorbeeld"><p class="mk-docs__voorbeeld-label">Voorbeeld <span>' . esc_html($uitleg) . '</span></p>'
+            . '<div class="mk-docs__voorbeeld-inhoud">' . $html . '</div></div>';
     }
 
     // Stijlgids: elk voorbeeld gebruikt de echte klassen uit mk-admin.css, dus wat je ziet is wat je krijgt
@@ -154,6 +189,7 @@
                 'menus'        => "Menu's",
                 'geavanceerd'  => 'Geavanceerd',
                 'meldingen'    => 'Meldingen',
+                'openingstijden' => 'Openingstijden',
                 '404'          => '404',
             ],
             'Inhoud' => [
@@ -161,6 +197,8 @@
                 'afbeeldingen' => 'Afbeeldingen',
             ],
         ];
+
+        if (!function_exists('mkbase_ot_actief') || !mkbase_ot_actief()) unset($groups['Thema']['openingstijden']);
 
         $plugins = [];
         if (class_exists('WooCommerce'))  $plugins['woocommerce']   = 'WooCommerce';
@@ -184,16 +222,22 @@
         $html .= '<nav id="mkbase-docs-sidebar" aria-label="Onderwerpen">';
         $html .= '<label class="mk-search"><span class="screen-reader-text">Zoeken in de documentatie</span><input type="search" id="mkbase-docs-search" placeholder="Zoeken" autocomplete="off"></label>';
         $first = true;
+        // Per groep een kop die de onderwerpen in- en uitklapt (admin-docs.js); de onderwerpen staan
+        // ingesprongen eronder, zodat je ziet wat bij wat hoort
         foreach ($groups as $group_label => $items) {
+            $slug  = sanitize_title($group_label);
             $extra = $group_label === 'Developer' ? ' mkbase-docs-group--developer' : '';
-            $html .= '<div class="mkbase-docs-group' . $extra . '">';
-            $html .= '<span class="mkbase-docs-group__label">' . esc_html($group_label) . ($group_label === 'Developer' ? ' <span class="mk-dev-tag">Dev</span>' : '') . '</span>';
+            $html .= '<div class="mkbase-docs-group' . $extra . '" data-group="' . esc_attr($slug) . '">';
+            $html .= '<button type="button" class="mkbase-docs-group__label" aria-expanded="true" aria-controls="mkbase-docs-group-' . esc_attr($slug) . '">'
+                . '<span class="mkbase-docs-group__naam">' . esc_html($group_label) . ($group_label === 'Developer' ? ' <span class="mk-dev-tag">Dev</span>' : '') . '</span>'
+                . '<span class="mkbase-docs-group__aantal">' . count($items) . '</span></button>';
+            $html .= '<div class="mkbase-docs-group__items" id="mkbase-docs-group-' . esc_attr($slug) . '">';
             foreach ($items as $key => $label) {
                 $active = $first ? ' is-active' : '';
                 $html  .= '<button type="button" class="mkbase-docs-nav-item' . $active . '" data-panel="' . esc_attr($key) . '"' . ($first ? ' aria-current="true"' : '') . '>' . esc_html($label) . '</button>';
                 $first  = false;
             }
-            $html .= '</div>';
+            $html .= '</div></div>';
         }
         $html .= '</nav>';
         $html .= '<div id="mkbase-docs-panels">';
@@ -203,7 +247,7 @@
         $html .= '<p class="mkbase-docs-intro">Alle pagina\'s onder <strong>Mediakanjers</strong> werken op dezelfde manier. Hier lees je hoe je opslaat, waar je uitleg vindt en hoe je de meldingen van WordPress zelf wegklikt.</p>';
 
         $html .= mkbase_docs_section('beheer-balk', 'De balk bovenaan', 'dashicons-menu', [
-            ['label' => 'Wat staat erin?', 'desc' => 'Bovenaan elke Mediakanjers-pagina staat een balk met waar je bent, tabbladen naar alle Mediakanjers-pagina\'s, een knop met de meldingen van WordPress, een knop voor de donkere modus (het maantje) en de knop <strong>Opslaan</strong>. De balk blijft in beeld als je naar beneden scrolt.'],
+            ['label' => 'Wat staat erin?', 'desc' => 'Bovenaan elke Mediakanjers-pagina staat een balk met waar je bent, tabbladen naar alle Mediakanjers-pagina\'s (links de instellingen van de website, rechts apart Changelog, Documentatie en Diagnose), een knop met de meldingen van WordPress, een knop voor de donkere modus (het maantje) en de knop <strong>Opslaan</strong>. De balk blijft in beeld als je naar beneden scrolt.'],
             ['label' => 'Donkere modus', 'desc' => 'Met het maantje zet je de Mediakanjers-pagina\'s donker of licht. Je keuze wordt per gebruiker onthouden, ook op een andere computer of in een andere browser.'],
         ]);
 
@@ -282,12 +326,12 @@
 
         /* ── GEAVANCEERD ──────────────────────────────────── */
         $html .= '<div class="mkbase-docs-panel" data-panel="geavanceerd">';
-        $html .= '<p class="mkbase-docs-intro">Via het Geavanceerd-menu kun je code-snippets toevoegen aan de HTML-output van de website. Dit is bedoeld voor tracking pixels, tag managers en andere externe scripts. Daarnaast stel je hier in welke blokken er in de editor beschikbaar zijn. <strong>Gebruik dit menu alleen als je weet wat je doet.</strong></p>';
+        $html .= '<p class="mkbase-docs-intro">Via het Geavanceerd-menu kun je code-snippets toevoegen aan de HTML-output van de website. Dit is bedoeld voor tracking pixels, tag managers en andere externe scripts. Daarnaast stel je hier in welke blokken er in de editor beschikbaar zijn. <strong>Gebruik dit menu alleen als je weet wat je doet.</strong> Omdat de code op elke pagina komt, kunnen alleen beheerders (en redacteuren op een gewone website) deze pagina openen.</p>';
         $html .= mkbase_docs_settings_link(admin_url('admin.php?page=acf-options-geavanceerd'), 'Ga naar Geavanceerd');
 
         $html .= mkbase_docs_section('head', 'In de &lt;head&gt;', 'dashicons-editor-code', [
             ['label' => 'Wanneer gebruiken?', 'desc' => 'Voor scripts die zo vroeg mogelijk geladen moeten worden, zoals Google Tag Manager (<code>&lt;script&gt;</code>-gedeelte) of Google Analytics.'],
-            ['label' => 'Voorbeeld', 'desc' => '<code>&lt;script&gt;(function(w,d,s,l,i){...})&lt;/script&gt;</code>'],
+            ['label' => 'Voorbeeld', 'desc' => mkbase_docs_code('<script>(function(w,d,s,l,i){ ... })(window,document,\'script\',\'dataLayer\',\'GTM-XXXXXXX\');</script>')],
         ]);
 
         $html .= mkbase_docs_section('body-open', 'Direct na &lt;body&gt;', 'dashicons-editor-code', [
@@ -320,7 +364,8 @@
         $html .= mkbase_docs_settings_link(admin_url('admin.php?page=acf-options-meldingen'), 'Ga naar Meldingen');
 
         $html .= mkbase_docs_section('melding-overzicht', 'Overzicht en voorbeeld', 'dashicons-welcome-view-site', [
-            ['label' => 'Overzicht', 'desc' => 'Naast de titel zie je hoeveel meldingen <strong>Live</strong>, <strong>Gepland</strong>, <strong>Verlopen</strong> of <strong>Uit</strong> zijn. Elke melding toont in de kop haar naam, positie, planning en status, ook als ze is ingeklapt. De aantallen lopen mee terwijl je wijzigt.'],
+            ['label' => 'Overzicht', 'desc' => 'Naast de titel zie je hoeveel meldingen <strong>Live</strong>, <strong>Gepland</strong>, <strong>Verlopen</strong> of <strong>Uit</strong> zijn. Elke melding toont in de kop haar naam, positie, planning en status, ook als ze is ingeklapt. De aantallen lopen mee terwijl je wijzigt. Een melding die een feestdag of afwijking volgt, heeft het label <strong>Gekoppeld aan Openingstijden</strong>; bestaat die feestdag of afwijking niet meer, dan staat hij op <strong>Niet gekoppeld</strong> en verschijnt hij niet.'],
+            ['label' => 'Vanuit Openingstijden', 'desc' => 'Staan de automatische meldingen bij Openingstijden aan, dan zie je ze bovenaan in het blok <strong>Vanuit Openingstijden</strong>, met hun status en tekst. Ze zijn hier alleen te bekijken; aanpassen of uitzetten doe je bij Openingstijden.'],
             ['label' => 'Kop van een melding', 'desc' => 'Met de schakelaar zet je een melding aan of uit. Daarnaast staan <strong>Dupliceren</strong>, <strong>Verwijderen</strong> en het pijltje om in of uit te klappen. Na verwijderen kun je dat nog <strong>Ongedaan maken</strong>; definitief is het pas na <strong>Opslaan</strong>.'],
             ['label' => 'Live voorbeeld', 'desc' => 'Rechts naast elke melding staat een voorbeeld dat meteen meeverandert terwijl je typt, kleuren of een positie kiest. Op de website verschijnt de melding pas na <strong>Opslaan</strong>.'],
             ['label' => 'Bekijk op website', 'desc' => 'Het oog-icoon in de kop opent de website met alleen deze melding erop, ook als hij nog gepland is of uit staat. Alleen jij ziet dat voorbeeld. Je ziet de opgeslagen versie: sla eerst op om nieuwe wijzigingen te zien.'],
@@ -331,24 +376,28 @@
         $html .= mkbase_docs_section('melding-inhoud', 'Inhoud', 'dashicons-editor-paragraph', [
             ['label' => 'Aan', 'desc' => 'De schakelaar in de kop van elke melding. Uit: de melding is nergens zichtbaar, ongeacht de planning.'],
             ['label' => 'Naam', 'desc' => 'Alleen voor jezelf, om meldingen in het overzicht uit elkaar te houden. Niet zichtbaar op de website.'],
-            ['label' => 'Tekst', 'desc' => 'De inhoud van de melding, met vet, cursief en links. Houd hem kort: één zin leest het best, zeker op mobiel.'],
-            ['label' => 'Knop', 'desc' => 'Optioneel: een knop naast de tekst, bijv. "Bekijk de actie". Laat leeg voor geen knop.'],
+            ['label' => 'Tekst', 'desc' => 'De inhoud van de melding. In de werkbalk: een <strong>kop</strong> (groot, middel of klein), vet, cursief, onderstrepen, een opsomming met bolletjes of nummers, links, midden of rechts uitlijnen, een link, en de gum om opmaak weg te halen (bijv. na plakken uit Word). Bij een balk leest één zin het best, zeker op een telefoon. Wordt de tekst lang, of staat er een lijst in, dan verschijnt een tip om een pop-up of zwevend blok te kiezen. Koppen worden in een balk klein getoond.'],
+            ['label' => 'Knop', 'desc' => 'Optioneel: een knop bij de tekst, bijv. "Bekijk de actie". Laat leeg voor geen knop. Met een knop kies je ook de stijl (<strong>Omlijnd</strong> of <strong>Gevuld</strong>, dat meer opvalt) en bij een balk of hij <strong>naast</strong> of <strong>onder</strong> de tekst staat. Bij een pop-up en zwevend blok staat hij altijd onder de tekst.'],
+            ['label' => 'Openingstijden in de melding', 'desc' => 'Zet dit aan om de openingstijden onder de tekst te tonen, en kies de roosters en de weergave (Week, Vandaag, Status of Afwijkingen). Bij Week en Vandaag kies je ook of "Nu open" erbij staat. Het live voorbeeld toont de echte openingstijden. Zie ook <strong>Openingstijden → Meldingen bij openingstijden</strong>.'],
         ]);
 
         $html .= mkbase_docs_section('melding-planning', 'Planning', 'dashicons-calendar-alt', [
-            ['label' => 'Inplannen', 'desc' => 'Uit: de melding is zichtbaar zolang hij aan staat. Aan: alleen tussen <strong>Vanaf</strong> en <strong>Tot en met</strong>, op de minuut nauwkeurig (tijdzone van de website). Leeg laten mag: zonder Vanaf start hij direct, zonder Tot en met loopt hij door.'],
+            ['label' => 'Wanneer zichtbaar', 'desc' => '<strong>Altijd</strong>: de melding is zichtbaar zolang hij aan staat. <strong>Zelf plannen</strong>: alleen tussen <strong>Vanaf</strong> en <strong>Tot en met</strong>, op de minuut nauwkeurig (tijdzone van de website). Leeg laten mag: zonder Vanaf start hij direct, zonder Tot en met loopt hij door. <strong>Volgens openingstijden</strong>: de melding volgt een feestdag of afwijking (zie hieronder).'],
+            ['label' => 'Volgens openingstijden', 'desc' => 'Kies bij <strong>Volgt</strong> een feestdag of afwijking van Openingstijden. De melding verschijnt een aantal dagen vooraf (bij <strong>Vooraf tonen</strong>; leeg is zoals bij Openingstijden) en verdwijnt na de laatste dag. De tijdlijn eronder laat zien wanneer: eerst "Melding vooraf", dan de feestdag of afwijking zelf. Verschuift de datum bij Openingstijden, dan schuift de melding mee.'],
+            ['label' => 'Tijdlijn', 'desc' => 'Onder de datums zie je wanneer de melding zichtbaar is ten opzichte van vandaag, en hoeveel dagen het nog duurt.'],
             ['label' => 'Cache', 'desc' => 'Op elk begin- en eindmoment en bij het opslaan wordt de cache van WP Rocket automatisch geleegd, zodat de melding op tijd verschijnt en verdwijnt.'],
         ]);
 
         $html .= mkbase_docs_section('melding-weergave', 'Weergave', 'dashicons-art', [
             ['label' => 'Stijl', 'desc' => 'Kies een vaste stijl (<strong>Info</strong>, <strong>Succes</strong>, <strong>Waarschuwing</strong> of <strong>Actie</strong>) of <strong>Eigen kleuren</strong>. Zorg bij eigen kleuren voor voldoende contrast tussen tekst en achtergrond.'],
             ['label' => 'Positie', 'desc' => '<ul><li><strong>Bovenaan, blijft staan</strong>: blijft in beeld tijdens het scrollen.</li><li><strong>Bovenaan, scrolt mee weg</strong>: staat boven de header en verdwijnt bij het scrollen.</li><li><strong>Onderaan, blijft staan</strong>: zwevende balk onderaan het scherm.</li><li><strong>Pop-up in het midden</strong>: een venster midden op het scherm. Standaard wordt de pagina erachter donker; zet <strong>Pagina erachter donker maken</strong> uit als de pagina gewoon bruikbaar moet blijven. Met <strong>Scrollen erachter blokkeren</strong> (standaard aan) staat de pagina stil zolang de pop-up open is.</li><li><strong>Zwevend blok</strong>: een kaartje op een vaste plek (links of rechts, boven, midden of onder) dat blijft staan tijdens het scrollen. De breedte stel je zelf in, standaard 360 px. Op een telefoon staan blokken onderaan, over de volle breedte.</li></ul>'],
+            ['label' => 'Uitlijning, tekstgrootte en ruimte', 'desc' => '<strong>Uitlijning</strong>: Automatisch (een balk in het midden, een pop-up en blok links), Links of Midden, voor de hele melding. <strong>Tekstgrootte</strong>: Klein, Normaal of Groot; koppen schalen mee. <strong>Ruimte</strong>: Compact, Normaal of Ruim, de ruimte rond de tekst. Het live voorbeeld laat het meteen zien.'],
             ['label' => 'Eén per plek', 'desc' => 'Balken mogen onder elkaar staan. Een pop-up en elke plek van een zwevend blok hebben maar één melding tegelijk. Kies je een plek die in dezelfde periode al bezet is, dan staat er <strong>Bezet</strong> bij en kun je niet opslaan. Plan ze na elkaar in, of kies een andere plek.'],
         ]);
 
         $html .= mkbase_docs_section('melding-gedrag', 'Gedrag', 'dashicons-clock', [
             ['label' => 'Wanneer verschijnen', 'desc' => '<strong>Direct</strong> bij het openen van de pagina, <strong>na een aantal seconden</strong> (bijv. 10), of <strong>na scrollen</strong>: pas als de bezoeker een stuk naar beneden is gegaan (een schermhoogte is ongeveer 800 px). Met "Bekijk op website" verschijnt hij altijd direct.'],
-            ['label' => 'Automatisch verdwijnen', 'desc' => 'De melding verdwijnt na het ingestelde aantal seconden; een dun balkje laat zien hoeveel tijd er nog is. Zolang de bezoeker er met de muis of het toetsenbord op staat, wacht hij. Daarna geldt <strong>Daarna weer tonen</strong>, net als bij wegklikken.'],
+            ['label' => 'Automatisch verdwijnen', 'desc' => 'De melding verdwijnt na het ingestelde aantal seconden; een dun balkje laat zien hoeveel tijd er nog is. Zolang de bezoeker er met de muis of het toetsenbord op staat, wacht hij. Daarna geldt <strong>Daarna weer tonen</strong>, net als bij wegklikken. Staan er openingstijden in de melding, kies dan minstens 20 seconden of zet het uit; anders verschijnt er een tip.'],
             ['label' => 'Sluitbaar', 'desc' => 'Toont een kruisje waarmee de bezoeker de melding wegklikt. Kies wanneer hij weer verschijnt: op de volgende pagina, bij een volgend bezoek (na het sluiten van de browser), na een aantal dagen, of nooit meer. Wijzig je de tekst, knop of planning, dan ziet iedereen de melding opnieuw. Een pop-up heeft altijd een kruisje (en sluit ook met Esc of een klik ernaast); de keuze Sluitbaar staat er dan niet en "Daarna weer tonen" geldt altijd.'],
         ]);
 
@@ -357,15 +406,192 @@
         ]);
 
         if (current_user_can('manage_options')) {
-            $html .= mkbase_docs_section('melding-technisch', 'Technisch (developer)', 'dashicons-admin-tools', [
-                ['label' => 'Bestanden', 'desc' => 'Logica: <code>inc/notifications.php</code>. HTML: <code>template-parts/notifications/notifications.php</code>, aangeroepen vanuit <code>footer.php</code> van het child theme. CSS en JS laden alleen op pagina\'s met een zichtbare melding.'],
-                ['label' => 'Styling', 'desc' => 'Classes: <code>.mk-notifications--boven</code>, <code>--boven-scrollt</code>, <code>--onder</code>, en per melding <code>.mk-notification--{stijl}</code>, <code>__inner</code>, <code>__inner__txt</code>, <code>__button</code>, <code>__close</code>. Kleuren via <code>--mk-notification-bg</code> en <code>--mk-notification-color</code>. De hoogte van de balken staat op <code>&lt;html&gt;</code> in <code>--mk-notification-height</code> (boven) en <code>--mk-notification-bottom-height</code> (onder). Per vorm: <code>.mk-notification--balk</code>, <code>--blok</code> en <code>--popup</code> (een <code>&lt;dialog&gt;</code>; de donkere laag is <code>::backdrop</code>). Blokken staan in <code>.mk-notification-blokken</code> &gt; <code>.mk-notifications--blok.mk-notifications--rechts-onder</code> (enz.), met de breedte in <code>--mk-notification-width</code>. Het aftelbalkje is <code>.mk-notification__timer</code>.'],
+            // Een melding zoals op de website (balk, met knop en kruisje), voor de tabel met classes
+            $melding_voorbeeld = '<div class="mk-notification mk-notification--info mk-notification--balk mk-notification--uitlijnen-auto mk-notification--tekst-normaal mk-notification--ruimte-normaal" style="--mk-notification-bg: #2563eb; --mk-notification-color: #ffffff;">'
+                . '<div class="mk-notification__inner"><div class="mk-notification__inner__txt"><p><strong>Nu 20% korting</strong> op het hele assortiment.</p></div>'
+                . '<a class="mk-notification__button mk-notification__button--omlijnd" href="#" tabindex="-1">Bekijk de actie</a>'
+                . '<span class="mk-notification__close mk-notification__inner__closex" aria-hidden="true"><span class="mk-notification__inner__closex__lineone"></span><span class="mk-notification__inner__closex__linetwo"></span></span>'
+                . '</div><span class="mk-notification__timer" aria-hidden="true"></span></div>';
+            $html .= mkbase_docs_section('melding-technisch', 'Technisch', 'dashicons-admin-tools', [
+                ['label' => 'Bestanden', 'desc' => mkbase_docs_tabel([
+                    ['inc/notifications.php', 'Logica: welke meldingen zichtbaar zijn, status, planning, opslaan'],
+                    ['template-parts/notifications/notifications.php', 'De HTML; aangeroepen vanuit <code>footer.php</code> van het child theme'],
+                    ['assets/css/components/notifications.css', 'De opmaak (laadt alleen op pagina\'s met een zichtbare melding)'],
+                    ['assets/js/notifications.js', 'Verschijnen, verdwijnen, sluiten en onthouden'],
+                ], ['Bestand', 'Wat erin staat'])],
+                ['label' => 'Classes van een melding', 'desc' => mkbase_docs_voorbeeld($melding_voorbeeld) . mkbase_docs_tabel([
+                    ['.mk-notification', 'Eén melding', '.mk-notification'],
+                    ['.mk-notification--{stijl}', 'De stijl: <code>--info</code>, <code>--succes</code>, <code>--waarschuwing</code>, <code>--actie</code>, <code>--eigen</code>'],
+                    ['.mk-notification--balk / --blok / --popup', 'De vorm. Een pop-up is een <code>&lt;dialog&gt;</code>; de donkere laag is <code>::backdrop</code>'],
+                    ['.mk-notification__inner', 'De binnenkant: tekst, knop en kruisje naast of onder elkaar', '.mk-notification__inner'],
+                    ['.mk-notification__inner__txt', 'De tekst uit de editor (alinea\'s, koppen H2 t/m H4, lijsten)', '.mk-notification__inner__txt'],
+                    ['.mk-notification__button', 'De knop, met <code>--omlijnd</code> of <code>--gevuld</code>', '.mk-notification__button'],
+                    ['.mk-notification__close', 'Het kruisje', '.mk-notification__close'],
+                    ['.mk-notification__timer', 'Het aftelbalkje bij Automatisch verdwijnen', '.mk-notification__timer'],
+                    ['.mk-notification__openingstijden', 'Openingstijden in de melding (sinds 1.7.0)'],
+                    ['.mk-notification--uitlijnen-{auto|links|midden}', 'Weergave → Uitlijning'],
+                    ['.mk-notification--tekst-{klein|normaal|groot}', 'Weergave → Tekstgrootte'],
+                    ['.mk-notification--ruimte-{compact|normaal|ruim}', 'Weergave → Ruimte'],
+                    ['.mk-notification--knop-onder', 'Bij een balk: de knop onder de tekst'],
+                ])],
+                ['label' => 'Plekken op de pagina', 'desc' => mkbase_docs_tabel([
+                    ['.mk-notifications--boven / --boven-scrollt / --onder', 'De balken, onder elkaar'],
+                    ['.mk-notification-blokken', 'Alle zwevende blokken samen'],
+                    ['.mk-notifications--blok.mk-notifications--rechts-onder', 'Eén plek voor een blok (ook <code>--links-boven</code>, <code>--rechts-midden</code>, enz.)'],
+                ], ['Class', 'Wat het is'])],
+                ['label' => 'CSS-variabelen', 'desc' => mkbase_docs_tabel([
+                    ['--mk-notification-bg', 'Achtergrondkleur van de melding (per melding gezet)'],
+                    ['--mk-notification-color', 'Tekstkleur van de melding'],
+                    ['--mk-notification-width', 'Breedte van een zwevend blok'],
+                    ['--mk-notification-height', 'Op <code>&lt;html&gt;</code>: de hoogte van de balken bovenaan (de header schuift mee)'],
+                    ['--mk-notification-bottom-height', 'Op <code>&lt;html&gt;</code>: de hoogte van de balken onderaan'],
+                ], ['Variabele', 'Wat het is'])],
                 ['label' => 'CSS overschrijven', 'desc' => 'Onderaan de pagina, in het ingeklapte blok <strong>Technisch</strong>. Op Ja laadt de opmaak niet uit het core thema en schuift de header niet mee; het child theme regelt dan alles zelf.'],
                 ['label' => 'Van 1.4.1 naar 1.5.0', 'desc' => 'De losse melding van vóór 1.5.0 wordt bij de update automatisch de eerste melding in de lijst, met dezelfde tekst, kleuren, datums en pagina\'s.'],
-            ]);
+            ], true);
         }
 
         $html .= '</div>';
+
+        /* ── OPENINGSTIJDEN (sinds 1.7.0) ─────────────────── */
+        if (function_exists('mkbase_ot_actief') && mkbase_ot_actief()) {
+            $html .= '<div class="mkbase-docs-panel" data-panel="openingstijden">';
+            $html .= '<p class="mkbase-docs-intro">Vul de openingstijden één keer in bij <strong>Mediakanjers → Openingstijden</strong>. Het blok <strong>Openingstijden</strong> toont ze op elke pagina waar je het neerzet, en Google kan ze bij je bedrijf laten zien. Feestdagen en afwijkende dagen komen er vanzelf bij.</p>';
+            $html .= mkbase_docs_settings_link(admin_url('admin.php?page=acf-options-openingstijden'), 'Ga naar Openingstijden');
+
+            $html .= mkbase_docs_section('ot-start', 'Zo werkt het', 'dashicons-clock', [
+                ['label' => 'Wat geldt er op een dag?', 'desc' => 'Eerst een <strong>afwijkende dag</strong> (bijv. een bedrijfsvakantie), dan een <strong>feestdag</strong>, en anders de <strong>vaste week</strong>. Een afwijkende dag met de status <strong>Gewoon open</strong> maakt een feestdag weer een gewone dag.'],
+                ['label' => 'Overzicht', 'desc' => 'Bovenaan kies je het rooster; de tegels tonen voor dat rooster de stand van nu, vandaag, de eerstvolgende afwijking en hoeveel afwijkingen er op de website staan. Bij <strong>Roosters</strong> pas je de naam aan, kies je het rooster voor Google of verwijder je een rooster. Rechts zie je precies wat de website toont, met alle roosters samen. Daarnaast staan hier waarschuwingen, bijvoorbeeld als Google nog geen openingstijden krijgt of de tijdzone niet klopt.'],
+                ['label' => 'Wat staat er op de website?', 'desc' => 'Het weekoverzicht toont de week van vandaag, van maandag tot en met zondag. Valt er een feestdag of afwijkende dag in die week, dan staat die op zijn eigen dag, met de datum en de naam. Latere feestdagen en afwijkingen staan eronder, vanaf het aantal dagen van tevoren dat je bij <strong>Algemeen</strong> instelt (standaard 30). Voorbije dagen verdwijnen vanzelf.'],
+                ['label' => 'Nu open', 'desc' => 'Of je nu open bent ("Nu open · tot 17:30", "Pauze · weer open om 13:00", "Gesloten · morgen open om 08:30") rekent de browser van de bezoeker uit, in de tijdzone van de website. Daardoor klopt het ook als de pagina uit de cache komt.'],
+                ['label' => 'Tijdzone', 'desc' => 'Kies bij <strong>Instellingen → Algemeen → Tijdzone</strong> een stad, zoals <strong>Amsterdam</strong>, en niet "UTC+0" of "UTC+1". Met alleen een afwijking van UTC klopt "Nu open" een uur niet, of alleen in de winter (zomertijd). Het thema zet een nieuwe of bijgewerkte website daarom één keer vanzelf op Amsterdam; kies je daarna zelf iets anders, dan blijft dat staan, en waarschuwen het Overzicht en Diagnose als het niet klopt. Developers: andere stad of uitzetten met het filter <code>mkbase_tijdzone_automatisch</code>.'],
+                ['label' => 'Cache', 'desc' => 'Na opslaan wordt de cache van de website geleegd. Daarnaast kijkt het thema elke nacht of er iets op de website verandert, bijvoorbeeld omdat een nieuwe week begint of een feestdag in beeld komt, en leegt dan de cache.'],
+            ]);
+
+            $html .= mkbase_docs_section('ot-week', 'Vaste week en roosters', 'dashicons-calendar-alt', [
+                ['label' => 'Per dag', 'desc' => 'Kies <strong>Open</strong>, <strong>Op afspraak</strong> of <strong>Gesloten</strong>. Bij Open vul je de tijden in. Een pauze of koopavond? Klik op <strong>+ Tweede tijdvak</strong>; meer dan twee per dag kan niet. Met een opmerking (bijv. "Koopavond") komt er een korte tekst bij de dag.'],
+                ['label' => 'Na middernacht', 'desc' => 'Open tot na middernacht? Vul gewoon de echte tijd in, bijv. 22:00 – 02:00. De status "nu open" klopt dan ook na middernacht.'],
+                ['label' => 'Maandag kopiëren', 'desc' => 'Met <strong>Maandag kopiëren naar di t/m vr</strong> zet je de tijden van maandag in één keer op de andere werkdagen.'],
+                ['label' => 'Meerdere roosters', 'desc' => 'Heb je bijvoorbeeld een winkel en een werkplaats met andere tijden, voeg dan met <strong>+ Rooster</strong> een rooster toe. Met de keuze bovenaan wissel je tussen de roosters. Per blok kies je welke roosters het toont. Een rooster dat nog in een blok staat (ook in een gesynchroniseerd patroon of een template), kun je niet verwijderen; bij opslaan zie je dan waar het staat.'],
+                ['label' => 'Live voorbeeld', 'desc' => 'Rechts naast de week zie je meteen hoe het overzicht eruitziet terwijl je typt. Gelijke dagen na elkaar worden samengevoegd, zoals "Maandag t/m vrijdag".'],
+            ]);
+
+            $html .= mkbase_docs_section('ot-feestdagen', 'Feestdagen', 'dashicons-star-filled', [
+                ['label' => 'Standaard', 'desc' => 'Op een nieuwe website staan de gangbare Nederlandse feestdagen al klaar, allemaal op Gesloten. Pas ze aan, verwijder ze of voeg er een toe; de lijst wordt bewaard bij <strong>Opslaan</strong>.'],
+                ['label' => 'Datum', 'desc' => 'De datum wordt elk jaar vanzelf uitgerekend, ook voor Pasen, Hemelvaart en Pinksteren. Koningsdag valt op zondag een dag eerder. Bij <strong>Valt op</strong> zie je de eerstvolgende datum en wanneer de feestdag op de website verschijnt. Staat een feestdag er niet tussen, kies dan <strong>Eigen feestdag</strong> en vul een naam en datum (dag-maand) in.'],
+                ['label' => 'Status', 'desc' => '<strong>Gesloten</strong>, <strong>Andere tijden</strong> (maximaal twee tijdvakken) of <strong>Op afspraak</strong>.'],
+                ['label' => 'Geldt voor', 'desc' => 'Met meerdere roosters kies je per feestdag voor welke roosters hij geldt. Niets aangevinkt: voor alle. Een rooster dat je niet aanvinkt, volgt die dag gewoon de vaste week.'],
+                ['label' => 'Terugzetten', 'desc' => 'Een feestdag per ongeluk verwijderd? Met <strong>Nederlandse feestdagen terugzetten</strong> komen de standaard-feestdagen die ontbreken er weer bij (op Gesloten). Wat er al staat, blijft zoals het is.'],
+                ['label' => 'Melding', 'desc' => 'Per feestdag zie je of er een melding bij is, en maak je er een met <strong>Melding maken</strong>. Zie <strong>Meldingen bij openingstijden</strong>.'],
+            ]);
+
+            $html .= mkbase_docs_section('ot-afwijkend', 'Afwijkende dagen', 'dashicons-warning', [
+                ['label' => 'Wat is het?', 'desc' => 'Eenmalige dagen of periodes: een bedrijfsvakantie, een kortere dag, een inventarisatie. Vul een datum in, en bij een periode ook <strong>Tot en met</strong> (leeg bij één dag).'],
+                ['label' => 'Kaarten', 'desc' => 'Elke afwijking is een kaart. In de kop staan de naam, de datum, vanaf wanneer hij op de website staat, en of er een melding bij is. Met de prullenbak verwijder je hem (definitief na Opslaan). Een voorbije afwijking is ingeklapt; open hem met <strong>Bekijken</strong>.'],
+                ['label' => 'Komende 120 dagen', 'desc' => 'Rechts naast de kaarten staan alle feestdagen en afwijkingen van de komende 120 dagen op volgorde. Wat al op de website staat, is groen. De lijst wordt bijgewerkt na Opslaan.'],
+                ['label' => 'Status', 'desc' => '<strong>Gesloten</strong>, <strong>Andere tijden</strong>, <strong>Op afspraak</strong> of <strong>Gewoon open</strong> (de vaste week, ook op een feestdag). Met een toelichting komt er een korte zin bij, zoals hoe men je dan wel bereikt.'],
+                ['label' => 'Overlap', 'desc' => 'Overlappen twee afwijkingen voor hetzelfde rooster, dan zie je een waarschuwing. Op de dagen die ze delen, geldt de bovenste in de lijst; sleep om de volgorde te wijzigen.'],
+                ['label' => 'Voorbij', 'desc' => 'Een voorbije afwijking staat niet meer op de website. Je kunt hem laten staan of verwijderen.'],
+            ]);
+
+            $html .= mkbase_docs_section('ot-blok', 'Het blok Openingstijden', 'dashicons-screenoptions', [
+                ['label' => 'Weergave', 'desc' => '<strong>Week</strong>: het hele overzicht. <strong>Vandaag</strong>: één regel met de tijden van vandaag, bijv. voor de footer. <strong>Status</strong>: alleen "Nu open" of "Gesloten · morgen open om 08:30". <strong>Afwijkingen</strong>: alleen de afwijkende dagen; zijn er geen, dan staat het blok niet op de website.'],
+                ['label' => 'Meerdere roosters samen', 'desc' => 'Vink bij <strong>Roosters</strong> meer dan één rooster aan om ze in één overzicht te tonen. In de week staat er dan een kolom per rooster (is het blok smal, op een telefoon of in een kolom, dan per dag onder elkaar); dagen worden alleen samengevoegd als alle roosters gelijk zijn. Bij Vandaag en Status staat er een regel per rooster, met de naam ervoor. Bij de afwijkingen staat de naam van het rooster erbij als een afwijking niet voor alle gekozen roosters geldt.'],
+                ['label' => 'Tabjes', 'desc' => 'Vink je twee of meer roosters aan, dan kies je bij <strong>Meerdere roosters</strong> voor <strong>Naast elkaar</strong> (één tabel) of <strong>Tabjes</strong>. Met tabjes staat er per rooster een tabje met een stip: groen als het nu open is, oranje bij een pauze of als het bijna sluit, grijs als het dicht is. Bij het openen van de pagina staat het rooster dat nu open is voorop. De tabjes werken ook met het toetsenbord (pijltjes).'],
+                ['label' => 'Bewerkvenster', 'desc' => 'Het venster heeft drie groepen: <strong>Wat toon je</strong> (roosters, weergave, titel en link), <strong>Indeling</strong> (meerdere roosters, breedte en stijl) en <strong>Onderdelen</strong> (wat er wel of niet bij staat). Je ziet alleen wat bij de gekozen weergave hoort.'],
+                ['label' => 'Stijl', 'desc' => 'Kies in het bewerkvenster bij <strong>Indeling → Stijl</strong> (of in de zijbalk bij <strong>Stijlen</strong>) hoe het blok eruitziet: <strong>Kaart</strong> (standaard, een witte kaart), <strong>Plat</strong> (zonder achtergrond, bijv. in een kolom of op een gekleurde sectie) of <strong>Donker</strong> (lichte tekst in een donkere kaart, bijv. in de footer).'],
+                ['label' => 'Nu open', 'desc' => 'De status laat ook zien hoe lang je nog open bent ("Nu open · tot 17:30 · nog 2 uur"), en het laatste halfuur "Sluit over 25 minuten". In de regel van vandaag laat een streepje zien hoe ver de dag is.'],
+                ['label' => 'Komende wijziging', 'desc' => 'Met <strong>Komende wijziging uitlichten</strong> (standaard aan) staat de eerstvolgende feestdag of afwijking opvallend boven de week, bijv. "Let op: maandag 29 maart gesloten (Tweede paasdag)". Hij verdwijnt vanzelf als die voorbij is.'],
+                ['label' => 'Link bij Vandaag en Status', 'desc' => 'Bij de weergaves Vandaag en Status kun je een link toevoegen, bijv. naar de contactpagina met het hele overzicht. Zonder eigen tekst staat er "Alle openingstijden".'],
+                ['label' => 'Breedte', 'desc' => '<strong>Inhoudsbreedte</strong>: zoals de andere blokken, maximaal 1400 px en in het midden. <strong>Volle breedte (100%)</strong>: het blok vult precies de plek waar het staat, zonder eigen marges. Kies dat als het blok in een kolom of naast tekst staat, zodat het gelijk staat met de tekst links en rechts.'],
+                ['label' => 'Opties', 'desc' => 'Een titel, de status "nu open", vandaag uitlichten, gelijke dagen samenvoegen, gesloten dagen tonen, afwijkingen tonen en de komende wijziging uitlichten. Hoe tijden eruitzien (08:30, 8:30 of 8.30 uur) stel je bij <strong>Algemeen</strong> in, voor de hele website.'],
+            ]);
+
+            $html .= mkbase_docs_section('ot-meldingen', 'Meldingen bij openingstijden', 'dashicons-megaphone', [
+                ['label' => 'Openingstijden in een melding', 'desc' => 'Zet bij een melding (Inhoud) <strong>Openingstijden in de melding</strong> aan en kies de roosters en de weergave. Ideaal als pop-up "Onze openingstijden": het weekoverzicht en "Nu open" staan dan onder de tekst, altijd actueel en met de feestdagen erin.'],
+                ['label' => 'Een melding die een afwijking volgt', 'desc' => 'Kies bij een melding (Planning) bij <strong>Wanneer zichtbaar</strong> voor <strong>Volgens openingstijden</strong>, en kies bij <strong>Volgt</strong> een feestdag of afwijking. De melding verschijnt dan vanzelf een aantal dagen van tevoren (standaard zoals bij Openingstijden) en verdwijnt na de laatste dag. Verschuif je de afwijking, dan schuift de melding mee; een feestdag komt elk jaar terug. Bestaat de afwijking niet meer, dan staat de melding op "Niet gekoppeld" en verschijnt hij niet.'],
+                ['label' => 'Invullers', 'desc' => 'In de tekst van een gekoppelde melding kun je met de knoppen onder de tekst invoegen: <code>{naam}</code> (bijv. Kerstvakantie), <code>{datum}</code> ("van dinsdag 1 tot en met donderdag 31 december"), <code>{tijden}</code> ("gesloten" of "open van 10:00 tot 14:00"), <code>{rooster}</code> (bijv. "Winkel en Werkplaats") en <code>{toelichting}</code>. Onder de tekst zie je meteen hoe hij op de website komt.'],
+                ['label' => 'Melding maken', 'desc' => 'Bij elke feestdag en afwijking staat de knop <strong>Melding maken</strong>. Die opent Meldingen met een nieuwe melding die deze feestdag of afwijking volgt, met de standaardtekst al ingevuld. Controleer de tekst en sla op. Heeft een afwijking al een eigen melding, dan zie je dat bij de afwijking.'],
+                ['label' => 'Automatische meldingen', 'desc' => 'Met <strong>Automatisch een melding bij elke feestdag en afwijking</strong> (Overzicht → Algemeen, standaard uit) krijgt elke feestdag en afwijking zonder eigen melding vanzelf een balk met de standaardtekst, in de stijl en op de plek die je kiest. Bij een feestdag of afwijking zet je hem uit met <strong>Geen melding</strong>, of maak je er met <strong>Aanpassen</strong> een eigen melding van. Bij Meldingen staan ze onder <strong>Vanuit Openingstijden</strong>, alleen om te bekijken. Een gesloten feestdag op een dag dat je toch al dicht bent, krijgt geen melding.'],
+                ['label' => 'Tips', 'desc' => 'Volgt een melding een afwijking en toont hij ook de weergave Afwijkingen, dan staat die afwijking er twee keer in; er verschijnt dan een tip om Week of Vandaag te kiezen. Ook bij een melding met openingstijden die binnen 20 seconden vanzelf verdwijnt, verschijnt een tip: zoveel tekst lees je niet zo snel.'],
+            ]);
+
+            $html .= mkbase_docs_section('ot-google', 'Google', 'dashicons-search', [
+                ['label' => 'Hoe werkt het?', 'desc' => 'Kies het rooster van je hoofdlocatie: in het Overzicht met <strong>Gebruiken voor Google</strong> bij het rooster, of bij <strong>Algemeen → Gebruiken voor Google</strong>. Zolang er niets is gekozen, krijgt Google geen openingstijden en zie je daar een melding over in het Overzicht. De website geeft de openingstijden dan mee als gestructureerde gegevens (schema.org), met de feestdagen en afwijkende dagen van de komende periode. Met Yoast SEO komt het bij de bedrijfsgegevens van Yoast; zonder Yoast staat het op de voorpagina.'],
+                ['label' => 'Google Bedrijfsprofiel', 'desc' => 'Google gebruikt deze gegevens als aanvulling. Houd de tijden in je Google Bedrijfsprofiel ook bij; dat profiel wint als ze verschillen.'],
+            ]);
+
+            if (current_user_can('manage_options')) {
+                // Een echt voorbeeld: de week van het eerste rooster, met de opmaak van de core
+                $ot_voorbeeld = '';
+                if (mkbase_ot_ingevuld() && ($eerste = array_key_first(mkbase_ot_roosters()))) {
+                    $ot_voorbeeld = mkbase_openingstijden(['rooster' => $eerste, 'weergave' => 'week', 'titel' => 'Openingstijden']);
+                }
+                $html .= mkbase_docs_section('ot-dev', 'Voor developers', 'dashicons-editor-code', [
+                    ['label' => 'Functie', 'desc' => '<p>Voor bijvoorbeeld de header of footer in het child theme. CSS en JS laden vanzelf mee.</p>'
+                        . mkbase_docs_code("<?php echo mkbase_openingstijden([\n    'rooster'  => 'standaard',\n    'weergave' => 'vandaag',\n]); ?>")
+                        . mkbase_docs_tabel([
+                            ['rooster', 'Kenmerk van het rooster; meerdere met komma\'s of als array voor één overzicht. Leeg: het eerste'],
+                            ['weergave', '<code>week</code>, <code>vandaag</code>, <code>status</code> of <code>afwijkingen</code>'],
+                            ['titel', 'Een kop boven het blok (leeg: geen kop)'],
+                            ['status', 'Status "nu open" tonen (true/false)'],
+                            ['vandaag', 'De regel van vandaag uitlichten (true/false)'],
+                            ['samenvoegen', 'Gelijke dagen op één regel (true/false)'],
+                            ['gesloten', 'Gesloten dagen tonen (true/false)'],
+                            ['afwijkingen', 'Afwijkingen onder de week tonen (true/false)'],
+                            ['wijziging', 'De komende wijziging boven de week (true/false)'],
+                            ['indeling', '<code>naast</code> of <code>tabs</code>, bij meerdere roosters in de week'],
+                            ['link', 'Bij vandaag en status: een url, of een ACF-link (<code>url</code>, <code>title</code>, <code>target</code>)'],
+                        ], ['Optie', 'Wat het doet'])],
+                    ['label' => 'Shortcode', 'desc' => '<p>Met dezelfde opties als de functie.</p>' . mkbase_docs_code('[mk_openingstijden rooster="standaard" weergave="week" titel="Openingstijden"]')],
+                    ['label' => 'Kenmerk van een rooster', 'desc' => 'Het eerste rooster heet <code>standaard</code>; andere krijgen bij opslaan een vast kenmerk (bijv. <code>r3f9a1c2b</code>), dat niet verandert als je de naam wijzigt. Je ziet het in het blok als de waarde van Rooster, of met:' . mkbase_docs_code('array_keys(mkbase_ot_roosters())')],
+                    ['label' => 'Classes', 'desc' => mkbase_docs_voorbeeld($ot_voorbeeld) . mkbase_docs_tabel([
+                        ['.mk-openingstijden', 'Het blok om <code>.mk-ot</code> heen; <code>--vol</code> bij Breedte → Volle breedte, <code>.is-style-kaart / -plat / -donker</code> voor de stijl'],
+                        ['.mk-ot', 'Alle weergaves; <code>--week</code>, <code>--vandaag</code>, <code>--status</code>, <code>--afwijkingen</code>, <code>--{kenmerk}</code>', '.mk-ot'],
+                        ['.mk-ot__titel', 'De titel', '.mk-ot__titel'],
+                        ['.mk-ot__status', '"Nu open · tot 17:30"; <code>--open</code>, <code>--bijna</code>, <code>--pauze</code>, <code>--afspraak</code>, <code>--gesloten</code>', '.mk-ot__status'],
+                        ['.mk-ot__stip', 'De stip in de status', '.mk-ot__stip'],
+                        ['.mk-ot__status-nog', '"· nog 2 uur" achter de status', '.mk-ot__status-nog'],
+                        ['.mk-ot__wijziging', 'De komende wijziging ("Let op: ...")', '.mk-ot__wijziging'],
+                        ['.mk-ot__week', 'Het weekoverzicht', '.mk-ot__week'],
+                        ['.mk-ot__regel', 'Eén regel; <code>--uitzondering</code> (feestdag of afwijking), <code>.is-vandaag</code>, <code>.is-nu-open</code> (met <code>--mk-ot-voortgang</code>, 0 tot 1)', '.mk-ot__week .mk-ot__regel'],
+                        ['.mk-ot__dag', 'De dag(en) in een regel', '.mk-ot__dag'],
+                        ['.mk-ot__tijd', 'Eén tijdvak', '.mk-ot__tijd'],
+                        ['.mk-ot__extra', 'Opmerking (bijv. Koopavond) of de naam van een feestdag', '.mk-ot__extra'],
+                        ['.mk-ot__label', 'Het label "Vandaag"', '.mk-ot__label'],
+                        ['.mk-ot__afwijkingen', '"Afwijkende openingstijden" onder de week, met <code>.mk-ot__kop</code> en <code>.mk-ot__lijst</code>', '.mk-ot__afwijkingen'],
+                        ['.mk-ot__kalender', 'De kalendertegel in de lijst (in de core verborgen, het child theme toont hem)'],
+                        ['.mk-ot__tabel, .mk-ot__cel', 'Meerdere roosters naast elkaar (<code>.mk-ot--meer</code>); onder 480 px breed per dag onder elkaar'],
+                        ['.mk-ot__tabs, .mk-ot__tab, .mk-ot__paneel', 'Tabjes (<code>.mk-ot--tabs</code>, <code>.is-tabs</code> zodra JavaScript ze heeft omgezet); <code>.mk-ot__tab--open</code> enz. en <code>[aria-selected="true"]</code>'],
+                        ['.mk-ot__rooster', 'Naam van het rooster ("Werkplaats:")'],
+                        ['.mk-ot__vandaag, .mk-ot__link', 'Weergave Vandaag, en de link "Alle openingstijden"'],
+                    ])],
+                    ['label' => 'Opmaak', 'desc' => 'De core (<code>assets/css/components/openingstijden.css</code>, laadt vóór <code>style-main.css</code>) regelt alleen de indeling: regels, de tabel met meerdere roosters en de weergave op een telefoon. Kleuren zijn afgeleid van de tekstkleur, dus zonder child theme is het blok neutraal (zoals in het voorbeeld hierboven). De look (statuslabels, kleuren, het label Vandaag, de kaart) staat in het child theme: <code>web/assets/scss/blocks/_mk-openingstijden.scss</code>, met bovenaan de instellingen en een overzicht van alle classes.'],
+                    ['label' => 'Bestaande site bijwerken', 'desc' => 'Child themes worden op bestaande websites niet bijgewerkt. Na de update naar 1.7.0 toont het blok daar dus de neutrale opmaak van de core, tot je de look toevoegt:<ol>'
+                        . '<li>Kopieer <code>web/assets/scss/blocks/_mk-openingstijden.scss</code> uit het Mediakanjers child theme (het startpunt voor nieuwe websites) naar dezelfde map in het child theme van de website.</li>'
+                        . '<li>Zet in <code>web/assets/scss/style-main.scss</code>, onder BLOCKS:' . mkbase_docs_code('@import "blocks/_mk-openingstijden.scss";') . '</li>'
+                        . '<li>Pas de instellingen bovenaan het bestand aan de huisstijl aan en bouw de CSS opnieuw (gulp).</li></ol>'
+                        . 'Het bestand gebruikt de standaardvariabelen van het startpunt:' . mkbase_docs_tabel([
+                            ['$color-primary', 'Accentkleur (label Vandaag, tabjes, link)'],
+                            ['$font-color-normal', 'Tekstkleur in de kaart'],
+                            ['$font-size-small, $line-height-small', 'Tekstmaat van het blok'],
+                            ['$layout-content-size, $layout-maxwidth', 'Breedte van het blok (Inhoudsbreedte)'],
+                            ['$layout-block-spacing', 'Ruimte boven en onder het blok'],
+                            ['$h2-color, $h2-font-weight', 'De titel'],
+                        ], ['Variabele', 'Waarvoor'])
+                        . 'Heeft een ouder child theme die niet, dan geeft het bouwen een foutmelding: voeg ze toe of vervang ze bovenaan het bestand door vaste waarden. Heeft de website een eigen openingstijden-module, dan is dit niet nodig: zet de core-versie dan uit (zie Uitzetten).'],
+                    ['label' => 'CSS-variabelen', 'desc' => mkbase_docs_tabel([
+                        ['--mk-ot-lijn', 'Scheidingslijnen (core, afgeleid van de tekstkleur)'],
+                        ['--mk-ot-gedempt', 'Gesloten dagen, opmerkingen, datums (core)'],
+                        ['--mk-ot-vandaag-bg', 'Achtergrond van de regel van vandaag (core)'],
+                        ['--mk-ot-label-bg, --mk-ot-label-color', 'Het label "Vandaag" en de kalendertegel (child theme)'],
+                        ['--mk-ot-afwijkend-color', 'Tijden van een feestdag of afwijking (child theme)'],
+                    ], ['Variabele', 'Wat het is']) . '<p>In een melding zet de core ze alle zes in de kleuren van de melding.</p>'],
+                    ['label' => 'Uitzetten', 'desc' => 'Heeft een website een eigen openingstijden-module, zet de core-versie dan uit in het child theme:' . mkbase_docs_code("add_filter('mkbase_openingstijden_actief', '__return_false');") . 'De pagina, het blok en de Google-gegevens verdwijnen dan. Alles in de core heet <code>mkbase_ot_*</code>, zodat het niet botst met een eigen versie.'],
+                ], true);
+            }
+            $html .= '</div>';
+        }
 
         /* ── 404 ──────────────────────────────────────────── */
         $html .= '<div class="mkbase-docs-panel" data-panel="404">';
@@ -598,22 +824,32 @@
             $html .= '<p class="mkbase-docs-intro">Hulpfuncties uit het core thema voor de <code>render.php</code> van een blok. Een compleet startpunt staat in het child theme: <code>template-parts/blocks/_voorbeeld/</code>, met een stappenplan in de <code>README.md</code>. Mappen die met <code>_</code> beginnen worden niet als blok geregistreerd.</p>';
 
             $html .= mkbase_docs_section('dev-blok-attrs', 'Anker en extra classes', 'dashicons-admin-generic', [
-                ['label' => 'Gebruik', 'desc' => '<code>' . esc_html('<div<?php echo mkbase_block_attrs($block, \'mk-team\'); ?>>') . '</code> op de buitenste <code>&lt;div&gt;</code> van het blok. Voegt het HTML-anker (<code>id</code>) en de "Extra CSS-klasse(n)" uit de editor toe aan de eigen classes. Meerdere eigen classes: geef een array mee.'],
-                ['label' => 'block.json', 'desc' => 'Zet onder <code>supports</code>: <code>"anchor": true</code> voor het veld HTML-anker, en <code>"align": ["full"]</code> voor "Volledige breedte" in de blokwerkbalk.'],
-                ['label' => 'Volledige breedte', 'desc' => 'Geeft de buitenste <code>&lt;div&gt;</code> de class <code>.alignfull</code>. Voor de core-blokken staat de opmaak in <code>assets/css/components/mk-align.css</code> (laadt alleen waar nodig). Voor een eigen blok in het child theme: <code>.mk-team.alignfull { max-width: none; width: 100%; }</code>.'],
+                ['label' => 'Gebruik', 'desc' => '<p>Op de buitenste <code>&lt;div&gt;</code> van het blok. Voegt het HTML-anker (<code>id</code>) en de "Extra CSS-klasse(n)" uit de editor toe aan de eigen classes.</p>'
+                    . mkbase_docs_code("<div<?php echo mkbase_block_attrs(\$block, 'mk-team'); ?>>")
+                    . '<p>Meerdere eigen classes: geef een array mee.</p>' . mkbase_docs_code("<div<?php echo mkbase_block_attrs(\$block, ['mk-team', 'mk-team--groot']); ?>>")],
+                ['label' => 'block.json', 'desc' => '<p>Het veld HTML-anker en "Volledige breedte" in de blokwerkbalk:</p>' . mkbase_docs_code("\"supports\": {\n    \"anchor\": true,\n    \"align\": [\"full\"]\n}")],
+                ['label' => 'Volledige breedte', 'desc' => '<p>Geeft de buitenste <code>&lt;div&gt;</code> de class <code>.alignfull</code>. Voor de core-blokken staat de opmaak in <code>assets/css/components/mk-align.css</code> (laadt alleen waar nodig). Voor een eigen blok in het child theme:</p>' . mkbase_docs_code('.mk-team.alignfull { max-width: none; width: 100%; }')],
             ]);
 
             $html .= mkbase_docs_section('dev-blok-notice', 'Meldingen in de editor', 'dashicons-warning', [
-                ['label' => 'Gebruik', 'desc' => '<code>if ($is_preview) echo mkbase_block_notice(__(\'Team: voeg teamleden toe.\', \'mk\'));</code> — een oranje melding, alleen in de editor. Handig bij een leeg blok of een instelling die niet klopt.'],
+                ['label' => 'Gebruik', 'desc' => '<p>Een oranje melding, alleen in de editor. Handig bij een leeg blok of een instelling die niet klopt.</p>' . mkbase_docs_code("if (\$is_preview) echo mkbase_block_notice(__('Team: voeg teamleden toe.', 'mk'));")],
             ]);
 
             $html .= mkbase_docs_section('dev-blok-video', 'Video', 'dashicons-video-alt3', [
-                ['label' => 'Gebruik', 'desc' => '<code>echo mkbase_video(get_field(\'video\'), $is_preview);</code> met een ACF oEmbed-veld. Op de site eerst een afspeelknop (bij YouTube met voorbeeldafbeelding); de video laadt pas na een klik, YouTube via <code>youtube-nocookie.com</code> en Vimeo met <code>dnt=1</code>. In de editor staat de video er direct. Script en CSS laden automatisch mee.'],
-                ['label' => 'Styling', 'desc' => 'Pas in het child theme de variabelen aan op <code>.mk-video</code>: <code>--mk-video-bg</code>, <code>--mk-video-icon-bg</code>, <code>--mk-video-icon-bg-hover</code> en <code>--mk-video-icon-color</code>. Of overschrijf de classes <code>.mk-video__play</code>, <code>.mk-video__poster</code> en <code>.mk-video__icon</code>.'],
+                ['label' => 'Gebruik', 'desc' => mkbase_docs_code("echo mkbase_video(get_field('video'), \$is_preview);") . '<p>Met een ACF oEmbed-veld. Op de site eerst een afspeelknop (bij YouTube met voorbeeldafbeelding); de video laadt pas na een klik, YouTube via <code>youtube-nocookie.com</code> en Vimeo met <code>dnt=1</code>. In de editor staat de video er direct. Script en CSS laden automatisch mee.</p>'],
+                ['label' => 'Styling', 'desc' => '<p>Pas in het child theme de variabelen aan op <code>.mk-video</code>, of overschrijf de classes.</p>' . mkbase_docs_tabel([
+                    ['--mk-video-bg', 'Achtergrond achter de video'],
+                    ['--mk-video-icon-bg', 'Achtergrond van de afspeelknop'],
+                    ['--mk-video-icon-bg-hover', 'Idem, met de muis erop'],
+                    ['--mk-video-icon-color', 'Kleur van het afspeel-icoon'],
+                    ['.mk-video__play', 'De afspeelknop'],
+                    ['.mk-video__poster', 'De voorbeeldafbeelding'],
+                    ['.mk-video__icon', 'Het afspeel-icoon'],
+                ], ['Variabele of class', 'Wat het is'])],
             ]);
 
             $html .= mkbase_docs_section('dev-blok-kaart', 'Berichtkaart', 'dashicons-id', [
-                ['label' => 'Gebruik', 'desc' => '<code>get_template_part(\'template-parts/content/card\', null, [\'post\' =&gt; $post, \'image_size\' =&gt; \'large\', \'knop_tekst\' =&gt; \'\', \'is_preview\' =&gt; $is_preview]);</code> — dezelfde kaart als het Loop-blok en de archiefpagina, met de <code>.mk-loop__*</code>-classes.'],
+                ['label' => 'Gebruik', 'desc' => '<p>Dezelfde kaart als het Loop-blok en de archiefpagina, met de <code>.mk-loop__*</code>-classes.</p>' . mkbase_docs_code("get_template_part('template-parts/content/card', null, [\n    'post'       => \$post,\n    'image_size' => 'large',\n    'knop_tekst' => '',\n    'is_preview' => \$is_preview,\n]);")],
             ]);
 
             $html .= '</div>';
@@ -640,11 +876,19 @@
             ]);
 
             $html .= mkbase_docs_section('dev-img-gebruik', 'Gebruik', 'dashicons-format-image', [
-                ['label' => 'Basis', 'desc' => '<code>&lt;?php echo mkbase_image($afbeelding, \'large\'); ?&gt;</code> — <code>$afbeelding</code> is een ACF-afbeeldingsveld (array, ID of URL) of een attachment-ID. Is het leeg, dan geeft de functie niets terug; een eigen <code>if</code> is niet nodig.'],
-                ['label' => 'Maat', 'desc' => 'Het tweede argument is de WordPress-afbeeldingsmaat: <code>thumbnail</code>, <code>medium</code>, <code>large</code> of <code>full</code>. Kies de maat die het dichtst bij de weergavegrootte ligt; de browser kiest daarnaast zelf een kleinere versie op kleine schermen.'],
-                ['label' => 'Class of attributen', 'desc' => '<code>mkbase_image($afbeelding, \'large\', [\'class\' =&gt; \'mk-blok__afbeelding\'])</code>. Voor een puur decoratieve afbeelding (bijv. een icoon naast tekst): <code>[\'alt\' =&gt; \'\']</code>.'],
-                ['label' => 'Uitgelichte afbeelding', 'desc' => '<code>mkbase_image(get_post_thumbnail_id($post_id), \'large\')</code>'],
-                ['label' => 'Formaat kiesbaar in het blok', 'desc' => 'Zet het keuzeveld <strong>Afbeeldingsformaat</strong> bij de ACF-velden van het blok: <code>mkbase_image_size_field(\'field_mk_team_afbeeldingsformaat\', \'large\', \'team_afbeeldingsformaat\')</code> (key, standaardformaat, veldnaam). In de <code>render.php</code>: <code>mkbase_image($afbeelding, get_field(\'team_afbeeldingsformaat\') ?: \'large\')</code>. Kies als standaard <code>full</code> voor afbeeldingen over (bijna) de volle breedte, anders <code>large</code> of <code>medium</code>. De Image Slider, Kolommen, Loop en 404-pagina hebben dit veld al.'],
+                ['label' => 'Basis', 'desc' => mkbase_docs_code("<?php echo mkbase_image(\$afbeelding, 'large'); ?>") . '<p><code>$afbeelding</code> is een ACF-afbeeldingsveld (array, ID of URL) of een attachment-ID. Is het leeg, dan geeft de functie niets terug; een eigen <code>if</code> is niet nodig.</p>'],
+                ['label' => 'Maat', 'desc' => '<p>Het tweede argument is de WordPress-afbeeldingsmaat. Kies de maat die het dichtst bij de weergavegrootte ligt; de browser kiest daarnaast zelf een kleinere versie op kleine schermen.</p>' . mkbase_docs_tabel([
+                    ['thumbnail', 'Klein vierkant, bijv. een avatar'],
+                    ['medium', 'Kleine afbeelding naast tekst'],
+                    ['large', 'De meeste afbeeldingen in een blok'],
+                    ['full', 'Het origineel; voor (bijna) de volle breedte'],
+                ], ['Maat', 'Wanneer'])],
+                ['label' => 'Class of attributen', 'desc' => mkbase_docs_code("mkbase_image(\$afbeelding, 'large', ['class' => 'mk-blok__afbeelding'])") . '<p>Voor een puur decoratieve afbeelding (bijv. een icoon naast tekst):</p>' . mkbase_docs_code("mkbase_image(\$icoon, 'thumbnail', ['alt' => ''])")],
+                ['label' => 'Uitgelichte afbeelding', 'desc' => mkbase_docs_code("mkbase_image(get_post_thumbnail_id(\$post_id), 'large')")],
+                ['label' => 'Formaat kiesbaar in het blok', 'desc' => '<p>Zet het keuzeveld <strong>Afbeeldingsformaat</strong> bij de ACF-velden van het blok (key, standaardformaat, veldnaam):</p>'
+                    . mkbase_docs_code("mkbase_image_size_field('field_mk_team_afbeeldingsformaat', 'large', 'team_afbeeldingsformaat')")
+                    . '<p>In de <code>render.php</code>:</p>' . mkbase_docs_code("mkbase_image(\$afbeelding, get_field('team_afbeeldingsformaat') ?: 'large')")
+                    . '<p>Kies als standaard <code>full</code> voor afbeeldingen over (bijna) de volle breedte, anders <code>large</code> of <code>medium</code>. De Image Slider, Kolommen, Loop en 404-pagina hebben dit veld al.</p>'],
             ]);
 
             $html .= mkbase_docs_section('dev-img-wat', 'Wat doet het precies?', 'dashicons-performance', [
@@ -653,7 +897,7 @@
                 ['label' => 'Breedte en hoogte', 'desc' => 'Zet <code>width</code> en <code>height</code> op de afbeelding, zodat de pagina niet verspringt tijdens het laden (goed voor de Core Web Vitals van Google).'],
                 ['label' => 'Alt-tekst en lazy loading', 'desc' => 'Neemt de alt-tekst over uit de mediabibliotheek en laadt afbeeldingen pas als ze in beeld komen.'],
                 ['label' => 'SVG\'s', 'desc' => 'WordPress kent de maten van een SVG niet en kan er geen kleinere versies van maken. De functie toont dan het originele bestand, met de breedte en hoogte uit het SVG-bestand zelf (<code>width</code>/<code>height</code> of <code>viewBox</code>) en de alt-tekst uit de mediabibliotheek.'],
-                ['label' => 'Externe afbeeldingen', 'desc' => 'Bij een URL buiten de mediabibliotheek zijn de maten onbekend. Geef ze dan zelf mee: <code>mkbase_image($url, \'large\', [\'width\' =&gt; 800, \'height\' =&gt; 600])</code>.'],
+                ['label' => 'Externe afbeeldingen', 'desc' => '<p>Bij een URL buiten de mediabibliotheek zijn de maten onbekend. Geef ze dan zelf mee:</p>' . mkbase_docs_code("mkbase_image(\$url, 'large', ['width' => 800, 'height' => 600])")],
                 ['label' => 'Child theme', 'desc' => 'Beschikbaar vanaf core 1.4.1. Het voorbeeldblok in het child theme (<code>template-parts/blocks/_voorbeeld/</code>) laat zien hoe je het gebruikt.'],
             ]);
 
@@ -666,20 +910,28 @@
             $html .= '<p class="mkbase-docs-intro">Het thema heeft een eigen lightbox-laag, <code>mk-lightbox</code>, voor foto\'s, video, iframes en eigen HTML-content. Gebruik in blokken en child themes <strong>alleen deze laag</strong> — nooit de library eronder (Tobii) zelf. Zo kan die library later vervangen worden zonder dat blokken of websites aangepast hoeven te worden.</p>';
 
             $html .= mkbase_docs_section('lightbox-inladen', 'Inladen', 'dashicons-download', [
-                ['label' => 'Script', 'desc' => 'Laad de lightbox in met <code>wp_enqueue_script(\'mk-lightbox\');</code>, bij voorkeur in de <code>render.php</code> van het blok dat hem gebruikt. Zo laadt hij alleen op pagina\'s waar het blok staat.'],
+                ['label' => 'Script', 'desc' => mkbase_docs_code("wp_enqueue_script('mk-lightbox');") . '<p>Bij voorkeur in de <code>render.php</code> van het blok dat hem gebruikt. Zo laadt hij alleen op pagina\'s waar het blok staat.</p>'],
                 ['label' => 'CSS', 'desc' => 'Hoeft niet apart ingeladen te worden: de CSS laadt automatisch mee met het script, en staat altijd vóór <code>style-main.css</code> van het child theme. Je eigen styling wint dus altijd.'],
             ]);
 
             $html .= mkbase_docs_section('lightbox-gebruik', 'Content openen', 'dashicons-format-gallery', [
-                ['label' => 'Foto', 'desc' => '<code>' . esc_html('<a href="foto.jpg" data-mk-lightbox>') . '</code> — <code>href</code> verwijst naar de grote afbeelding. Het bijschrift komt uit de <code>alt</code> van de <code>&lt;img&gt;</code> in de link.'],
-                ['label' => 'Video', 'desc' => '<code>' . esc_html('<a href="https://youtu.be/ID" data-mk-lightbox data-mk-lightbox-type="video">') . '</code> — werkt met YouTube-, Vimeo- en eigen videolinks (bijv. <code>.mp4</code>). YouTube opent via <code>youtube-nocookie.com</code> en Vimeo met <code>dnt=1</code>, voor zo min mogelijk tracking.'],
-                ['label' => 'Iframe', 'desc' => '<code>' . esc_html('<a href="https://..." data-mk-lightbox data-mk-lightbox-type="iframe">') . '</code> — bijv. een kaart of externe pagina.'],
-                ['label' => 'Eigen HTML', 'desc' => '<code>' . esc_html('<a href="#element-id" data-mk-lightbox data-mk-lightbox-type="html">') . '</code> — opent het element met dat id. Het element wordt verplaatst (niet gekopieerd), dus formulieren en scripts daarin blijven werken. Het verdwijnt daardoor ook van de pagina zelf.'],
-                ['label' => 'Galerij', 'desc' => 'Links met <strong>dezelfde waarde</strong> voor <code>data-mk-lightbox</code> vormen samen een galerij, bijv. <code>data-mk-lightbox="project-1"</code>. Zonder waarde opent een link los. Geef elk blok een eigen waarde, bijv. met <code>wp_unique_id()</code>.'],
+                ['label' => 'Foto', 'desc' => mkbase_docs_code('<a href="foto.jpg" data-mk-lightbox><img src="foto-klein.jpg" alt="Bijschrift"></a>') . '<p><code>href</code> verwijst naar de grote afbeelding. Het bijschrift komt uit de <code>alt</code> van de <code>&lt;img&gt;</code> in de link.</p>'],
+                ['label' => 'Video', 'desc' => mkbase_docs_code('<a href="https://youtu.be/ID" data-mk-lightbox data-mk-lightbox-type="video">Bekijk de video</a>') . '<p>Werkt met YouTube-, Vimeo- en eigen videolinks (bijv. <code>.mp4</code>). YouTube opent via <code>youtube-nocookie.com</code> en Vimeo met <code>dnt=1</code>, voor zo min mogelijk tracking.</p>'],
+                ['label' => 'Iframe', 'desc' => mkbase_docs_code('<a href="https://..." data-mk-lightbox data-mk-lightbox-type="iframe">Bekijk de kaart</a>') . '<p>Bijvoorbeeld een kaart of een externe pagina.</p>'],
+                ['label' => 'Eigen HTML', 'desc' => mkbase_docs_code('<a href="#element-id" data-mk-lightbox data-mk-lightbox-type="html">Open</a>') . '<p>Opent het element met dat id. Het element wordt verplaatst (niet gekopieerd), dus formulieren en scripts daarin blijven werken. Het verdwijnt daardoor ook van de pagina zelf.</p>'],
+                ['label' => 'Galerij', 'desc' => '<p>Links met <strong>dezelfde waarde</strong> voor <code>data-mk-lightbox</code> vormen samen een galerij. Zonder waarde opent een link los. Geef elk blok een eigen waarde, bijv. met <code>wp_unique_id()</code>.</p>' . mkbase_docs_code('<a href="foto-1.jpg" data-mk-lightbox="project-1">...</a>' . "\n" . '<a href="foto-2.jpg" data-mk-lightbox="project-1">...</a>')],
             ]);
 
             $html .= mkbase_docs_section('lightbox-styling', 'Styling vanuit het child theme', 'dashicons-art', [
-                ['label' => 'CSS-variabelen', 'desc' => 'Zet deze variabelen in het child theme (bijv. op <code>:root</code>): <code>--mk-lightbox-background</code> (overlay), <code>--mk-lightbox-button-color</code> (sluiten, vorige/volgende), <code>--mk-lightbox-nav-background</code> (achtergrond vorige/volgende), <code>--mk-lightbox-caption-background</code>, <code>--mk-lightbox-caption-color</code>, <code>--mk-lightbox-counter-color</code> en <code>--mk-lightbox-z-index</code>. In het Mediakanjers child theme staan ze in <code>components/_lightbox.scss</code>.'],
+                ['label' => 'CSS-variabelen', 'desc' => '<p>Zet deze variabelen in het child theme (bijv. op <code>:root</code>). In het Mediakanjers child theme staan ze in <code>components/_lightbox.scss</code>.</p>' . mkbase_docs_tabel([
+                    ['--mk-lightbox-background', 'De donkere laag over de pagina'],
+                    ['--mk-lightbox-button-color', 'Sluiten, vorige en volgende'],
+                    ['--mk-lightbox-nav-background', 'Achtergrond van vorige en volgende'],
+                    ['--mk-lightbox-caption-background', 'Achtergrond van het bijschrift'],
+                    ['--mk-lightbox-caption-color', 'Tekstkleur van het bijschrift'],
+                    ['--mk-lightbox-counter-color', 'De teller ("3 / 8")'],
+                    ['--mk-lightbox-z-index', 'Laag boven de rest van de pagina'],
+                ], ['Variabele', 'Wat het is'])],
                 ['label' => 'Detailstyling', 'desc' => 'Gebruik <code>.mk-lightbox</code> als basisselector. Gebruik niet Tobii\'s eigen <code>--tobii-*</code>-variabelen; die vallen weg als de library ooit vervangen wordt. Moet je toch een onderdeel van Tobii zelf stylen (bijv. <code>.mk-lightbox .tobii__btn--next</code>), houd dat dan beperkt — dat deel moet bij een overstap nagelopen worden.'],
             ]);
 

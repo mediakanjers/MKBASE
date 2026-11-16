@@ -305,3 +305,116 @@ html.mk-notification-scroll-blok {
     .mk-notification--popup.is-shown { animation: none; }
     .mk-notification__timer { display: none; }
 }
+
+/* Openingstijden in een melding (sinds 1.7.0): in de kleuren van de melding. --mk-ot-label-* en
+   --mk-ot-afwijkend-color gebruikt het child theme (blocks/_mk-openingstijden.scss) voor de look. */
+.mk-notification__openingstijden {
+    flex-basis: 100%;
+    text-align: left;
+}
+
+.mk-notification__openingstijden .mk-ot {
+    --mk-ot-lijn: color-mix(in srgb, currentColor 22%, transparent);
+    --mk-ot-gedempt: color-mix(in srgb, currentColor 75%, transparent);
+    --mk-ot-vandaag-bg: color-mix(in srgb, currentColor 12%, transparent);
+    --mk-ot-label-bg: var(--mk-notification-color);
+    --mk-ot-label-color: var(--mk-notification-bg);
+    --mk-ot-afwijkend-color: currentColor;
+}
+
+.mk-notification--balk .mk-notification__openingstijden {
+    max-width: 640px;
+}
+
+/* Waar de melding onder elkaar staat (pop-up, blok, knop onder de tekst): de openingstijden over de
+   volle breedte. flex-basis 100% zou hier de hoogte worden, en bij Uitlijning Midden zou de tabel
+   (een container, zie openingstijden.css) anders geen breedte krijgen. */
+.mk-notification--popup .mk-notification__openingstijden,
+.mk-notification--blok .mk-notification__openingstijden,
+.mk-notification--knop-onder .mk-notification__openingstijden {
+    flex-basis: auto;
+    align-self: stretch;
+    width: 100%; /* vaste breedte: anders meet de browser de hoogte bij een smalle breedte */
+}
+
+/* ── Opmaak van de tekst (sinds 1.7.0) ──
+   Koppen (H2 t/m H4), lijsten en alinea's uit de teksteditor, in de kleur van de melding. */
+.mk-notification__inner__txt p {
+    margin: 0 0 0.6em;
+}
+
+.mk-notification__inner__txt :is(h2, h3, h4) {
+    margin: 0 0 0.35em;
+    color: inherit;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.mk-notification__inner__txt h2 { font-size: 1.5em; }
+.mk-notification__inner__txt h3 { font-size: 1.25em; }
+.mk-notification__inner__txt h4 { font-size: 1.1em; }
+
+.mk-notification__inner__txt :is(ul, ol) {
+    margin: 0 0 0.6em;
+    padding-left: 1.3em;
+}
+
+/* Een balk is kort: koppen blijven daar klein */
+.mk-notification--balk .mk-notification__inner__txt :is(h2, h3, h4) {
+    margin-bottom: 0.2em;
+    font-size: 1.1em;
+}
+
+/* ── Opmaak van de melding als geheel (sinds 1.7.0, Weergave → Uitlijning, Tekstgrootte, Ruimte) ── */
+
+/* Uitlijning. Automatisch: een balk in het midden, een pop-up en blok links (zoals hierboven) */
+.mk-notification--uitlijnen-midden .mk-notification__inner__txt {
+    text-align: center;
+}
+
+.mk-notification--uitlijnen-midden .mk-notification__inner__txt :is(ul, ol) {
+    padding-left: 0;
+    list-style-position: inside;
+}
+
+.mk-notification--uitlijnen-midden.mk-notification--popup .mk-notification__inner,
+.mk-notification--uitlijnen-midden.mk-notification--blok .mk-notification__inner {
+    align-items: center;
+}
+
+.mk-notification--uitlijnen-links .mk-notification__inner__txt {
+    text-align: left;
+}
+
+.mk-notification--uitlijnen-links.mk-notification--balk .mk-notification__inner {
+    justify-content: flex-start;
+}
+
+/* Tekstgrootte */
+.mk-notification--tekst-klein .mk-notification__inner { font-size: 0.875em; }
+.mk-notification--tekst-groot .mk-notification__inner { font-size: 1.15em; }
+.mk-notification--tekst-groot.mk-notification--popup .mk-notification__inner { font-size: 1.25em; }
+
+/* Ruimte rond de tekst. Bij een balk alleen boven en onder (links en rechts blijft er plek voor het kruisje) */
+.mk-notification--ruimte-compact.mk-notification--balk .mk-notification__inner { padding-top: 10px; padding-bottom: 10px; }
+.mk-notification--ruimte-ruim.mk-notification--balk .mk-notification__inner { padding-top: 32px; padding-bottom: 32px; }
+.mk-notification--ruimte-compact.mk-notification--blok .mk-notification__inner { padding: 12px 44px 12px 14px; }
+.mk-notification--ruimte-ruim.mk-notification--blok .mk-notification__inner { padding: 26px 52px 26px 26px; }
+.mk-notification--ruimte-compact.mk-notification--popup .mk-notification__inner { padding: 20px 48px 20px 20px; }
+.mk-notification--ruimte-ruim.mk-notification--popup .mk-notification__inner { padding: 44px 64px 44px 44px; }
+
+/* Knop onder de tekst (bij een balk; een pop-up en blok hebben hem altijd onder de tekst) */
+.mk-notification--knop-onder .mk-notification__inner {
+    flex-direction: column;
+}
+
+.mk-notification--knop-onder.mk-notification--uitlijnen-links .mk-notification__inner {
+    align-items: flex-start;
+}
+
+/* Knop gevuld: in de tekstkleur van de melding, met de achtergrondkleur als tekst */
+.mk-notification .mk-notification__button--gevuld { /* specifieker dan .mk-notification a (color: inherit) */
+    border-color: var(--mk-notification-color);
+    background-color: var(--mk-notification-color);
+    color: var(--mk-notification-bg);
+}
