@@ -61,6 +61,7 @@
 - **Bekijk op website** van een melding die niet meer gekoppeld is, toont nu de juiste status.
 - Een lange pop-up met een knop opende onderaan gescrold (de focus ging naar de knop). Hij opent nu bovenaan, met de focus op het kruisje.
 - Changelog: een let-op-melding met vetgedrukte tekst viel uiteen in losse kolommen.
+- **jQuery** laadt weer altijd vóór het script van het child theme (`dist/scripts/scripts.min.js`). Sinds 1.4.0 laadde de core jQuery niet meer zelf; op een website zonder plugin die jQuery laadt (zoals WooCommerce) opende het mobiele menu daardoor niet ("jQuery is not defined").
 
 ## v1.6.0
 
