@@ -48,4 +48,23 @@
         wp_enqueue_script('mk-main-script', $child_uri . '/dist/scripts/scripts.min.js', ['jquery'], mkbase_asset_version($child_dir . '/dist/scripts/scripts.min.js'), true);
     }
     add_action('wp_enqueue_scripts', 'mkbase_enqueue_scripts');
+
+
+    // Vangnet voor bestaande websites met Owl Carousel: tot en met 1.3.0 laadde het Image Slider-blok
+    // van de core 'owl-carousel-js', en eigen carrousels in het child theme liftten daarop mee zonder
+    // het script zelf te laden. Sinds 1.4.0 draait de slider op Swiper; de Owl-CSS verbergt een
+    // .owl-carousel tot Owl hem start, dus zulke carrousels werden onzichtbaar. Staat er een
+    // owl-carousel op de pagina en laadt geen Owl-script, dan komt het er direct na jQuery bij.
+    // Een child theme dat 'owl-carousel-js' uitschakelt (wp_deregister_script), krijgt niets.
+    function mkbase_legacy_owl_script_fallback($html) {
+        $script = wp_scripts()->registered['owl-carousel-js'] ?? null;
+        if (!$script || !$script->src) return $html;                                          // uitgeschakeld
+        if (!preg_match('/\bclass=(["\'])[^"\']*\bowl-carousel\b/', $html)) return $html;     // niet gebruikt
+        if (preg_match('/<script\b[^>]*\bsrc=(["\'])[^"\']*owl\.carousel[^"\']*\1/', $html)) return $html; // laadt al
+        if (!preg_match('/<script\b[^>]*\bid=([\'"])jquery-core-js\1[^>]*>\s*<\/script>/', $html, $m, PREG_OFFSET_CAPTURE)) return $html;
+
+        $tag = "\n" . '<script src="' . esc_url($script->src) . '" id="owl-carousel-js-js"></script>';
+        return substr_replace($html, $tag, $m[0][1] + strlen($m[0][0]), 0);
+    }
+    add_filter('wp_template_enhancement_output_buffer', 'mkbase_legacy_owl_script_fallback', 15);
 ?>
