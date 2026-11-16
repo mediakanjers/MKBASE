@@ -43,6 +43,10 @@ Bij het publiceren van een release doet de GitHub Action dit **automatisch**:
 2. Verplaatst de hele sectie naar `changelog-archive/{tag}.md`.
 3. Reset `CHANGELOG.md` (alleen de titel blijft staan) zodat de volgende ontwikkelronde met een schone lei begint.
 
+**Meerdere versies in één release.** Staan er meerdere datumloze koppen in `CHANGELOG.md` (bijv. `v1.7.0` t/m `v1.4.0`, omdat die versies alleen op `dev` stonden), dan krijgt **elke** versie een eigen archiefbestand met de releasedatum, en komen ze allemaal in de changelog van de update. Een site die van de laatste live-versie komt, ziet bij "Versiedetails bekijken" dus alles wat er sindsdien is veranderd. Zet de nieuwste bovenaan.
+
+**Ingesprongen opsommingen** (`  - …`) mogen in `CHANGELOG.md`. In `mkbase-update.json` maakt de Action ze één niveau: het venster "Versiedetails bekijken" draait op de versie die de site nog heeft, en tot en met 1.6.0 kent die alleen opsommingen zonder inspringing.
+
 Je hoeft dit dus nooit handmatig te doen — alleen de inhoud van de sectie zelf bijhouden tijdens development.
 
 De admin-pagina **Mediakanjers → Changelog** (`inc/changelog.php`) leest `CHANGELOG.md` + alle bestanden in `changelog-archive/` en plakt ze aan elkaar tot één overzicht — de nieuwste versie staat open, oudere versies staan ingeklapt onder "Bekijk oudere versies".
@@ -69,7 +73,7 @@ Het thema heeft een ingebouwde auto-updater (`updater/updater.php`) die `mkbase-
 5. **GitHub Action doet de rest automatisch:**
    - Bouwt de thema-zip (geen build-stap nodig, mkbase heeft geen eigen SCSS/JS-compilatie) en voegt hem toe aan de Release.
    - Werkt `mkbase-update.json` op `main` bij (nieuwe versie + download-URL).
-   - Archiveert de `CHANGELOG.md`-sectie naar `changelog-archive/v{versienummer}.md` met de releasedatum, en reset `CHANGELOG.md`.
+   - Archiveert elke `CHANGELOG.md`-sectie naar `changelog-archive/v{versie}.md` met de releasedatum, en reset `CHANGELOG.md`.
 
    Klanten ontvangen de update bij de volgende WordPress-updatecheck.
 

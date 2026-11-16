@@ -1,0 +1,379 @@
+/* ════════════════════════════════════════════════════════════
+   Mediakanjers → Openingstijden (inc/openingstijden/admin.php,
+   assets/js/admin-openingstijden.js). Bouwt op mk-admin.css.
+   ════════════════════════════════════════════════════════════ */
+
+/* Kaarten over de volle breedte (titel en uitleg boven de velden), behalve Algemeen */
+body.mk-page-acf-options-openingstijden .postbox.acf-postbox:not(#acf-group_mkbase_ot_algemeen) { grid-template-columns: 1fr; gap: 16px; }
+body.mk-page-acf-options-openingstijden .postbox.acf-postbox[hidden] { display: none !important; }
+#acf-group_mkbase_ot_overzicht > .postbox-header { display: none; }
+
+/* ── Tabbladen ────────────────────────────────────────────── */
+.mk-ot-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 20px; border-bottom: 1px solid var(--mk-border); }
+body.mk-admin .mk-ot-tabs a { padding: 10px 14px; color: var(--mk-muted); font-weight: 600; font-size: 13.5px; text-decoration: none; }
+body.mk-admin .mk-ot-tabs a:hover { color: var(--mk-text); }
+body.mk-admin .mk-ot-tabs a[aria-current] { color: var(--mk-accent-text); box-shadow: inset 0 -2px 0 var(--mk-accent-text); }
+
+/* ── Overzicht ────────────────────────────────────────────── */
+.mk-ot-tegels { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+.mk-ot-tegels[hidden] { display: none; }
+.mk-ot-tegel { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; border: 1px solid var(--mk-border); border-radius: 16px; background: var(--mk-soft); }
+.mk-ot-tegel__label { color: var(--mk-muted); font-size: 12.5px; font-weight: 600; }
+.mk-ot-tegel__waarde { font: 800 18px/1.3 var(--mk-font-head); color: var(--mk-text); }
+.mk-ot-tegel__sub { color: var(--mk-muted); font-size: 12.5px; line-height: 1.5; }
+.mk-ot-tegel.is-open .mk-ot-tegel__waarde { color: var(--mk-ok-text); }
+.mk-ot-tegel.is-let-op .mk-ot-tegel__waarde { color: var(--mk-warn-text); }
+.mk-ot-kolommen { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+.mk-ot-kaart { flex: 1 1 380px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.mk-ot-roosters { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.mk-ot-roosters li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0; padding: 12px 14px; border: 1px solid var(--mk-border); border-radius: 12px; background: var(--mk-soft); }
+.mk-ot-roosters strong { flex: 1 1 140px; }
+.mk-ot-leeg { padding: 20px; border: 1px dashed var(--mk-input-border); border-radius: 16px; }
+
+/* Het voorbeeld is een stukje website: altijd licht */
+.mk-ot-voorbeeld,
+.mk-ot-live__frame { padding: 18px; border: 1px solid var(--mk-border); border-radius: 12px; background: #fff; color: #1A2433; font-size: 14px; }
+.mk-ot-voorbeeld .mk-ot__titel { font: 700 16px/1.3 var(--mk-font-head); color: #1A2433; }
+.mk-ot-voorbeeld a { color: #0B6FB8; }
+/* De look van de voorbeelden in het beheer. Op de website komt die uit het child theme
+   (Mediakanjers/web/assets/scss/blocks/_mk-openingstijden.scss); de core-CSS is alleen de indeling. */
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot { --mk-ot-lijn: rgba(15, 27, 45, 0.1); --mk-ot-gedempt: #56667A; --mk-ot-vandaag-bg: #E7F1FB; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__status { padding: 6px 12px; border-radius: 999px; background: #EEF1F5; color: #3D4B5C; font-weight: 700; font-size: 0.95em; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__status--open { background: #E3F6EC; color: #146C3A; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) :is(.mk-ot__status--bijna, .mk-ot__status--pauze, .mk-ot__status--afspraak) { background: #FDF1DC; color: #7A4A00; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__regel { border-radius: 8px; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__regel.is-vandaag,
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__regel.is-vandaag + .mk-ot__regel { border-top-color: transparent; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) :is(.mk-ot__regel dd, .mk-ot__cel) { font-weight: 400; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) :is(.mk-ot__dag, .mk-ot__rooster, .mk-ot__kop, .mk-ot__tabel thead th) { font-weight: 700; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) :is(.mk-ot__regel--uitzondering dd, .mk-ot__lijst dd, .mk-ot__regel--uitzondering .mk-ot__cel) { color: #8A5300; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__label { display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 999px; background: #0B6FB8; color: #fff; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__kop { margin: 0 0 4px; padding: 0 12px; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__tabel thead th { border-bottom-width: 2px; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__tabel .mk-ot__regel.is-vandaag > :first-child { border-radius: 8px 0 0 8px; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__tabel .mk-ot__regel.is-vandaag > :last-child { border-radius: 0 8px 8px 0; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__status { border-radius: 18px; line-height: 1.3; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__regel dt { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__regel .mk-ot__label { order: 1; margin-top: 0; white-space: nowrap; font-size: 0.72em; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__regel :is(.mk-ot__extra, .mk-ot__toelichting, .mk-ot__rooster) { order: 2; flex-basis: 100%; font-size: 0.9em; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) :is(.mk-ot__regel dd, .mk-ot__cel) { font-variant-numeric: tabular-nums; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__afwijkingen { display: flex; flex-direction: column; gap: 4px; padding-top: 14px; border-top: 1px solid var(--mk-ot-lijn); }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__wijziging { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border-radius: 10px; background: #FDF1DC; color: #7A4A00; font-size: 0.92em; line-height: 1.45; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__wijziging[hidden] { display: none; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__wijziging::before { content: "!"; display: grid; flex: 0 0 auto; place-items: center; width: 18px; height: 18px; margin-top: 1px; border-radius: 50%; background: #7A4A00; color: #FDF1DC; font-size: 0.8em; font-weight: 800; line-height: 1; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__status-nog { font-weight: 500; opacity: 0.8; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__regel--uitzondering { box-shadow: inset 3px 0 0 #8A5300; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__lijst .mk-ot__regel dt { display: grid; grid-template-columns: 40px 1fr; align-items: start; gap: 0 12px; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__lijst .mk-ot__regel dt > :not(.mk-ot__kalender) { grid-column: 2; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__kalender { display: flex; flex-direction: column; align-items: center; grid-row: 1 / span 4; overflow: hidden; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--mk-ot-lijn); line-height: 1.1; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__kalender-maand { width: 100%; padding: 2px 0; background: #0B6FB8; color: #fff; font-size: 0.6em; font-weight: 700; letter-spacing: 0.08em; text-align: center; text-transform: uppercase; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__kalender-dag { padding: 2px 0 4px; font-weight: 800; }
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__kop,
+:is(.mk-ot-voorbeeld, .mk-ot-live__frame) .mk-ot__tabel thead th { color: var(--mk-ot-gedempt); font-size: 0.75em; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ── Vaste week ───────────────────────────────────────────── */
+#acf-group_mkbase_ot_week > .inside { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.mk-ot-live { position: sticky; top: calc(var(--mk-top) + 132px); display: flex; flex-direction: column; gap: 10px; }
+.mk-ot-live .mk-ot__kop { margin: 0 0 6px; font-weight: 700; }
+@media (max-width: 1200px) {
+    #acf-group_mkbase_ot_week > .inside { grid-template-columns: 1fr; }
+    .mk-ot-live { position: static; }
+}
+
+.mk-ot-roosterkeuze { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 14px; }
+body.mk-admin .mk-ot-roosterkeuze .mk-segmented .mk-ot-plus { color: var(--mk-accent-text); font-weight: 700; }
+
+/* Eén rooster tegelijk; de rij-grepen en de knop onderaan zijn vervangen door de roosterkeuze */
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row:not(.is-actief) { display: none; }
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row > .acf-row-handle,
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-actions { display: none; }
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-table { border: 0; background: transparent; }
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row > .acf-fields { padding: 0; }
+.mk-ot-roosters > .acf-label { display: none; }
+
+body.mk-admin .acf-field.mk-ot-id { display: none; }
+
+/* Een rooster is een raster: per dag één regel met status, twee tijdvakken en een opmerking.
+   Elk veld heeft een vaste kolom, zodat verborgen velden (gesloten, geen tweede tijdvak) niets verschuiven. */
+/* Geen tabel: dan volgt de rij de breedte van de kolom in plaats van mee te rekken */
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-table,
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-table > tbody,
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row { display: block; width: 100%; }
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-table > tbody > .acf-row:not(.is-actief) { display: none; }
+.mk-ot-roosters > .acf-input > .acf-repeater > .acf-table { overflow: visible; }
+.mk-ot-roosters .acf-row > .acf-fields {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0 !important; /* ACF zet hier -8px */
+    display: grid;
+    grid-template-columns: max-content 76px 76px 76px 76px minmax(100px, 1fr);
+    column-gap: 10px;
+    align-items: center;
+}
+.mk-ot-roosters .acf-row > .acf-fields::before,
+.mk-ot-roosters .acf-row > .acf-fields::after { display: none; } /* clearfix van ACF zou een rastercel innemen */
+.mk-ot-roosters .acf-row > .acf-fields > .acf-field { width: auto !important; float: none; min-height: 0; padding: 0 0 12px; }
+.mk-ot-roosters .acf-row > .acf-fields > .acf-field.acf-hidden,
+.mk-ot-roosters .acf-row > .acf-fields > .acf-field.mk-ot-verborgen { display: none; }
+body.mk-admin .acf-field.mk-ot-naam { grid-column: 1 / 4; }
+body.mk-admin .acf-field.mk-ot-kopie { grid-column: 4 / -1; justify-self: end; align-self: end; }
+body.mk-admin .acf-field.mk-ot-status { grid-column: 1; display: flex; align-items: center; gap: 12px; }
+body.mk-admin .acf-field.mk-ot-tijd--van.mk-ot-tijd--1 { grid-column: 2; }
+body.mk-admin .acf-field.mk-ot-tijd--tot.mk-ot-tijd--1 { grid-column: 3; }
+body.mk-admin .acf-field.mk-ot-tijd--van.mk-ot-tijd--2 { grid-column: 4; }
+body.mk-admin .acf-field.mk-ot-tijd--tot.mk-ot-tijd--2 { grid-column: 5; }
+body.mk-admin .acf-field.mk-ot-opmerking { grid-column: 6; }
+body.mk-admin .acf-field.mk-ot-status > .acf-label { flex: 0 0 82px; margin: 0; }
+body.mk-admin .acf-field.mk-ot-tijd input { padding-left: 4px; padding-right: 4px; }
+body.mk-admin .acf-field.mk-ot-status > .acf-label label { font-weight: 700; }
+body.mk-admin .acf-field.mk-ot-status .acf-button-group label { padding: 6px 10px; font-size: 12.5px; white-space: nowrap; }
+body.mk-admin .acf-field.mk-ot-tijd > .acf-label,
+body.mk-admin .acf-field.mk-ot-opmerking > .acf-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+body.mk-admin .acf-field.mk-ot-tijd input { text-align: center; font-weight: 600; }
+body.mk-admin .acf-field.mk-ot-tijd > .acf-input { position: relative; }
+.mk-ot-tijd--tot > .acf-input::before { content: '–'; position: absolute; left: -8px; top: 50%; transform: translateY(-50%); color: var(--mk-muted); }
+/* "+ Tweede tijdvak" staat op de plek van het tweede tijdvak */
+.mk-ot-plus { height: 32px; padding: 0 10px; border: 1px dashed var(--mk-input-border); border-radius: 9px; background: transparent; color: var(--mk-accent-text); font: 700 12.5px/1 var(--mk-font); cursor: pointer; white-space: nowrap; }
+.mk-ot-tijd--tot.mk-ot-tijd--1 .mk-ot-plus { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); z-index: 1; }
+.mk-ot-plus[hidden] { display: none; }
+.mk-ot-weg { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--mk-muted); font-size: 16px; cursor: pointer; }
+.mk-ot-weg:hover { background: var(--mk-soft); color: var(--mk-text); }
+body.mk-admin .acf-field.mk-ot-tijd--2.mk-ot-tijd--tot input { padding-right: 24px; padding-left: 6px; }
+@media (max-width: 1100px) {
+    .mk-ot-roosters .acf-row > .acf-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    body.mk-admin .acf-field.mk-ot-naam,
+    body.mk-admin .acf-field.mk-ot-kopie,
+    body.mk-admin .acf-field.mk-ot-status,
+    body.mk-admin .acf-field.mk-ot-opmerking { grid-column: 1 / -1; justify-self: stretch; }
+    body.mk-admin .acf-field.mk-ot-tijd--van.mk-ot-tijd--1 { grid-column: 1; }
+    body.mk-admin .acf-field.mk-ot-tijd--tot.mk-ot-tijd--1 { grid-column: 2; }
+    body.mk-admin .acf-field.mk-ot-tijd--van.mk-ot-tijd--2 { grid-column: 3; }
+    body.mk-admin .acf-field.mk-ot-tijd--tot.mk-ot-tijd--2 { grid-column: 4; }
+    body.mk-admin .acf-field.mk-ot-status { padding-top: 12px; border-top: 1px solid var(--mk-line) !important; }
+}
+
+/* ── Feestdagen: een lijst met één regel per feestdag ─────────
+   Kolommen: Feestdag (met naam en datum eronder bij een eigen feestdag) · Valt op · Status ·
+   Tijden (tweede tijdvak eronder) · Geldt voor. De labels staan alleen bij de eerste regel, als koprij. */
+.mk-ot-feestdagen > .acf-label { display: none; }
+.mk-ot-feestdagen > .acf-input > .acf-repeater > .acf-table { border: 1px solid var(--mk-border); border-radius: 12px; background: var(--mk-card); }
+[data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-fields {
+    display: grid;
+    grid-template-columns: minmax(90px, 1fr) 70px 230px 150px 70px 70px minmax(230px, 1.2fr);
+    grid-auto-rows: auto;
+    column-gap: 12px;
+    row-gap: 6px;
+    align-items: start;
+    margin: 0 !important;
+    padding: 12px 14px !important;
+    border-top: 1px solid var(--mk-line);
+}
+[data-key="field_mkbase_ot_feestdagen"] .acf-row:first-child > .acf-fields { border-top: 0; }
+[data-key="field_mkbase_ot_feestdagen"] .acf-row.mk-ot-met-plus > .acf-fields { padding-bottom: 50px !important; }
+[data-key="field_mkbase_ot_feestdagen"] .acf-row.mk-ot-met-plus > .acf-fields:has(.mk-ot-fd-naam:not(.acf-hidden)) { padding-bottom: 12px !important; }
+[data-key="field_mkbase_ot_feestdagen"] .acf-row:first-child > .acf-row-handle { border-top: 0 !important; }
+[data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-fields::before,
+[data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-fields::after { display: none; }
+[data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-fields > .acf-field { float: none; width: auto !important; min-height: 0; padding: 0; border: 0 !important; }
+[data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-fields > .acf-field.acf-hidden,
+[data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-fields > .acf-field.mk-ot-verborgen { display: none; }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-fd-feestdag { grid-column: 1 / 3; grid-row: 1; }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-fd-naam { grid-column: 1; grid-row: 2; }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-fd-datum { grid-column: 2; grid-row: 2; }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-fd-valt { grid-column: 3; grid-row: 1 / 3; }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-fd-status { grid-column: 4; grid-row: 1; }
+body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-tijd--van.mk-ot-tijd--1 { grid-column: 5; grid-row: 1; }
+body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-tijd--tot.mk-ot-tijd--1 { grid-column: 6; grid-row: 1; }
+body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-tijd--van.mk-ot-tijd--2 { grid-column: 5; grid-row: 2; }
+body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-tijd--tot.mk-ot-tijd--2 { grid-column: 6; grid-row: 2; }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-voor { grid-column: 7; grid-row: 1 / 3; }
+
+/* De labels staan één keer in de koprij erboven (met de ?, zie de JS); in de regels alleen voor schermlezers */
+[data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-fields > .acf-field > .acf-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-voor .description { display: none; }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-voor .acf-checkbox-list { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; padding-top: 10px; }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-voor .acf-checkbox-list li { float: none; margin: 0; }
+body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-fd-valt .mk-pill { white-space: nowrap; }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-fd-naam input::placeholder { color: var(--mk-muted); }
+.mk-ot-fd-kop {
+    display: grid;
+    grid-template-columns: minmax(90px, 1fr) 70px 230px 150px 70px 70px minmax(230px, 1.2fr);
+    column-gap: 12px;
+    padding: 0 56px 8px 59px; /* gelijk met de regels: rijnummer en binnenruimte links, verwijderen rechts */
+    color: var(--mk-text);
+    font-weight: 600;
+    font-size: 13px;
+}
+.mk-ot-fd-kop > .acf-field { padding: 0 !important; border: 0 !important; min-height: 0; }
+.mk-ot-fd-kop .acf-label { margin: 0; }
+.mk-ot-fd-kop .acf-label label { font-weight: 600; }
+.mk-ot-fd-kop small { display: block; color: var(--mk-muted); font-weight: 400; font-size: 12px; }
+.mk-ot-fd-kop__feestdag { grid-column: 1 / 3; }
+.mk-ot-fd-kop__tijden { grid-column: 5 / 7; }
+@media (max-width: 1100px) { .mk-ot-fd-kop { display: none; } }
+[data-key="field_mkbase_ot_feestdagen"] .mk-ot-tijd input { padding-left: 2px; padding-right: 2px; }
+/* "+ Tweede tijdvak" onder het eerste tijdvak */
+body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-tijd--tot.mk-ot-tijd--1 .mk-ot-plus { left: auto; right: 0; top: calc(100% + 6px); transform: none; }
+[data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-fields > .mk-ot-tijd--tot.mk-ot-tijd--1 > .acf-input::before { left: -9px; }
+
+/* Rijnummers en de knop verwijderen: smal en rustig */
+[data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-row-handle { width: 28px; background: transparent; border-color: var(--mk-line) !important; }
+
+body.mk-admin .acf-field.mk-ot-fd-valt .acf-input { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 9px; }
+body.mk-admin .acf-row:first-child .acf-field.mk-ot-fd-valt .acf-input { padding-top: 9px; }
+body.mk-admin .acf-field.mk-ot-fd-valt .mk-pill { white-space: normal; font-size: 11.5px; }
+
+@media (max-width: 1100px) {
+    [data-key="field_mkbase_ot_feestdagen"] .acf-row > .acf-fields { grid-template-columns: minmax(0, 1fr) 76px 70px 70px; }
+    [data-key="field_mkbase_ot_feestdagen"] .mk-ot-fd-valt { grid-column: 1 / 3; grid-row: auto; }
+    [data-key="field_mkbase_ot_feestdagen"] .mk-ot-fd-status { grid-column: 3 / 5; grid-row: 1; }
+    body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-tijd--van.mk-ot-tijd--1,
+    body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-tijd--van.mk-ot-tijd--2 { grid-column: 3; grid-row: auto; }
+    body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-tijd--tot.mk-ot-tijd--1,
+    body.mk-admin [data-key="field_mkbase_ot_feestdagen"] .acf-field.mk-ot-tijd--tot.mk-ot-tijd--2 { grid-column: 4; grid-row: auto; }
+    [data-key="field_mkbase_ot_feestdagen"] .mk-ot-voor { grid-column: 1 / -1; grid-row: auto; }
+}
+/* Tijdvakken bij feestdagen en afwijkingen: zelfde knop "+ Tweede tijdvak" als in de week */
+[data-key="field_mkbase_ot_afwijkingen"] .acf-field.mk-ot-verborgen { display: none; }
+[data-key="field_mkbase_ot_afwijkingen"] .mk-ot-tijd--tot.mk-ot-tijd--1 .mk-ot-plus { position: absolute; left: calc(100% + 12px); top: 50%; transform: translateY(-50%); }
+.mk-ot-valt { color: var(--mk-text); }
+body.mk-admin .acf-field.mk-ot-voor { clear: left; }
+body.mk-admin .acf-field.mk-ot-voor .acf-checkbox-list { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+
+/* ── Afwijkende dagen ─────────────────────────────────────── */
+.mk-ot-afw-info { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; width: 100%; padding: 12px 8px 4px; box-sizing: border-box; }
+.mk-ot-afw-info:empty { display: none; }
+.mk-ot-afw-let-op { flex-basis: 100%; margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--mk-warn-bg); color: var(--mk-warn-text); font-size: 13px; font-weight: 600; line-height: 1.5; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row.is-voorbij > .acf-fields { opacity: 0.7; }
+
+@media (max-width: 960px) {
+    .mk-ot-tegels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+    .mk-ot-tegels { grid-template-columns: 1fr; }
+}
+
+/* ── Melding bij een feestdag of afwijking (koppeling met Meldingen) ── */
+body.mk-admin .acf-field.mk-ot-geen-melding { display: none !important; }
+.mk-ot-melding { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.mk-ot-melding:empty { display: none; }
+.mk-ot-fd-valt .mk-ot-melding { margin-top: 2px; }
+.mk-ot-melding .mk-btn--sm { height: 28px; padding: 0 10px; font-size: 12px; text-decoration: none; }
+.mk-ot-melding .mk-hint { font-size: 12px; }
+.mk-ot-afw-info .mk-ot-melding { flex: 1 1 auto; }
+
+/* ── Koprij: roosterkeuze links, tabbladen rechts (zoals in het ontwerp) ── */
+.mk-ot-kop { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 0 0 20px; }
+.mk-ot-kop .mk-ot-tabs { flex: 1 1 420px; margin: 0; }
+.mk-ot-kop .mk-ot-roosterkeuze { margin: 0; gap: 10px; justify-content: flex-start; }
+.mk-ot-kop .mk-ot-roosterkeuze[hidden] { display: none; }
+
+/* ── Overzicht → Roosters: naam, Google en verwijderen in de lijst ── */
+.mk-ot-roosters li.is-actief { border-color: var(--mk-tint-border); background: var(--mk-tint); }
+.mk-ot-roosters li.is-weg { opacity: 0.5; }
+.mk-ot-roosters__naam { flex: 1 1 120px; display: flex; flex-direction: column; gap: 4px; }
+.mk-ot-roosters__label { color: var(--mk-muted); font-size: 12px; font-weight: 600; }
+.mk-ot-roosters li { align-items: flex-end; }
+.mk-ot-roosters li > .mk-hint,
+.mk-ot-roosters__rechts { min-height: 38px; display: inline-flex; align-items: center; }
+.mk-ot-roosters__voet { margin: 10px 0 0; }
+.mk-ot-google-leeg { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--mk-warn-bg); color: var(--mk-warn-text); font-size: 13px; line-height: 1.5; }
+.mk-ot-google-leeg[hidden] { display: none; }
+.mk-ot-tijdzone { margin: 0 0 20px; padding: 12px 14px; border-radius: 12px; background: var(--mk-err-bg); color: var(--mk-err-text); font-size: 13.5px; line-height: 1.55; }
+.mk-ot-tijdzone a { color: inherit; font-weight: 700; }
+.mk-ot-tijdzone--let-op { background: var(--mk-warn-bg); color: var(--mk-warn-text); }
+.mk-ot-kop [hidden] { display: none !important; }
+
+/* Afwijkingen: uitleg achter het label ("Tot en met (leeg bij één dag)"), zodat de velden op één lijn staan */
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-row > .acf-fields > .acf-field > .acf-label { display: flex; flex-wrap: wrap; align-items: center; gap: 0 6px; }
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-row > .acf-fields > .acf-field > .acf-label > .description { order: 5; margin: 0 !important; color: var(--mk-muted); font-size: 12.5px; }
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-row > .acf-fields > .acf-field > .acf-label > .description::before { content: "("; }
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-row > .acf-fields > .acf-field > .acf-label > .description::after { content: ")"; }
+/* "Leeg bij één dag" staat als placeholder in het veld (zie admin-openingstijden.js), zodat Datum en Tot en met gelijk staan */
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-field[data-key="field_mkbase_ot_afw_tot"] > .acf-label > .description { display: none; }
+/* Kaart met een overlap krijgt een waarschuwingsrand */
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-row.heeft-let-op > .acf-fields { border-color: var(--mk-warn-border, #E9C98A) !important; }
+body.mk-admin .mk-ot-roosters__naam input { width: 100%; height: 38px; padding: 0 12px; border: 1px solid var(--mk-input-border); border-radius: 9px; background: var(--mk-input); color: var(--mk-text); font: 600 14px/1 var(--mk-font); }
+.mk-ot-roosters__rechts { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
+.mk-ot-roosters li .mk-hint { flex: 0 1 auto; }
+
+/* ── Vaste week: fout direct onder de dag ── */
+.mk-ot-dagfout { grid-column: 1 / -1; margin: -6px 0 10px; padding-left: 94px; color: var(--mk-err-text); font-size: 12.5px; font-weight: 600; }
+body.mk-admin .acf-field.mk-ot-fout input { border-color: var(--mk-err); box-shadow: 0 0 0 3px rgba(200, 30, 58, 0.12); }
+
+/* ── Geldt voor: knopjes in plaats van vinkjes ── */
+.mk-ot-voor .acf-checkbox-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.mk-ot-voor .acf-checkbox-list li { float: none; margin: 0 !important; }
+body.mk-admin .mk-ot-voor .acf-checkbox-list label { position: relative; display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border: 1px solid var(--mk-border); border-radius: 999px; background: transparent; color: var(--mk-muted); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+body.mk-admin .mk-ot-voor .acf-checkbox-list label:has(input:checked) { border-color: transparent; background: var(--mk-tint); color: var(--mk-accent-text); }
+body.mk-admin .mk-ot-voor .acf-checkbox-list label:has(input:focus-visible) { outline: 2px solid var(--mk-focus); outline-offset: 2px; }
+.mk-ot-voor .acf-checkbox-list input[type=checkbox] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+/* ── Feestdagen: knop terugzetten ── */
+.mk-ot-fd-balk { display: flex; justify-content: flex-end; margin: 0 0 12px; }
+
+/* ── Afwijkende dagen: een kaart per afwijking, tijdlijn rechts ── */
+#acf-group_mkbase_ot_afwijkend > .inside { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+@media (max-width: 1200px) { #acf-group_mkbase_ot_afwijkend > .inside { grid-template-columns: 1fr; } }
+[data-key="field_mkbase_ot_afwijkingen"] > .acf-label { display: none; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-repeater > .acf-table { border: 0; background: transparent; overflow: visible; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-repeater > .acf-table,
+[data-key="field_mkbase_ot_afwijkingen"] .acf-repeater > .acf-table > tbody { display: flex; flex-direction: column; gap: 12px; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row { position: relative; display: block; border: 1px solid var(--mk-border); border-radius: 16px; background: var(--mk-card); }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row.acf-clone { display: none !important; }
+/* De sleepgreep van ACF ligt onzichtbaar over de puntjes in de kop; verwijderen gaat via de kop */
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row > .acf-row-handle.order { position: absolute; z-index: 2; left: 14px; top: 16px; width: 24px; height: 28px; padding: 0; border: 0; background: transparent; font-size: 0; cursor: grab; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row > .acf-row-handle.order > * { display: none !important; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row > .acf-row-handle.remove { display: none; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row > td.acf-fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 12px; align-items: start; margin: 0 !important; padding: 0 20px 6px !important; border: 0; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row > td.acf-fields::before,
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row > td.acf-fields::after { display: none; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row > td.acf-fields > .acf-field { float: none; width: auto !important; min-height: 0; padding: 0 0 14px; border: 0 !important; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row > td.acf-fields > .acf-field.acf-hidden,
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row > td.acf-fields > .acf-field.mk-ot-verborgen { display: none; }
+[data-key="field_mkbase_ot_afw_naam"] { grid-column: 1 / 3; }
+[data-key="field_mkbase_ot_afw_van"] { grid-column: 3; }
+[data-key="field_mkbase_ot_afw_tot"] { grid-column: 4; }
+[data-key="field_mkbase_ot_afw_status"] { grid-column: 1 / 3; }
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-field.mk-ot-tijd--van { grid-column: 3; }
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-field.mk-ot-tijd--tot { grid-column: 4; }
+[data-key="field_mkbase_ot_afw_voor"] { grid-column: 1 / 3; }
+[data-key="field_mkbase_ot_afw_toelichting"] { grid-column: 3 / 5; }
+/* Tijden: één label "Tijden" boven het eerste tijdvak */
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-field.mk-ot-tijd > .acf-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-field.mk-ot-tijd--1 { padding-top: 28px; position: relative; }
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-field.mk-ot-tijd--van.mk-ot-tijd--1::before { content: 'Tijden'; position: absolute; top: 0; left: 0; color: var(--mk-text); font-weight: 600; font-size: 13px; }
+body.mk-admin [data-key="field_mkbase_ot_afwijkingen"] .acf-field.mk-ot-tijd--tot.mk-ot-tijd--1 .mk-ot-plus { left: auto; right: 0; top: calc(100% + 6px); transform: none; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row.mk-ot-met-plus .acf-field.mk-ot-tijd--1 { margin-bottom: 40px; }
+
+/* Kop van een afwijking */
+.mk-ot-afw-kop { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 -20px 16px; padding: 14px 20px; border-bottom: 1px solid var(--mk-border); }
+.mk-ot-afw-kop__grip { flex-shrink: 0; width: 14px; height: 14px; background: var(--mk-muted); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Ccircle cx='2' cy='2' r='1.5'/%3E%3Ccircle cx='7' cy='2' r='1.5'/%3E%3Ccircle cx='12' cy='2' r='1.5'/%3E%3Ccircle cx='2' cy='7' r='1.5'/%3E%3Ccircle cx='7' cy='7' r='1.5'/%3E%3Ccircle cx='12' cy='7' r='1.5'/%3E%3Ccircle cx='2' cy='12' r='1.5'/%3E%3Ccircle cx='7' cy='12' r='1.5'/%3E%3Ccircle cx='12' cy='12' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Ccircle cx='2' cy='2' r='1.5'/%3E%3Ccircle cx='7' cy='2' r='1.5'/%3E%3Ccircle cx='12' cy='2' r='1.5'/%3E%3Ccircle cx='2' cy='7' r='1.5'/%3E%3Ccircle cx='7' cy='7' r='1.5'/%3E%3Ccircle cx='12' cy='7' r='1.5'/%3E%3Ccircle cx='2' cy='12' r='1.5'/%3E%3Ccircle cx='7' cy='12' r='1.5'/%3E%3Ccircle cx='12' cy='12' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat; }
+body.mk-admin .mk-ot-afw-kop__naam { margin: 0; padding: 0; font: 700 16px/1.3 var(--mk-font-head); color: var(--mk-text); }
+.mk-ot-afw-kop__wanneer { color: var(--mk-muted); font-size: 13px; }
+.mk-ot-afw-kop__rechts { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
+.mk-ot-afw-kop__weg { width: 34px; height: 34px; padding: 0; border: 0; border-radius: 9px; background: transparent; color: var(--mk-muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.mk-ot-afw-kop__weg:hover { background: var(--mk-err-bg); color: var(--mk-err-text); }
+.mk-ot-afw-kop__melding { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding-left: 26px; }
+.mk-ot-afw-kop__label { color: var(--mk-muted); font-size: 12.5px; font-weight: 600; }
+.mk-ot-afw-let-op { grid-column: 1 / -1; margin: -4px 0 14px; padding: 10px 12px; border-radius: 10px; background: var(--mk-warn-bg); color: var(--mk-warn-text); font-size: 13px; font-weight: 600; line-height: 1.5; }
+/* Voorbij: ingeklapt en gedimd */
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row.is-voorbij:not(.is-open) > td.acf-fields > .acf-field { display: none !important; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row.is-voorbij:not(.is-open) > td.acf-fields { padding-bottom: 0 !important; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row.is-voorbij:not(.is-open) .mk-ot-afw-kop { margin-bottom: 0; border-bottom: 0; opacity: 0.75; }
+[data-key="field_mkbase_ot_afwijkingen"] .acf-row.is-voorbij > .acf-fields { opacity: 1; }
+
+/* Tijdlijn rechts */
+.mk-ot-tijdlijn { position: sticky; top: calc(var(--mk-top) + 132px); display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid var(--mk-border); border-radius: 16px; background: var(--mk-soft); }
+.mk-ot-tijdlijn ol { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.mk-ot-tijdlijn li { display: grid; grid-template-columns: 82px 1fr; gap: 12px; margin: 0; padding: 10px 0; border-top: 1px solid var(--mk-border); }
+.mk-ot-tijdlijn__datum { color: var(--mk-muted); font-size: 13px; font-weight: 700; }
+.mk-ot-tijdlijn li.is-web .mk-ot-tijdlijn__datum { color: var(--mk-ok-text); }
+.mk-ot-tijdlijn__tekst { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mk-ot-tijdlijn__tekst span { color: var(--mk-muted); font-size: 12.5px; }
+.mk-ot-tijdlijn__uitleg { display: flex; align-items: center; gap: 6px; margin: 0; padding-top: 8px; border-top: 1px dashed var(--mk-border); color: var(--mk-muted); font-size: 12px; font-weight: 600; }
+.mk-ot-tijdlijn__uitleg span { width: 10px; height: 10px; border-radius: 3px; background: var(--mk-muted); }
+.mk-ot-tijdlijn__uitleg span.is-web { background: var(--mk-ok-text); }
+.mk-ot-tijdlijn__uitleg span:not(.is-web) { margin-left: 8px; }
+@media (max-width: 1200px) { .mk-ot-tijdlijn { position: static; } }

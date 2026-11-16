@@ -1,0 +1,51 @@
+/* ════════════════════════════════════════════════════════════
+   Mediakanjers → Diagnose. Bouwt op mk-admin.css (tokens, balk).
+   Zie inc/diagnostics.php.
+   ════════════════════════════════════════════════════════════ */
+
+.mk-diag { display: flex; flex-direction: column; gap: 20px; color: var(--mk-text); }
+
+/* ── Samenvatting ─────────────────────────────────────────── */
+.mk-diag__tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.mk-diag__tile { display: flex; flex-direction: column; gap: 10px; padding: 18px; border: 1px solid var(--mk-border); border-radius: 16px; background: var(--mk-card); }
+.mk-diag__icon { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font: 800 14px/1 var(--mk-font); }
+.mk-diag__icon--ok { background: var(--mk-ok-bg); color: var(--mk-ok-text); }
+.mk-diag__icon--warn { background: var(--mk-warn-bg); color: var(--mk-warn-text); }
+.mk-diag__icon--info { background: var(--mk-tint); color: var(--mk-accent-text); font-size: 12px; }
+.mk-diag__value { font: 800 26px/1 var(--mk-font-head); }
+.mk-diag__label { color: var(--mk-muted); font-size: 13px; font-weight: 600; }
+
+/* ── Bevindingen ──────────────────────────────────────────── */
+.mkbase-diag-findings { border: 1px solid var(--mk-border); border-radius: 16px; background: var(--mk-card); overflow: hidden; }
+.mkbase-diag-findings__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--mk-border); }
+body.mk-admin .mkbase-diag-findings__head h2 { margin: 0; padding: 0; font: 700 17px/1.3 var(--mk-font-head); color: var(--mk-text); }
+.mkbase-diag-findings__head span { color: var(--mk-muted); font-size: 13px; }
+.mkbase-diag-issue { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px; padding: 16px 22px; border-bottom: 1px solid var(--mk-border); }
+.mkbase-diag-issue p { flex: 1 1 360px; min-width: 0; margin: 0; line-height: 1.55; }
+.mkbase-diag-findings__foot { margin: 0; padding: 14px 22px; color: var(--mk-muted); font-size: 12.5px; line-height: 1.55; }
+.mkbase-diag-empty { display: flex; align-items: center; gap: 10px; margin: 0; padding: 18px 22px; }
+
+/* ── Controles per onderdeel ──────────────────────────────── */
+/* Twee kolommen die elk doorlopen (geen raster): een korte kaart laat dan geen gat achter naast een lange */
+.mk-diag__grid { display: block; columns: 2; column-gap: 16px; }
+.mk-diag__grid > * { display: block; width: 100%; box-sizing: border-box; margin: 0 0 16px; break-inside: avoid; }
+.mkbase-diag-status { padding: 18px 22px; border: 1px solid var(--mk-border); border-radius: 16px; background: var(--mk-card); }
+body.mk-admin .mkbase-diag-status h2 { margin: 0 0 8px; padding: 0; font: 700 16px/1.3 var(--mk-font-head); color: var(--mk-text); }
+.mkbase-diag-status__row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--mk-border); }
+.mkbase-diag-status__label { flex: 1; min-width: 0; color: var(--mk-muted); }
+.mkbase-diag-status__value { max-width: 60%; display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.mkbase-diag-hint { margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--mk-soft); color: var(--mk-muted); font-size: 12.5px; line-height: 1.55; }
+.mk-diag code { padding: 1px 6px; border: 1px solid var(--mk-line); border-radius: 6px; background: var(--mk-soft); color: var(--mk-text); font: 12px/1.5 var(--mk-font-mono); }
+
+/* Statuslabels: OK / te oud / aan / uit / waarschuwing / info */
+.mkbase-diag-badge { flex-shrink: 0; padding: 2px 8px; border-radius: 6px; background: var(--mk-line); color: var(--mk-muted); font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+.mkbase-diag-badge--ok { background: var(--mk-ok-bg); color: var(--mk-ok-text); }
+.mkbase-diag-badge--error,
+.mkbase-diag-badge--warning { background: var(--mk-warn-bg); color: var(--mk-warn-text); }
+.mkbase-diag-badge--info { background: var(--mk-tint); color: var(--mk-accent-text); }
+.mkbase-diag-issue .mkbase-diag-badge { padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+
+@media (max-width: 960px) {
+    .mk-diag__tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mk-diag__grid { columns: 1; }
+}

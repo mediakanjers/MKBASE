@@ -1,0 +1,49 @@
+name: Lint
+
+# Draait bij elke pull request naar dev of main. Los van release.yml, dat
+# alleen op een gepubliceerde GitHub Release draait — deze workflow raakt
+# dat proces niet aan.
+on:
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      # ── 1. PHP-syntaxcheck op gewijzigde bestanden ─────────────────────────
+      - name: PHP syntax check
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=50
+          CHANGED_PHP=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.php')
+          if [ -z "$CHANGED_PHP" ]; then
+            echo "Geen gewijzigde PHP-bestanden."
+            exit 0
+          fi
+          STATUS=0
+          for file in $CHANGED_PHP; do
+            if [ -f "$file" ]; then
+              php -l "$file" || STATUS=1
+            fi
+          done
+          exit $STATUS
+
+      # ── 2. block.json structuurcheck ───────────────────────────────────────
+      - name: Validate block.json files
+        run: php bin/validate-block-json.php
+
+      # ── 3. CHANGELOG.md / style.css versie-consistentie ────────────────────
+      - name: Check CHANGELOG/version consistency
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: php bin/check-changelog-version.php

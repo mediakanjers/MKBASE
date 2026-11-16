@@ -1,50 +1,112 @@
 <?php
-    $bgcolor          = get_field('achtergrondkleur' , 'options') ?: '#ff0000';
-    $txtcolor         = get_field('tekstkleur' , 'options') ?: '#ffffff';
-    $txt              = get_field('tekst_melding' , 'options');
-    $shownotification = get_field('melding_tonen' , 'options');
+    // Meldingen — logica in inc/notifications.php. Aangeroepen vanuit footer.php van het child theme.
+    // De classes __inner, __inner__txt en __inner__closex zijn gelijk aan vóór 1.5.0, voor bestaande eigen CSS.
+    // Vormen: balk (boven / boven_scrollt / onder, onder elkaar), pop-up (<dialog>, één tegelijk)
+    // en zwevend blok (per plek één). Verschijnen en verdwijnen regelt assets/js/notifications.js.
+    $meldingen = mkbase_visible_notifications();
+    if (!$meldingen) return;
 
-    // DATA
-    $showdate         = get_field('data_opgeven' , 'options');
-    $begindate        = get_field('begindatum' , 'options');
-    $enddate          = get_field('einddatum' , 'options');
-
-    // SHOW ON
-    $pages = get_field('waar_zichtbaar' , 'options');
-    $current_id = get_queried_object_id();
-    $show_on_page = false;
-
-    if ($pages) {
-        if (!is_array($pages)) {
-            $pages = [$pages];
-        }
-        $page_ids = array_map(function ($page) {
-            return is_object($page) ? $page->ID : (int) $page;
-        }, $pages);
-        if (in_array($current_id, $page_ids, true)) {
-            $show_on_page = true;
-        }
-    } else {
-        $show_on_page = true;
+    $balken  = ['boven' => [], 'boven_scrollt' => [], 'onder' => []];
+    $popup   = null;
+    $blokken = [];
+    foreach ($meldingen as $melding) {
+        $positie = $melding['melding_positie'] ?? 'boven';
+        if ($positie === 'popup') $popup = $melding;
+        elseif ($positie === 'blok') $blokken[$melding['melding_blok_plek'] ?: 'rechts_onder'] = $melding;
+        else $balken[isset($balken[$positie]) ? $positie : 'boven'][] = $melding;
     }
+    $eigen_css = get_field('css_overschrijven', 'option') === 'Ja';
 
+    // Eén melding. $tag: 'div' (balk, blok) of 'dialog' (pop-up)
+    $render = function ($melding, $vorm, $tag = 'div') {
+        [$bg, $color] = mkbase_notification_colors($melding);
+        $stijl     = $melding['melding_stijl'] ?? 'info';
+        // Een pop-up is altijd te sluiten (in de admin staat dan geen keuze) en volgt "Daarna weer tonen"
+        $sluitbaar = !empty($melding['melding_sluitbaar']) || $vorm === 'popup';
+        $kruisje   = $sluitbaar;
+        $knop      = $melding['melding_knop'] ?? null;
+        $voorbeeld = !empty($melding['mk_voorbeeld']);
+        $tonen     = $voorbeeld ? 'direct' : ($melding['melding_tonen'] ?? 'direct');
+
+        // Opmaak (sinds 1.7.0): uitlijning, tekstgrootte, ruimte en de plek van de knop
+        $kies = function ($naam, $mag, $standaard) use ($melding) {
+            $w = $melding[$naam] ?? '';
+            return in_array($w, $mag, true) ? $w : $standaard;
+        };
+        $opmaak = ' mk-notification--uitlijnen-' . $kies('melding_uitlijning', ['auto', 'links', 'midden'], 'auto')
+            . ' mk-notification--tekst-' . $kies('melding_tekstgrootte', ['klein', 'normaal', 'groot'], 'normaal')
+            . ' mk-notification--ruimte-' . $kies('melding_ruimte', ['compact', 'normaal', 'ruim'], 'normaal')
+            . ($vorm === 'balk' && $kies('melding_knop_plek', ['naast', 'onder'], 'naast') === 'onder' ? ' mk-notification--knop-onder' : '');
+        $knop_stijl = $kies('melding_knop_stijl', ['omlijnd', 'gevuld'], 'omlijnd');
+
+        $attr = [
+            'class'      => 'mk-notification mk-notification--' . $stijl . ' mk-notification--' . $vorm . $opmaak,
+            'aria-label' => __('Melding', 'mk'),
+            'data-id'    => mkbase_notification_id($melding) . ($voorbeeld ? '-voorbeeld' : ''),
+            'style'      => '--mk-notification-bg: ' . $bg . '; --mk-notification-color: ' . $color . ';',
+        ];
+        if ($tag === 'div') $attr['role'] = 'region';
+        if ($sluitbaar) {
+            $attr['data-opnieuw'] = ($melding['melding_opnieuw'] ?? '') ?: 'sessie';
+            $attr['data-dagen']   = (int) (($melding['melding_dagen'] ?? 0) ?: 7);
+        }
+        if ($tonen === 'tijd')   $attr['data-tonen-sec'] = max(1, (int) ($melding['melding_tonen_sec'] ?: 10));
+        if ($tonen === 'scroll') $attr['data-tonen-px']  = max(1, (int) ($melding['melding_tonen_px'] ?: 600));
+        if ($tonen !== 'direct' && $tag === 'div') $attr['hidden'] = 'hidden';
+        if (!empty($melding['melding_auto'])) $attr['data-auto'] = max(2, (int) ($melding['melding_auto_sec'] ?: 8));
+        if ($vorm === 'popup') {
+            $attr['data-backdrop']    = !empty($melding['melding_backdrop']) || !isset($melding['melding_backdrop']) ? '1' : '0';
+            $attr['data-scroll-blok'] = !empty($melding['melding_scroll_blok']) || !isset($melding['melding_scroll_blok']) ? '1' : '0';
+        }
+        ?>
+        <<?php echo $tag; foreach ($attr as $name => $value) echo ' ' . $name . '="' . esc_attr($value) . '"'; ?>>
+            <div class="mk-notification__inner">
+                <div class="mk-notification__inner__txt"><?php echo wp_kses_post($melding['melding_tekst']); ?></div>
+
+                <?php // Openingstijden in de melding (sinds 1.7.0, inc/openingstijden/meldingen.php)
+                if (!empty($melding['melding_ot']) && function_exists('mkbase_ot_melding_html')): ?>
+                    <div class="mk-notification__openingstijden"><?php echo mkbase_ot_melding_html($melding); ?></div>
+                <?php endif; ?>
+
+                <?php if (!empty($knop['url'])):
+                    $target = $knop['target'] ?: '_self';
+                ?>
+                    <a class="mk-notification__button mk-notification__button--<?php echo esc_attr($knop_stijl); ?>" href="<?php echo esc_url($knop['url']); ?>" target="<?php echo esc_attr($target); ?>"<?php echo $target === '_blank' ? ' rel="noopener noreferrer"' : ''; ?>>
+                        <?php echo esc_html($knop['title'] ?: __('Lees meer', 'mk')); ?>
+                    </a>
+                <?php endif; ?>
+
+                <?php if ($kruisje): ?>
+                    <?php // Pop-up: de focus start op het kruisje (rechtsboven), zodat een lange pop-up bovenaan opent ?>
+                    <button type="button" class="mk-notification__close mk-notification__inner__closex" aria-label="<?php esc_attr_e('Melding sluiten', 'mk'); ?>"<?php echo $vorm === 'popup' ? ' autofocus' : ''; ?>>
+                        <span class="mk-notification__inner__closex__lineone" aria-hidden="true"></span>
+                        <span class="mk-notification__inner__closex__linetwo" aria-hidden="true"></span>
+                    </button>
+                <?php endif; ?>
+            </div>
+            <?php if (!empty($attr['data-auto'])): ?>
+                <span class="mk-notification__timer" aria-hidden="true"></span>
+            <?php endif; ?>
+        </<?php echo $tag; ?>>
+        <?php
+    };
 ?>
-
-<?php if ($shownotification === 'Ja' && $show_on_page) { ?>
-    <div
-        style="--mk-notification-bg: <?= esc_attr($bgcolor); ?>; --mk-notification-color: <?= esc_attr($txtcolor); ?>;"
-        class="mk-notification"
-        <?php if ($begindate) echo 'data-begindatum="' . esc_attr($begindate) . '"'; ?>
-        <?php if ($enddate) echo 'data-einddatum="' . esc_attr($enddate) . '"'; ?>
-        <?php if ($showdate) echo 'data-opgeven="' . esc_attr($showdate) . '"'; ?>>
-        <div class="mk-notification__inner">
-            <div class="mk-notification__inner__closex">
-                <span class="mk-notification__inner__closex__lineone"></span>
-                <span class="mk-notification__inner__closex__linetwo"></span>
-            </div>
-            <div class="mk-notification__inner__txt">
-                <?php echo wp_kses_post($txt);?>
-            </div>
-        </div>
+<?php foreach ($balken as $positie => $items):
+    if (!$items) continue;
+?>
+    <div class="mk-notifications mk-notifications--<?php echo esc_attr(str_replace('_', '-', $positie)); ?>"<?php echo $eigen_css ? ' data-eigen-css' : ''; ?>>
+        <?php foreach ($items as $melding) $render($melding, 'balk'); ?>
     </div>
-<?php } ?>
+<?php endforeach; ?>
+
+<?php if ($blokken): ?>
+    <div class="mk-notification-blokken"<?php echo $eigen_css ? ' data-eigen-css' : ''; ?>>
+        <?php foreach ($blokken as $plek => $melding): ?>
+            <div class="mk-notifications mk-notifications--blok mk-notifications--<?php echo esc_attr(str_replace('_', '-', $plek)); ?>" style="--mk-notification-width: <?php echo (int) ($melding['melding_blok_breedte'] ?: 360); ?>px;">
+                <?php $render($melding, 'blok'); ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<?php if ($popup) $render($popup, 'popup', 'dialog'); ?>

@@ -66,7 +66,7 @@
                     'label'   => '',
                     'name'    => '',
                     'type'    => 'message',
-                    'message' => '<strong>ℹ️ Breadcrumbs blok</strong><br>Breadcrumbs worden automatisch gegenereerd op basis van de paginastructuur.<br>Op de homepage worden geen breadcrumbs weergegeven.',
+                    'message' => '<strong>Kruimelpad</strong><br>Dit blok heeft geen instellingen: het pad vult zich vanzelf op basis van de paginastructuur.<br>Op de homepage wordt geen kruimelpad getoond.',
                 ],
             ],
             'location' => [

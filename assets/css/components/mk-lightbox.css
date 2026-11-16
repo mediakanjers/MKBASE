@@ -1,0 +1,33 @@
+/* MKBase lightbox — alleen mechaniek bovenop Tobii, geen opmaak (die hoort in het child theme,
+   bijv. via de --tobii-* CSS-variabelen). */
+
+/* Stylinghandvatten voor het child theme: zet deze --mk-lightbox-*-variabelen (bijv. op :root),
+   niet Tobii's eigen --tobii-*-variabelen, zodat de styling blijft werken als de library eronder
+   ooit vervangen wordt. Gebruik voor detailstyling .mk-lightbox als basisselector.
+   De fallbacks zijn Tobii's standaardwaarden. */
+.mk-lightbox {
+    --tobii-lightbox-background: var(--mk-lightbox-background, #000000d9);
+    --tobii-lightbox-z-index: var(--mk-lightbox-z-index, 1337);
+    --tobii-button-color: var(--mk-lightbox-button-color, #fff);
+    --tobii-button-navigation-background: var(--mk-lightbox-nav-background, #00000080);
+    --tobii-caption-background: var(--mk-lightbox-caption-background, #000c);
+    --tobii-caption-color: var(--mk-lightbox-caption-color, #eee);
+    --tobii-counter-color: var(--mk-lightbox-counter-color, #fff);
+}
+
+/* Ingelogd: de WP-adminbalk (z-index 99999) zou de teller en sluitknop bedekken, dus de
+   lightbox begint eronder. Op ≤ 600px scrollt de adminbalk mee en is dit niet nodig. */
+@media screen and (min-width: 601px) {
+    body.admin-bar .mk-lightbox {
+        top: var(--wp-admin--admin-bar--height, 32px);
+        --tobii-slide-max-height: calc(100vh - 3.125em - var(--wp-admin--admin-bar--height, 32px));
+    }
+}
+
+/* SVG's met alleen een viewBox (vaak logo's) hebben geen eigen breedte/hoogte en zouden
+   in de lightbox 0px breed worden. Ze krijgen de beschikbare ruimte; de SVG schaalt daarbinnen
+   zelf mee met behoud van verhouding. */
+.tobii__slide figure > img[src*=".svg"] {
+    width: var(--tobii-slide-max-width);
+    height: var(--tobii-slide-max-height);
+}

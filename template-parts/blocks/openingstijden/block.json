@@ -1,0 +1,34 @@
+{
+  "name": "mk/openingstijden",
+  "title": "Openingstijden",
+  "description": "De openingstijden van Mediakanjers → Openingstijden: de week, alleen vandaag, of of je nu open bent. Feestdagen en afwijkende dagen komen er vanzelf bij.",
+  "category": "mediakanjers",
+  "icon": "clock",
+  "keywords": ["openingstijden", "tijden", "open", "gesloten", "feestdagen"],
+  "apiVersion": 3,
+  "acf": {
+    "blockVersion": 3,
+    "hideFieldsInSidebar": true,
+    "renderTemplate": "render.php"
+  },
+  "style": ["mk-openingstijden"],
+  "script": ["mk-openingstijden"],
+  "styles": [
+    { "name": "kaart", "label": "Kaart", "isDefault": true },
+    { "name": "plat", "label": "Plat" },
+    { "name": "donker", "label": "Donker" }
+  ],
+  "supports": {
+    "align": ["full"],
+    "anchor": true
+  },
+  "example": {
+    "attributes": {
+      "mode": "preview",
+      "data": {
+        "weergave": "week", "_weergave": "field_mk_ot_weergave",
+        "titel": "Openingstijden", "_titel": "field_mk_ot_titel"
+      }
+    }
+  }
+}

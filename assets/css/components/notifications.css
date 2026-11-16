@@ -1,18 +1,420 @@
-#wpadminbar + .mk-notification, body.admin-bar .mk-notification { top: 32px; }
+/* Meldingen — zie inc/notifications.php. Laadt alleen op pagina's met een zichtbare melding,
+   en niet als "CSS overschrijven" op Ja staat. Laadt vóór style-main.css, zodat het child theme
+   alles kan overschrijven. Kleuren per melding: --mk-notification-bg en --mk-notification-color. */
 
-.mk-notification { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; transition: 0.3s; background-color: var(--mk-notification-bg); color: var(--mk-notification-color); }
-.mk-notification a { color: var(--mk-color); }
-.mk-notification .mk-notification__inner { max-width: 1400px; width: 90%; margin: auto; padding: 20px 0px; position: relative; transition: 0.3s; }
-.mk-notification .mk-notification__inner .mk-notification__inner__txt { width: 80%; margin: auto; }
-.mk-notification .mk-notification__inner .mk-notification__inner__closex { position: absolute; right: 0px; top: 20px; width: 20px; height: 20px; cursor: pointer; transform: rotate(45deg); }
-.mk-notification .mk-notification__inner .mk-notification__inner__closex .mk-notification__inner__closex__lineone { position: absolute; width: 100%; height: 2px; background-color: black; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-.mk-notification .mk-notification__inner .mk-notification__inner__closex .mk-notification__inner__closex__linetwo { position: absolute; width: 2px; height: 100%; background-color: black; top: 50%; left: 50%; transform: translate(-50%,-50%);  }
+.mk-notifications {
+    left: 0;
+    right: 0;
+    z-index: 9999;
+}
 
-.mk-notification .mk-notification__inner .mk-notification__inner__closex:hover { transform: rotate(-45deg); transition: 0.3s linear; }
+.mk-notifications--boven {
+    position: fixed;
+    top: var(--wp-admin--admin-bar--height, 0px);
+}
 
-.mk-notification.scrolled .mk-notification__inner { padding: 10px 0px; }
+/* Staat bovenaan de pagina en scrolt mee weg, onder een eventuele vaste balk */
+.mk-notifications--boven-scrollt {
+    position: absolute;
+    top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--mk-notification-fixed-height, 0px));
+    z-index: 9998;
+}
 
-@media screen and (max-width: 782px) {
-    #wpadminbar + .mk-notification, body.admin-bar .mk-notification { top: 46px; }
-    .mk-notification .mk-notification__inner .mk-notification__inner__txt { width: 100%; }
+.mk-notifications--onder {
+    position: fixed;
+    bottom: 0;
+}
+
+.mk-notification {
+    background-color: var(--mk-notification-bg);
+    color: var(--mk-notification-color);
+    transition: opacity 0.2s ease;
+}
+
+.mk-notification.is-closing {
+    opacity: 0;
+}
+
+.mk-notification a {
+    color: inherit;
+}
+
+/* Ruimte links en rechts voor het kruisje, zodat de tekst in het midden blijft */
+.mk-notification__inner {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px 20px;
+    max-width: 1400px;
+    width: 90%;
+    margin: auto;
+    padding: 20px 48px;
+    box-sizing: border-box;
+    transition: padding 0.3s ease;
+}
+
+.mk-notification.scrolled .mk-notification__inner {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.mk-notification__inner__txt {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.mk-notification__inner__txt > :last-child {
+    margin-bottom: 0;
+}
+
+.mk-notification__button {
+    flex-shrink: 0;
+    padding: 8px 18px;
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+}
+
+.mk-notification__button:hover {
+    opacity: 0.85;
+}
+
+/* Sluitknop: kruisje in de tekstkleur van de melding */
+.mk-notification__close {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    transform: translateY(-50%) rotate(45deg);
+    transition: transform 0.3s ease;
+}
+
+.mk-notification__close:hover {
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+/* Rond, zodat de ring er niet scheef uitziet (de knop zelf staat 45° gedraaid) */
+.mk-notification__close:focus-visible {
+    outline: none;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px currentColor;
+}
+
+.mk-notification__inner__closex__lineone,
+.mk-notification__inner__closex__linetwo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: currentColor;
+    transform: translate(-50%, -50%);
+}
+
+.mk-notification__inner__closex__lineone { width: 20px; height: 2px; }
+.mk-notification__inner__closex__linetwo { width: 2px; height: 20px; }
+
+@media screen and (max-width: 600px) {
+    .mk-notification__inner {
+        padding-left: 0;
+        padding-right: 40px;
+    }
+}
+
+/* Nog niet zichtbaar (verschijnt na een aantal seconden of na scrollen) */
+.mk-notification[hidden] {
+    display: none;
+}
+
+/* Verschijnen: zacht inschuiven */
+.mk-notification--blok.is-shown,
+.mk-notification--popup.is-shown {
+    animation: mk-notification-in 0.25s ease-out;
+}
+
+@keyframes mk-notification-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Balkje dat aftelt bij "automatisch verdwijnen"; staat stil zolang de bezoeker erop staat */
+.mk-notification__timer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background: currentColor;
+    opacity: 0.45;
+    transform-origin: left;
+    animation: mk-notification-timer linear forwards;
+}
+
+.mk-notification.is-paused .mk-notification__timer {
+    animation-play-state: paused;
+}
+
+@keyframes mk-notification-timer {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+
+.mk-notification--balk {
+    position: relative;
+}
+
+/* ── Zwevend blok: vaste plek op het scherm, blijft staan tijdens het scrollen ── */
+.mk-notifications--blok {
+    position: fixed;
+    left: auto;  /* de basisregel zet left én right op 0; de plek hieronder kiest één kant */
+    right: auto;
+    z-index: 9997;
+    width: var(--mk-notification-width, 360px);
+    max-width: calc(100vw - 40px);
+}
+
+.mk-notifications--links-boven,
+.mk-notifications--links-midden,
+.mk-notifications--links-onder { left: 20px; }
+
+.mk-notifications--rechts-boven,
+.mk-notifications--rechts-midden,
+.mk-notifications--rechts-onder { right: 20px; }
+
+.mk-notifications--links-boven,
+.mk-notifications--rechts-boven {
+    top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--mk-notification-fixed-height, 0px) + 20px);
+}
+
+.mk-notifications--links-midden,
+.mk-notifications--rechts-midden {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mk-notifications--links-onder,
+.mk-notifications--rechts-onder {
+    bottom: calc(var(--mk-notification-bottom-height, 0px) + 20px);
+}
+
+.mk-notification--blok {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.mk-notification--blok .mk-notification__inner,
+.mk-notification--popup .mk-notification__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 14px;
+    width: auto;
+    max-width: none;
+    margin: 0;
+}
+
+.mk-notification--blok .mk-notification__inner {
+    padding: 18px 48px 18px 20px;
+}
+
+.mk-notification--blok .mk-notification__close,
+.mk-notification--popup .mk-notification__close {
+    top: 10px;
+    right: 10px;
+    transform: rotate(45deg);
+}
+
+.mk-notification--blok .mk-notification__close:hover,
+.mk-notification--popup .mk-notification__close:hover {
+    transform: rotate(-45deg);
+}
+
+/* Telefoon: alle blokken samen onderaan, over de volle breedte, onder elkaar */
+@media screen and (max-width: 600px) {
+    .mk-notification-blokken {
+        position: fixed;
+        z-index: 9997;
+        left: 12px;
+        right: 12px;
+        bottom: calc(var(--mk-notification-bottom-height, 0px) + 12px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .mk-notification-blokken .mk-notifications--blok {
+        position: static;
+        width: auto;
+        max-width: none;
+        transform: none;
+    }
+}
+
+/* ── Pop-up in het midden (<dialog>) ── */
+dialog.mk-notification--popup {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    width: min(560px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    height: fit-content;
+    margin: auto;
+    padding: 0;
+    overflow: auto;
+    border: 0;
+    border-radius: 18px;
+    background-color: var(--mk-notification-bg);
+    color: var(--mk-notification-color);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+dialog.mk-notification--popup::backdrop {
+    background: rgba(15, 27, 45, 0.55);
+}
+
+/* "Scrollen erachter blokkeren": de pagina staat stil; de ruimte van de scrollbalk blijft, zodat niets verspringt */
+html.mk-notification-scroll-blok {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+}
+
+.mk-notification--popup .mk-notification__inner {
+    padding: 32px 56px 32px 32px;
+    font-size: 1.1em;
+}
+
+@media screen and (max-width: 600px) {
+    .mk-notification--popup .mk-notification__inner {
+        padding: 28px 48px 24px 22px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mk-notification--blok.is-shown,
+    .mk-notification--popup.is-shown { animation: none; }
+    .mk-notification__timer { display: none; }
+}
+
+/* Openingstijden in een melding (sinds 1.7.0): in de kleuren van de melding. --mk-ot-label-* en
+   --mk-ot-afwijkend-color gebruikt het child theme (blocks/_mk-openingstijden.scss) voor de look. */
+.mk-notification__openingstijden {
+    flex-basis: 100%;
+    text-align: left;
+}
+
+.mk-notification__openingstijden .mk-ot {
+    --mk-ot-lijn: color-mix(in srgb, currentColor 22%, transparent);
+    --mk-ot-gedempt: color-mix(in srgb, currentColor 75%, transparent);
+    --mk-ot-vandaag-bg: color-mix(in srgb, currentColor 12%, transparent);
+    --mk-ot-label-bg: var(--mk-notification-color);
+    --mk-ot-label-color: var(--mk-notification-bg);
+    --mk-ot-afwijkend-color: currentColor;
+}
+
+.mk-notification--balk .mk-notification__openingstijden {
+    max-width: 640px;
+}
+
+/* Waar de melding onder elkaar staat (pop-up, blok, knop onder de tekst): de openingstijden over de
+   volle breedte. flex-basis 100% zou hier de hoogte worden, en bij Uitlijning Midden zou de tabel
+   (een container, zie openingstijden.css) anders geen breedte krijgen. */
+.mk-notification--popup .mk-notification__openingstijden,
+.mk-notification--blok .mk-notification__openingstijden,
+.mk-notification--knop-onder .mk-notification__openingstijden {
+    flex-basis: auto;
+    align-self: stretch;
+    width: 100%; /* vaste breedte: anders meet de browser de hoogte bij een smalle breedte */
+}
+
+/* ── Opmaak van de tekst (sinds 1.7.0) ──
+   Koppen (H2 t/m H4), lijsten en alinea's uit de teksteditor, in de kleur van de melding. */
+.mk-notification__inner__txt p {
+    margin: 0 0 0.6em;
+}
+
+.mk-notification__inner__txt :is(h2, h3, h4) {
+    margin: 0 0 0.35em;
+    color: inherit;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.mk-notification__inner__txt h2 { font-size: 1.5em; }
+.mk-notification__inner__txt h3 { font-size: 1.25em; }
+.mk-notification__inner__txt h4 { font-size: 1.1em; }
+
+.mk-notification__inner__txt :is(ul, ol) {
+    margin: 0 0 0.6em;
+    padding-left: 1.3em;
+}
+
+/* Een balk is kort: koppen blijven daar klein */
+.mk-notification--balk .mk-notification__inner__txt :is(h2, h3, h4) {
+    margin-bottom: 0.2em;
+    font-size: 1.1em;
+}
+
+/* ── Opmaak van de melding als geheel (sinds 1.7.0, Weergave → Uitlijning, Tekstgrootte, Ruimte) ── */
+
+/* Uitlijning. Automatisch: een balk in het midden, een pop-up en blok links (zoals hierboven) */
+.mk-notification--uitlijnen-midden .mk-notification__inner__txt {
+    text-align: center;
+}
+
+.mk-notification--uitlijnen-midden .mk-notification__inner__txt :is(ul, ol) {
+    padding-left: 0;
+    list-style-position: inside;
+}
+
+.mk-notification--uitlijnen-midden.mk-notification--popup .mk-notification__inner,
+.mk-notification--uitlijnen-midden.mk-notification--blok .mk-notification__inner {
+    align-items: center;
+}
+
+.mk-notification--uitlijnen-links .mk-notification__inner__txt {
+    text-align: left;
+}
+
+.mk-notification--uitlijnen-links.mk-notification--balk .mk-notification__inner {
+    justify-content: flex-start;
+}
+
+/* Tekstgrootte */
+.mk-notification--tekst-klein .mk-notification__inner { font-size: 0.875em; }
+.mk-notification--tekst-groot .mk-notification__inner { font-size: 1.15em; }
+.mk-notification--tekst-groot.mk-notification--popup .mk-notification__inner { font-size: 1.25em; }
+
+/* Ruimte rond de tekst. Bij een balk alleen boven en onder (links en rechts blijft er plek voor het kruisje) */
+.mk-notification--ruimte-compact.mk-notification--balk .mk-notification__inner { padding-top: 10px; padding-bottom: 10px; }
+.mk-notification--ruimte-ruim.mk-notification--balk .mk-notification__inner { padding-top: 32px; padding-bottom: 32px; }
+.mk-notification--ruimte-compact.mk-notification--blok .mk-notification__inner { padding: 12px 44px 12px 14px; }
+.mk-notification--ruimte-ruim.mk-notification--blok .mk-notification__inner { padding: 26px 52px 26px 26px; }
+.mk-notification--ruimte-compact.mk-notification--popup .mk-notification__inner { padding: 20px 48px 20px 20px; }
+.mk-notification--ruimte-ruim.mk-notification--popup .mk-notification__inner { padding: 44px 64px 44px 44px; }
+
+/* Knop onder de tekst (bij een balk; een pop-up en blok hebben hem altijd onder de tekst) */
+.mk-notification--knop-onder .mk-notification__inner {
+    flex-direction: column;
+}
+
+.mk-notification--knop-onder.mk-notification--uitlijnen-links .mk-notification__inner {
+    align-items: flex-start;
+}
+
+/* Knop gevuld: in de tekstkleur van de melding, met de achtergrondkleur als tekst */
+.mk-notification .mk-notification__button--gevuld { /* specifieker dan .mk-notification a (color: inherit) */
+    border-color: var(--mk-notification-color);
+    background-color: var(--mk-notification-color);
+    color: var(--mk-notification-bg);
 }

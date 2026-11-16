@@ -60,33 +60,46 @@ jobs:
           with open('CHANGELOG.md', 'r') as f:
               lines = f.read().split('\n')
 
-          heading_idx = next((i for i, l in enumerate(lines) if l.startswith('## ')), None)
+          # Alle ## secties, niet alleen de bovenste: staan er meerdere versies die nog niet
+          # uitgebracht zijn (bijv. 1.4.0 t/m 1.7.0 in één release vanaf 1.3.0), dan krijgt elke
+          # versie een eigen archiefbestand en komen ze allemaal in de changelog van de update.
+          heads = [i for i, l in enumerate(lines) if l.startswith('## ')]
           changelog_text = ''
 
-          if heading_idx is None:
+          if not heads:
               print('Geen ## versiekop gevonden in CHANGELOG.md — archivering overgeslagen.')
           else:
-              end_idx = next(
-                  (i for i in range(heading_idx + 1, len(lines)) if lines[i].startswith('## ')),
-                  len(lines)
-              )
-              section = lines[heading_idx:end_idx]
+              sections = []
+              for n, start in enumerate(heads):
+                  end = heads[n + 1] if n + 1 < len(heads) else len(lines)
+                  section = lines[start:end]
 
-              # Datum toevoegen aan de kop, tenzij er per ongeluk al een staat.
-              if '—' not in section[0]:
-                  section[0] = section[0].rstrip() + f' — {date}'
+                  # Datum toevoegen aan de kop, tenzij er per ongeluk al een staat.
+                  if '—' not in section[0]:
+                      section[0] = section[0].rstrip() + f' — {date}'
+                  text = '\n'.join(section).rstrip()
+                  sections.append(text)
 
-              changelog_text = '\n'.join(section).rstrip()
+                  sec_tag = section[0][3:].split('—')[0].strip()
+                  sec_tag = sec_tag if sec_tag.startswith('v') else 'v' + sec_tag
+                  archive_path = f'changelog-archive/{sec_tag}.md'
+                  with open(archive_path, 'w') as f:
+                      f.write(text + '\n')
+                  print(f'{archive_path} aangemaakt')
 
-              archive_path = f'changelog-archive/{tag}.md'
-              with open(archive_path, 'w') as f:
-                  f.write(changelog_text + '\n')
-              print(f'{archive_path} aangemaakt')
+              changelog_text = '\n\n'.join(sections)
 
-              remaining = lines[:heading_idx]
+              remaining = lines[:heads[0]]
               with open('CHANGELOG.md', 'w') as f:
                   f.write('\n'.join(remaining).rstrip() + '\n')
               print('CHANGELOG.md gereset voor de volgende versie')
+
+          # Voor het venster "Versiedetails bekijken": dat draait op de versie die de site nog heeft,
+          # en tot en met 1.6.0 kent die geen ingesprongen opsommingen. Daarom hier één niveau.
+          changelog_text = '\n'.join(
+              ('- ' + l.lstrip()[2:]) if l.startswith((' ', '\t')) and l.lstrip().startswith('- ') else l
+              for l in changelog_text.split('\n')
+          )
 
           # -- mkbase-update.json --
           with open('mkbase-update.json', 'r') as f:

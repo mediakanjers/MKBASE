@@ -1,0 +1,112 @@
+/* ════════════════════════════════════════════════════════════
+   Uitleg met ? bij elk veld (inc/admin/help.php, assets/js/mk-help.js).
+   Werkt ook in de blokeditor, dus elke kleur heeft een vaste terugvalwaarde.
+   ════════════════════════════════════════════════════════════ */
+
+.mk-help-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin: 0 0 0 6px;
+    padding: 0;
+    border: 1px solid var(--mk-input-border, #CFD8E3);
+    border-radius: 50%;
+    background: var(--mk-card, #fff);
+    color: var(--mk-muted, #56667A);
+    font: 800 11px/1 Inter, system-ui, sans-serif;
+    vertical-align: middle;
+    cursor: pointer;
+}
+.mk-help-btn:hover,
+.mk-help-btn[aria-expanded="true"] { border-color: var(--mk-primary, #0B6FB8); background: var(--mk-primary, #0B6FB8); color: #fff; }
+.mk-help-btn:focus-visible { outline: 2px solid var(--mk-focus, #0B6FB8); outline-offset: 2px; }
+.acf-label > label + .mk-help-btn { margin-top: -2px; }
+/* Label en ? op één regel (ACF maakt het label een blok) */
+.acf-field[data-mk-help] > .acf-label > label { display: inline; vertical-align: middle; }
+.acf-field[data-mk-help] > .acf-label > .description { margin-top: 2px; }
+
+/* Korte uitleg */
+.mk-help-pop {
+    position: absolute;
+    z-index: 100002;
+    width: 320px;
+    max-width: calc(100vw - 16px);
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: #0F1B2D;
+    color: #E6EDF7;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* zichtbaar op een donkere pagina */
+    box-shadow: 0 20px 50px rgba(15, 27, 45, 0.28);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font: 13px/1.55 Inter, system-ui, sans-serif;
+    outline: none;
+}
+.mk-help-pop strong { font-weight: 700; color: #fff; }
+.mk-help-pop p { margin: 0; color: #C5D0DE; }
+.mk-help-more { align-self: flex-start; padding: 0; border: 0; background: none; color: #7CC6F2; font: 700 13px/1.4 Inter, system-ui, sans-serif; cursor: pointer; }
+.mk-help-more:hover { text-decoration: underline; }
+.mk-help-more:focus-visible { outline: 2px solid #7CC6F2; outline-offset: 2px; }
+
+/* Zijpaneel met de Documentatie */
+.mk-help-panel {
+    position: fixed;
+    z-index: 100001;
+    top: var(--wp-admin--admin-bar--height, 32px);
+    right: 0;
+    bottom: 0;
+    width: 440px;
+    max-width: 100vw;
+    display: flex;
+    flex-direction: column;
+    background: var(--mk-card, #fff);
+    color: var(--mk-text, #0F1B2D);
+    border-left: 1px solid var(--mk-border, #E3E8EF);
+    box-shadow: -24px 0 60px rgba(15, 27, 45, 0.14);
+    font: 14px/1.6 Inter, system-ui, sans-serif;
+    animation: mkHelpIn 0.2s ease-out;
+}
+@keyframes mkHelpIn { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mk-help-panel { animation: none; } }
+.mk-help-panel__head { display: flex; align-items: center; gap: 10px; padding: 18px 22px; border-bottom: 1px solid var(--mk-border, #E3E8EF); }
+.mk-help-panel__head > div { flex: 1; min-width: 0; }
+.mk-help-panel__icon { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; background: var(--mk-tint, #E7F1FB); color: var(--mk-accent-text, #0B6FB8); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+.mk-help-panel__eyebrow { color: var(--mk-muted, #56667A); font-size: 12px; font-weight: 600; }
+.mk-help-panel__title { font: 800 17px/1.3 'Plus Jakarta Sans', Inter, sans-serif; }
+.mk-help-panel__close { width: 34px; height: 34px; border: 0; border-radius: 10px; background: var(--mk-soft, #F4F6FA); color: var(--mk-muted, #56667A); font-size: 20px; line-height: 1; cursor: pointer; }
+.mk-help-panel__close:focus-visible { outline: 2px solid var(--mk-focus, #0B6FB8); outline-offset: 2px; }
+.mk-help-panel__body { flex: 1; overflow-y: auto; padding: 18px 22px; display: flex; flex-direction: column; gap: 18px; }
+.mk-help-panel__intro { margin: 0; color: var(--mk-muted, #56667A); }
+.mk-help-panel__section h3 { margin: 0 0 8px; font: 700 15px/1.3 'Plus Jakarta Sans', Inter, sans-serif; color: var(--mk-text, #0F1B2D); }
+.mk-help-panel__item { padding: 10px 0; border-top: 1px solid var(--mk-line, #EEF1F5); }
+.mk-help-panel__item.is-current { margin: 0 -12px; padding: 10px 12px; border-top-color: transparent; border-radius: 10px; background: var(--mk-tint, #E7F1FB); box-shadow: inset 3px 0 0 var(--mk-primary, #0B6FB8); }
+.mk-help-panel__item.is-current + .mk-help-panel__item { border-top-color: transparent; }
+.mk-help-panel__q { margin-bottom: 4px; font-weight: 700; color: var(--mk-text, #0F1B2D); }
+.mk-help-panel__a { color: var(--mk-muted, #56667A); overflow-wrap: anywhere; }
+.mk-help-panel__a > :first-child { margin-top: 0; }
+.mk-help-panel__a > :last-child { margin-bottom: 0; }
+.mk-help-panel__a p { margin: 0 0 8px; }
+.mk-help-panel__a ul,
+.mk-help-panel__a ol { margin: 4px 0 8px; padding-left: 20px; }
+.mk-help-panel__a ul { list-style: disc; }
+.mk-help-panel__a ol { list-style: decimal; }
+.mk-help-panel__a li { margin: 0 0 4px; }
+.mk-help-panel__a strong { font-weight: 700; color: var(--mk-text, #0F1B2D); }
+.mk-help-panel__a a { color: var(--mk-accent-text, #0B6FB8); }
+.mk-help-panel__a code { padding: 1px 4px; white-space: nowrap; border-radius: 5px; background: var(--mk-soft, #F4F6FA); color: var(--mk-text, #0F1B2D); font: 12.5px/1.5 var(--mk-font-mono, ui-monospace, Consolas, monospace); }
+.mk-help-panel__a pre { margin: 6px 0 8px; padding: 10px 12px; border-radius: 10px; background: var(--mk-soft, #F4F6FA); overflow-x: auto; white-space: pre-wrap; }
+.mk-help-panel__a pre code { padding: 0; background: none; }
+.mk-help-panel__a table { width: 100%; border-collapse: collapse; margin: 6px 0 8px; font-size: 13px; }
+.mk-help-panel__a th,
+.mk-help-panel__a td { padding: 6px 8px; border: 1px solid var(--mk-line, #EEF1F5); text-align: left; vertical-align: top; }.mk-help-panel__loading { color: var(--mk-muted, #56667A); }
+.mk-help-panel__foot { display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; border-top: 1px solid var(--mk-border, #E3E8EF); font-size: 13px; }
+.mk-help-panel__foot a { color: var(--mk-accent-text, #0B6FB8); font-weight: 700; }
+.mk-help-panel__foot span { color: var(--mk-muted, #56667A); }
+
+@media (max-width: 600px) {
+    .mk-help-panel { top: auto; left: 0; width: auto; max-height: 75vh; border-left: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -10px 40px rgba(15, 27, 45, 0.2); }
+}

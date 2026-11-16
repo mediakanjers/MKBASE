@@ -28,28 +28,121 @@
         <custom-field action="copy">direct_na_body</custom-field>
         <custom-field action="copy">voor_de_sluitende_body</custom-field>
         <custom-field action="copy">alleen_op_de_homepage</custom-field>
-        <custom-field action="copy">alleen_in_de_footer</custom-field>
         <custom-field action="copy">alleen_thema_blokken</custom-field>
         <custom-field action="copy">extra_zichtbare_blokken</custom-field>
         <custom-field action="copy">bestandseditor_mediakanjers</custom-field>
         <custom-field action="copy">volgorde_vergrendeld</custom-field>
 
         <!-- ============================================================
-             OPTIONS PAGE: Meldingen
-             Alleen de meldingstekst zelf is content — data, kleuren en
-             zichtbaarheidsinstellingen zijn config.
+             OPTIONS PAGE: Meldingen (repeater 'meldingen', sinds 1.5.0)
+             Alleen de tekst en de knop zijn content — planning, opmaak en
+             zichtbaarheid zijn config.
         ============================================================= -->
-        <custom-field action="translate">tekst_melding</custom-field>
-        <custom-field action="copy">data_opgeven</custom-field>
-        <custom-field action="copy">begindatum</custom-field>
-        <custom-field action="copy">einddatum</custom-field>
-        <custom-field action="copy">achtergrondkleur</custom-field>
-        <custom-field action="copy">tekstkleur</custom-field>
-        <!-- Post-referentie (pagina's) — WPML kopieert het ID; koppel evt. via
-             WPML's relatie-instelling voor dit veld aan de vertaalde pagina. -->
-        <custom-field action="copy">waar_zichtbaar</custom-field>
+        <custom-field action="copy">meldingen</custom-field>
+        <custom-field action="copy">melding_actief</custom-field>
+        <custom-field action="copy">melding_naam</custom-field>
+        <custom-field action="translate">melding_tekst</custom-field>
+        <!-- Link-veld (tekst + url) — de knoptekst moet per taal vertaald worden. -->
+        <custom-field action="translate">melding_knop</custom-field>
+        <custom-field action="copy">melding_planning</custom-field>
+        <custom-field action="copy">melding_start</custom-field>
+        <custom-field action="copy">melding_eind</custom-field>
+        <custom-field action="copy">melding_stijl</custom-field>
+        <custom-field action="copy">melding_achtergrond</custom-field>
+        <custom-field action="copy">melding_tekstkleur</custom-field>
+        <custom-field action="copy">melding_positie</custom-field>
+        <custom-field action="copy">melding_backdrop</custom-field>
+        <custom-field action="copy">melding_scroll_blok</custom-field>
+        <custom-field action="copy">melding_blok_plek</custom-field>
+        <custom-field action="copy">melding_blok_breedte</custom-field>
+        <custom-field action="copy">melding_knop_stijl</custom-field>
+        <custom-field action="copy">melding_knop_plek</custom-field>
+        <custom-field action="copy">melding_uitlijning</custom-field>
+        <custom-field action="copy">melding_tekstgrootte</custom-field>
+        <custom-field action="copy">melding_ruimte</custom-field>
         <custom-field action="copy">melding_tonen</custom-field>
+        <custom-field action="copy">melding_tonen_sec</custom-field>
+        <custom-field action="copy">melding_tonen_px</custom-field>
+        <custom-field action="copy">melding_auto</custom-field>
+        <custom-field action="copy">melding_auto_sec</custom-field>
+        <custom-field action="copy">melding_sluitbaar</custom-field>
+        <custom-field action="copy">melding_opnieuw</custom-field>
+        <custom-field action="copy">melding_dagen</custom-field>
+        <custom-field action="copy">melding_zichtbaarheid</custom-field>
+        <!-- Post-referentie(s) — WPML kopieert het ID; koppel evt. via
+             WPML's relatie-instelling voor dit veld aan de vertaalde pagina. -->
+        <custom-field action="copy">melding_paginas</custom-field>
         <custom-field action="copy">css_overschrijven</custom-field>
+
+        <!-- ============================================================
+             OPTIONS PAGE: Openingstijden (sinds 1.7.0)
+             Tijden en datums zijn gelijk in elke taal; namen die bezoekers
+             zien (rooster, eigen feestdag, afwijking, toelichting, opmerking)
+             zijn vertaalbaar. De namen van de vaste feestdagen komen uit het
+             thema zelf (__()) en worden via de thema-vertaling vertaald.
+        ============================================================= -->
+        <custom-field action="copy">mkbase_ot_vooruit</custom-field>
+        <custom-field action="copy">mkbase_ot_notatie</custom-field>
+        <custom-field action="copy">mkbase_ot_google</custom-field>
+        <custom-field action="copy">mkbase_ot_roosters</custom-field>
+        <custom-field action="translate">naam</custom-field>
+        <custom-field action="copy">id</custom-field>
+        <custom-field action="copy">maandag_status</custom-field>
+        <custom-field action="copy">dinsdag_status</custom-field>
+        <custom-field action="copy">woensdag_status</custom-field>
+        <custom-field action="copy">donderdag_status</custom-field>
+        <custom-field action="copy">vrijdag_status</custom-field>
+        <custom-field action="copy">zaterdag_status</custom-field>
+        <custom-field action="copy">zondag_status</custom-field>
+        <custom-field action="translate">maandag_opmerking</custom-field>
+        <custom-field action="translate">dinsdag_opmerking</custom-field>
+        <custom-field action="translate">woensdag_opmerking</custom-field>
+        <custom-field action="translate">donderdag_opmerking</custom-field>
+        <custom-field action="translate">vrijdag_opmerking</custom-field>
+        <custom-field action="translate">zaterdag_opmerking</custom-field>
+        <custom-field action="translate">zondag_opmerking</custom-field>
+        <!-- De tijdvelden heten {dag}_van1, {dag}_tot1, {dag}_van2, {dag}_tot2 en (bij feestdagen
+             en afwijkingen) van1 t/m tot2: allemaal copy. -->
+        <custom-field action="copy">van1</custom-field>
+        <custom-field action="copy">tot1</custom-field>
+        <custom-field action="copy">van2</custom-field>
+        <custom-field action="copy">tot2</custom-field>
+        <custom-field action="copy">mkbase_ot_feestdagen</custom-field>
+        <custom-field action="copy">feestdag</custom-field>
+        <custom-field action="copy">datum</custom-field>
+        <custom-field action="copy">status</custom-field>
+        <custom-field action="copy">voor</custom-field>
+        <custom-field action="copy">mkbase_ot_afwijkingen</custom-field>
+        <custom-field action="copy">van</custom-field>
+        <custom-field action="copy">tot</custom-field>
+        <custom-field action="translate">toelichting</custom-field>
+        <custom-field action="copy">geen_melding</custom-field>
+        <custom-field action="copy">mkbase_ot_auto</custom-field>
+        <custom-field action="copy">mkbase_ot_auto_positie</custom-field>
+        <custom-field action="copy">mkbase_ot_auto_stijl</custom-field>
+        <custom-field action="translate">mkbase_ot_auto_tekst</custom-field>
+        <!-- Meldingen ↔ Openingstijden -->
+        <custom-field action="copy">melding_ot</custom-field>
+        <custom-field action="copy">melding_ot_roosters</custom-field>
+        <custom-field action="copy">melding_ot_weergave</custom-field>
+        <custom-field action="copy">melding_ot_status</custom-field>
+        <custom-field action="copy">melding_ot_koppelen</custom-field>
+        <custom-field action="copy">melding_ot_bron</custom-field>
+        <custom-field action="copy">melding_ot_vooraf</custom-field>
+        <!-- Blok Openingstijden -->
+        <custom-field action="copy">rooster</custom-field>
+        <custom-field action="copy">weergave</custom-field>
+        <custom-field action="copy">toon_status</custom-field>
+        <custom-field action="copy">vandaag_uitlichten</custom-field>
+        <custom-field action="copy">samenvoegen</custom-field>
+        <custom-field action="copy">gesloten_tonen</custom-field>
+        <custom-field action="copy">afwijkingen_tonen</custom-field>
+        <custom-field action="copy">wijziging_uitlichten</custom-field>
+        <custom-field action="copy">indeling</custom-field>
+        <!-- "breedte" staat hieronder al (Kolommen), ook copy -->
+        <!-- Link naar alle openingstijden: per taal een eigen pagina en tekst -->
+        <custom-field action="translate">link</custom-field>
+        <!-- De titel van het blok valt onder "titel" bij de 404 hieronder (translate). -->
 
         <!-- ============================================================
              OPTIONS PAGE: MK instellingen
@@ -81,6 +174,8 @@
         <custom-field action="copy">breedte</custom-field>
         <custom-field action="copy">toon_knop</custom-field>
         <custom-field action="translate">knop_tekst</custom-field>
+        <!-- Ook gebruikt door Image Slider en (per kolom) Kolommen. -->
+        <custom-field action="copy">afbeeldingsformaat</custom-field>
 
         <!-- ============================================================
              BLOK: Image Slider
@@ -90,6 +185,7 @@
         <custom-field action="copy">items_tablet</custom-field>
         <custom-field action="copy">autoplay</custom-field>
         <custom-field action="copy">aspect_ratio</custom-field>
+        <custom-field action="copy">lightbox</custom-field>
         <!-- Slides-repeater — rijstructuur (aantal/volgorde slides) volgt de
              brontaal, alleen de afbeelding zelf staat hieronder. -->
         <custom-field action="copy">slides</custom-field>
@@ -132,6 +228,7 @@
              OPTIONS PAGE: 404
         ============================================================= -->
         <custom-field action="translate">titel</custom-field>
+        <custom-field action="copy">404_afbeeldingsformaat</custom-field>
         <!-- "tekst" en "afbeelding" hierboven (Kolommen resp. Image Slider)
              dekken ook deze 404-velden, zelfde naam en zelfde gewenst gedrag
              (translate resp. copy) — hier niet nogmaals gedeclareerd. -->

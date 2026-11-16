@@ -1,33 +1,33 @@
-jQuery(document).ready(function($) {
-    $('.image-slider__track.owl-carousel').each(function() {
-        var $el          = $(this);
-        var $slider      = $el.closest('.image-slider');
-        var itemsDesktop = parseInt($slider.data('items-desktop')) || 3;
-        var itemsTablet  = parseInt($slider.data('items-tablet')) || 2;
-        var autoplay     = $slider.data('autoplay') === true;
-        var itemCount    = $el.find('.image-slider__item').length;
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.image-slider__track.swiper').forEach(function(el) {
+        var slider       = el.closest('.image-slider');
+        var itemsDesktop = parseInt(slider.dataset.itemsDesktop) || 3;
+        var itemsTablet  = parseInt(slider.dataset.itemsTablet) || 2;
+        var autoplay     = slider.dataset.autoplay === 'true';
+        var itemCount    = el.querySelectorAll('.image-slider__item').length;
         var enableLoop   = itemCount > itemsDesktop;
 
-        $el.owlCarousel({
-            margin: 20,
+        new Swiper(el, {
             loop: enableLoop,
-            nav: false,
-            dots: false,
-            autoplay: autoplay,
-            autoplayTimeout: 4000,
-            autoplayHoverPause: true,
-            responsive: {
-                0: {
-                    items: 1,
-                    stagePadding: 30,
-                    center: true,
-                    margin: 15,
-                },
+            autoplay: autoplay ? {
+                delay: 4000,
+                pauseOnMouseEnter: true,
+                disableOnInteraction: false,
+            } : false,
+            // Mobiel: 1 gecentreerde slide, buren gluren in beeld via de padding in image-slider.css
+            slidesPerView: 1,
+            centeredSlides: true,
+            spaceBetween: 15,
+            breakpoints: {
                 600: {
-                    items: itemsTablet,
+                    slidesPerView: itemsTablet,
+                    centeredSlides: false,
+                    spaceBetween: 20,
                 },
                 980: {
-                    items: itemsDesktop,
+                    slidesPerView: itemsDesktop,
+                    centeredSlides: false,
+                    spaceBetween: 20,
                 }
             }
         });
