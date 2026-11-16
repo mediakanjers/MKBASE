@@ -1,0 +1,138 @@
+/* =============================================================================
+   Zoek- en archiefpagina — basisopmaak (core)
+   =============================================================================
+   Alleen de indeling: een container, ruimte, het zoekveld, de resultatenlijst,
+   het kaartenraster en de paginering. Neutraal (kleuren afgeleid van de
+   tekstkleur), zodat het op elke website past, ook als het child theme deze
+   pagina's (nog) niet opmaakt.
+
+   Laadt alleen op zoek- en archiefpagina's, vóór style-main.css. Elke regel heeft
+   precies één class aan specificiteit (de rest staat in :where()). Zo wint hij van
+   algemene resets en element-regels (* { margin: 0 }, h2 { ... }), maar wint elke
+   class-regel van het child theme, omdat die later komt.
+
+   De look per website: web/assets/scss/template-parts/_search.scss,
+   _archive.scss, components/_pagination.scss en blocks/_mk-loop.scss in het
+   Mediakanjers child theme. Aanpassen kan ook met de variabelen hieronder.
+   ============================================================================= */
+
+.search-page,
+.archive-page {
+    --mk-overzicht-breedte: 1400px;   /* maximale breedte van de inhoud */
+    --mk-overzicht-rand: 20px;        /* ruimte links en rechts op een smal scherm */
+    --mk-overzicht-ruimte: 50px;      /* ruimte boven en onder */
+    --mk-overzicht-lijn: color-mix(in srgb, currentColor 15%, transparent);
+    --mk-overzicht-gedempt: color-mix(in srgb, currentColor 70%, transparent);
+    --mk-overzicht-radius: 8px;
+}
+
+/* Container */
+.search-page__container,
+.archive-page__loop {
+    box-sizing: border-box;
+    width: min(var(--mk-overzicht-breedte), 100% - 2 * var(--mk-overzicht-rand));
+    margin: var(--mk-overzicht-ruimte) auto;
+}
+
+.search-page__title,
+.archive-page__title { margin: 0 0 20px; overflow-wrap: break-word; }
+
+.archive-page__header { margin-bottom: 30px; }
+.archive-page__description { margin-top: 10px; color: var(--mk-overzicht-gedempt); }
+.search-page__count { margin: 25px 0 10px; color: var(--mk-overzicht-gedempt); font-size: 0.9em; }
+.search-page__empty,
+.archive-page__empty { margin-top: 25px; }
+
+/* Zoekformulier: klassieke (.searchform) en HTML5-markup (.search-form) van get_search_form() */
+:where(.search-page) .searchform > div,
+:where(.search-page) .search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: 600px;
+}
+:where(.search-page .search-form) label { display: flex; flex: 1; min-width: 0; }
+:where(.search-page .searchform) input[type="text"],
+:where(.search-page .search-form) input[type="search"] {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 12px 16px;
+    border: 1px solid var(--mk-overzicht-lijn);
+    border-radius: var(--mk-overzicht-radius);
+    font-family: inherit;
+    font-size: 1em;
+}
+:where(.search-page .searchform) input[type="submit"],
+:where(.search-page .search-form) input[type="submit"],
+:where(.search-page .search-form) button {
+    padding: 12px 24px;
+    border: 1px solid currentColor;
+    border-radius: var(--mk-overzicht-radius);
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Zoekresultaten */
+.search-page__results { margin: 0; padding: 0; list-style: none; }
+.search-page__result { padding: 20px 0; border-bottom: 1px solid var(--mk-overzicht-lijn); }
+.search-page__result-title { margin: 0 0 5px; font-size: 1.25em; line-height: 1.3; }
+:where(.search-page__result-title) a { color: inherit; text-decoration: none; }
+:where(.search-page__result-title) a:hover { text-decoration: underline; }
+.search-page__excerpt { margin: 0; color: var(--mk-overzicht-gedempt); }
+
+/* Kaartenraster op de archiefpagina (zelfde kaart als het Loop-blok). Alleen de indeling, niets
+   decoratiefs (geen rand, hoeken of bijsnijden), zodat een child theme dat de kaarten van het
+   Loop-blok al opmaakt er niets van merkt. */
+:where(.archive-page) .mk-loop__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+    gap: 30px;
+}
+:where(.archive-page) .mk-loop__card { display: flex; flex-direction: column; color: inherit; text-decoration: none; }
+:where(.archive-page .mk-loop__image) img { display: block; max-width: 100%; height: auto; }
+:where(.archive-page) .mk-loop__content { display: flex; flex: 1; flex-direction: column; gap: 8px; padding: 15px 0 0; }
+:where(.archive-page) .mk-loop__title { margin: 0; font-size: 1.25em; line-height: 1.3; }
+:where(.archive-page) .mk-loop__excerpt { margin: 0; }
+
+/* Paginering (the_posts_pagination()) */
+:where(.search-page, .archive-page) .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 30px;
+}
+:where(.search-page, .archive-page) .page-numbers {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 14px;
+    border: 1px solid var(--mk-overzicht-lijn);
+    border-radius: var(--mk-overzicht-radius);
+    color: inherit;
+    text-decoration: none;
+}
+:where(.search-page, .archive-page) .current { border-color: currentColor; font-weight: 600; }
+:where(.search-page, .archive-page) .dots { border-color: transparent; }
+
+/* Labels die WordPress alleen voor schermlezers bedoelt (zoekveld, paginering) */
+:where(.search-page, .archive-page) .screen-reader-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .search-page,
+    .archive-page { --mk-overzicht-ruimte: 30px; }
+}

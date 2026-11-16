@@ -29,6 +29,13 @@
 
         // Meldingen (notificatiebalk): zie inc/notifications.php
 
+        // Zoek- en archiefpagina (search.php, archive.php): basisopmaak, alleen op die pagina's en
+        // vóór style-main.css. Nodig voor bestaande websites waarvan het child theme deze pagina's
+        // (sinds 1.4.1 nieuw in de core) niet opmaakt; het child theme wint altijd.
+        if (is_search() || is_archive()) {
+            wp_enqueue_style('mk-overzicht', $theme_uri . '/assets/css/components/mk-overzicht.css', [], mkbase_asset_version($theme_dir . '/assets/css/components/mk-overzicht.css'));
+        }
+
         // Main compiled SCSS from /dist
         wp_enqueue_style( 'mkbase-style-main', $child_uri . '/dist/css/style-main.css', array(), mkbase_asset_version($child_dir . '/dist/css/style-main.css') );
     }
@@ -84,6 +91,34 @@
         return $html;
     }
     add_filter('wp_template_enhancement_output_buffer', 'mkbase_move_vendor_styles_before_main', 20);
+
+    // Vangnet voor bestaande websites (Owl Carousel, Fancybox 3, Swiper 5): tot en met 1.3.0 laadde
+    // de core hun CSS op elke pagina. Een child theme dat de library zelf meebundelt, of het script
+    // niet via de core-handle laadt, rekende daarop. Staat de markup op de pagina maar ontbreekt de
+    // CSS, dan komt die er alsnog bij, vóór style-main.css. Pagina's zonder zo'n slider of
+    // lightbox laden niets extra; heeft een child theme de stylesheet zelf uitgeschakeld
+    // (wp_deregister_style), dan blijft hij uit.
+    function mkbase_legacy_vendor_styles_fallback($html) {
+        $legacy = [
+            'owl-carousel-css' => '/\bclass=(["\'])[^"\']*\bowl-carousel\b/',
+            'fancybox-css'     => '/\sdata-fancybox\b/',
+            'swiper-css'       => '/\bclass=(["\'])[^"\']*\bswiper-container\b/',
+        ];
+        $main = '/<link\b[^>]*\bid=([\'"])mkbase-style-main-css\1[^>]*>/';
+
+        foreach ($legacy as $handle => $markup) {
+            $style = wp_styles()->registered[$handle] ?? null;
+            if (!$style || !$style->src) continue;                                      // uitgeschakeld door het child theme
+            if (preg_match('/\bid=([\'"])' . preg_quote($handle, '/') . '-css\1/', $html)) continue; // staat er al
+            if (!preg_match($markup, $html)) continue;                                  // niet gebruikt op deze pagina
+            if (!preg_match($main, $html, $m, PREG_OFFSET_CAPTURE)) return $html;
+
+            $tag  = '<link rel="stylesheet" id="' . esc_attr($handle) . '-css" href="' . esc_url($style->src) . '" media="all" />' . "\n";
+            $html = substr_replace($html, $tag, $m[0][1], 0);
+        }
+        return $html;
+    }
+    add_filter('wp_template_enhancement_output_buffer', 'mkbase_legacy_vendor_styles_fallback', 15);
 
 
     // =============================================================================

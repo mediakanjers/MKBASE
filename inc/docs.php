@@ -852,6 +852,17 @@
                 ['label' => 'Gebruik', 'desc' => '<p>Dezelfde kaart als het Loop-blok en de archiefpagina, met de <code>.mk-loop__*</code>-classes.</p>' . mkbase_docs_code("get_template_part('template-parts/content/card', null, [\n    'post'       => \$post,\n    'image_size' => 'large',\n    'knop_tekst' => '',\n    'is_preview' => \$is_preview,\n]);")],
             ]);
 
+            $html .= mkbase_docs_section('dev-zoek-archief', 'Zoek- en archiefpagina', 'dashicons-search', [
+                ['label' => 'Templates', 'desc' => 'De core heeft <code>search.php</code> (zoekresultaten) en <code>archive.php</code> (categorie, tag, auteur, datum; met de berichtkaart in een raster). Een child theme met een eigen <code>search.php</code> of <code>archive.php</code> gaat voor.'],
+                ['label' => 'Basisopmaak', 'desc' => '<code>assets/css/components/mk-overzicht.css</code> geeft alleen de indeling (container, zoekveld, resultaten, raster, paginering), neutraal en alleen op deze pagina\'s, vóór <code>style-main.css</code>. Elke class-regel van het child theme wint. Zo zien ze er ook netjes uit op een website waarvan het child theme ze niet opmaakt.'],
+                ['label' => 'Opmaak per website', 'desc' => 'In het Mediakanjers child theme: <code>template-parts/_search.scss</code>, <code>template-parts/_archive.scss</code>, <code>components/_pagination.scss</code> en <code>blocks/_mk-loop.scss</code>.' . mkbase_docs_tabel([
+                    ['--mk-overzicht-breedte', 'Maximale breedte van de inhoud (standaard 1400px)'],
+                    ['--mk-overzicht-rand', 'Ruimte links en rechts op een smal scherm'],
+                    ['--mk-overzicht-ruimte', 'Ruimte boven en onder'],
+                    ['--mk-overzicht-radius', 'Afronding van zoekveld, knop en paginering'],
+                ], ['Variabele', 'Wat het is'])],
+            ]);
+
             $html .= '</div>';
         }
 
@@ -937,6 +948,7 @@
 
             $html .= mkbase_docs_section('lightbox-fancybox', 'Fancybox (verouderd)', 'dashicons-warning', [
                 ['label' => 'Bestaande websites', 'desc' => 'Fancybox (<code>fancybox-js</code>) blijft werken op websites die hem al gebruiken, maar wordt niet meer onderhouden en werkt niet met jQuery 4. Gebruik voor nieuwe blokken altijd <code>mk-lightbox</code>. Hetzelfde geldt voor Owl Carousel (<code>owl-carousel-js</code>): gebruik voor nieuwe sliders Swiper 14 (<code>swiper-v14-js</code>).'],
+                ['label' => 'CSS op bestaande websites', 'desc' => 'Laad je <code>owl-carousel-js</code>, <code>fancybox-js</code> of <code>swiper-js</code> via de core, dan komt de CSS vanzelf mee. Bundelt het child theme de library zelf, dan zet de core de CSS er alsnog bij zodra er een <code>owl-carousel</code>, <code>data-fancybox</code> of <code>swiper-container</code> op de pagina staat (tot en met 1.3.0 laadde die CSS op elke pagina). Wil je dat niet, bijv. omdat je een eigen versie gebruikt, schakel de stylesheet dan uit met <code>wp_deregister_style(\'owl-carousel-css\')</code>.'],
             ]);
 
             $html .= '</div>';

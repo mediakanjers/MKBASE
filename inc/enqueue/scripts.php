@@ -41,8 +41,11 @@
 
         // Meldingen (notificatiebalk): zie inc/notifications.php
 
-        // Minified script uit child theme dist
-        wp_enqueue_script('mk-main-script', $child_uri . '/dist/scripts/scripts.min.js', [], mkbase_asset_version($child_dir . '/dist/scripts/scripts.min.js'), true);
+        // Minified script uit child theme dist. Met jQuery als afhankelijkheid: de child themes
+        // (mobiel menu, formulieren) gebruiken jQuery, en tot en met 1.3.0 laadde de core jQuery op
+        // elke pagina. Zonder deze afhankelijkheid werkt het mobiele menu niet op een website
+        // zonder plugin die zelf jQuery laadt (bijv. WooCommerce).
+        wp_enqueue_script('mk-main-script', $child_uri . '/dist/scripts/scripts.min.js', ['jquery'], mkbase_asset_version($child_dir . '/dist/scripts/scripts.min.js'), true);
     }
     add_action('wp_enqueue_scripts', 'mkbase_enqueue_scripts');
 ?>
