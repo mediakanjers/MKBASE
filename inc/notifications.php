@@ -21,6 +21,7 @@
     // en tekst uit Openingstijden (inc/openingstijden/meldingen.php)
     function mkbase_get_notifications() {
         if (!function_exists('get_field')) return [];
+        mkbase_prime_acf_repeater('meldingen', 'field_mk_meldingen');
         $rows = get_field('meldingen', 'option');
         if (!is_array($rows)) return [];
         return function_exists('mkbase_ot_melding_effectief') ? array_map('mkbase_ot_melding_effectief', $rows) : $rows;

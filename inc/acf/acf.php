@@ -16,6 +16,7 @@
                 'page_title'    => 'Website instellingen',
                 'menu_title'    => 'Website instellingen',
                 'parent_slug'   => 'Mediakanjers',
+                'autoload'      => true, // waarden in één keer laden i.p.v. een query per veld (sinds 1.7.4)
             ));
 
             // Submenu 2 - Geavanceerd
@@ -25,6 +26,7 @@
                 'parent_slug'   => 'Mediakanjers',
                 // Scripts komen ongefilterd op elke pagina: alleen voor wie al scripts mag plaatsen
                 'capability'    => 'unfiltered_html',
+                'autoload'      => true, // waarden in één keer laden i.p.v. een query per veld (sinds 1.7.4)
             ));
             
             // Submenu 3 - Meldingen
@@ -32,6 +34,7 @@
                 'page_title'    => 'Meldingen',
                 'menu_title'    => 'Meldingen',
                 'parent_slug'   => 'Mediakanjers',
+                'autoload'      => true, // waarden in één keer laden i.p.v. een query per veld (sinds 1.7.4)
             ));
             // Openingstijden (sinds 1.7.0; uit te zetten met het filter mkbase_openingstijden_actief)
             if (function_exists('mkbase_ot_actief') && mkbase_ot_actief()) {
@@ -39,6 +42,7 @@
                     'page_title'    => 'Openingstijden',
                     'menu_title'    => 'Openingstijden',
                     'parent_slug'   => 'Mediakanjers',
+                    'autoload'      => true, // waarden in één keer laden i.p.v. een query per veld (sinds 1.7.4)
                 ));
             }
             // Submenu 4 - 404
@@ -46,6 +50,7 @@
                 'page_title'    => '404-pagina',
                 'menu_title'    => '404',
                 'parent_slug'   => 'Mediakanjers',
+                'autoload'      => true, // waarden in één keer laden i.p.v. een query per veld (sinds 1.7.4)
             ));
             // Submenu 5 - Changelog
             acf_add_options_sub_page(array(

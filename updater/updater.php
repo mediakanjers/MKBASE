@@ -1,19 +1,39 @@
 <?php
+    // Alleen downloads uit de eigen GitHub-releases worden geïnstalleerd, ook als het manifest ooit iets
+    // anders zou bevatten
+    define('MKBASE_UPDATER_DOWNLOAD_PREFIX', 'https://github.com/mediakanjers/MKBASE/releases/download/');
+
+    // Het manifest (mkbase-update.json op GitHub). WordPress slaat de update-gegevens bij één controle
+    // meerdere keren op, en elke keer liep dit filter: zonder cache waren dat twee verzoeken naar GitHub
+    // van elk max. 30 seconden. Nu: één keer per request, 6 uur bewaard (een mislukte poging 30 minuten),
+    // en opnieuw bij "Opnieuw controleren" onder Dashboard → Updates.
+    function mkbase_update_manifest() {
+        static $manifest = false;
+        if ($manifest !== false) return $manifest;
+
+        $opnieuw = is_admin() && isset($_GET['force-check']) && current_user_can('update_themes');
+        $cache   = $opnieuw ? false : get_site_transient('mkbase_update_manifest');
+        if (is_array($cache)) return $manifest = $cache['data'];
+
+        $remote = wp_remote_get(MKBASE_UPDATER_URL, [
+            'timeout' => 10,
+            'headers' => ['Accept' => 'application/json'],
+        ]);
+        $data = null;
+        if (!is_wp_error($remote) && wp_remote_retrieve_response_code($remote) === 200) {
+            $json = json_decode(wp_remote_retrieve_body($remote));
+            if (is_object($json)) $data = $json;
+        }
+        set_site_transient('mkbase_update_manifest', ['data' => $data], $data ? 6 * HOUR_IN_SECONDS : 30 * MINUTE_IN_SECONDS);
+        return $manifest = $data;
+    }
+
     add_filter('pre_set_site_transient_update_themes', 'mkbase_check_for_update');
     // site_transient_update_themes
     function mkbase_check_for_update($transient) {
         if (empty($transient->checked)) return $transient;
 
-        $remote = wp_remote_get(MKBASE_UPDATER_URL, [
-            'timeout' => 30,
-            'headers' => ['Accept' => 'application/json']
-        ]);
-
-        if (is_wp_error($remote) || wp_remote_retrieve_response_code($remote) !== 200) {
-            return $transient;
-        }
-
-        $response = json_decode(wp_remote_retrieve_body($remote));
+        $response = mkbase_update_manifest();
         if (!$response) return $transient;
 
         $theme_slug = get_template();
@@ -21,6 +41,8 @@
 
         if (
             isset($response->version, $response->download_url) &&
+            is_string($response->download_url) &&
+            strpos($response->download_url, MKBASE_UPDATER_DOWNLOAD_PREFIX) === 0 &&
             !empty($current_version) &&
             version_compare($response->version, $current_version, '>')
         ) {

@@ -5,6 +5,7 @@
      * gaan, en de versienummers moeten overeenkomen. Bedoeld om vanuit CI
      * (pull_request-event) aangeroepen te worden.
      */
+    if (PHP_SAPI !== 'cli') exit; // nooit via de website
     $root = dirname(__DIR__);
     $base = getenv('GITHUB_BASE_REF');
 

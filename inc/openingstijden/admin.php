@@ -67,8 +67,10 @@
         return array_map(function ($r) { return $r['naam']; }, mkbase_ot_roosters());
     }
 
+    // prepare_field: alleen als het formulier getoond wordt. Met load_field rekende de website bij elke
+    // get_field() ook deze keuzes uit (de waarde is de sleutel, de keuzes zijn daar niet nodig).
     foreach (['field_mkbase_ot_google', 'field_mkbase_ot_fd_voor', 'field_mkbase_ot_afw_voor', 'field_mk_ot_rooster'] as $key) {
-        add_filter('acf/load_field/key=' . $key, function ($field) {
+        add_filter('acf/prepare_field/key=' . $key, function ($field) {
             $field['choices'] = mkbase_ot_rooster_keuzes();
             return $field;
         });
@@ -178,6 +180,10 @@
             $van  = (string) ($rij['field_mkbase_ot_afw_van'] ?? '');
             $tot  = (string) ($rij['field_mkbase_ot_afw_tot'] ?? '');
             if ($van !== '' && $tot !== '' && $tot < $van) return sprintf(__('%s: "Tot en met" ligt vóór de begindatum.', 'mk'), $naam);
+            // Maximaal een jaar: vangt een typfout in het jaar af (bijv. 2099 in plaats van 2026)
+            $begin = DateTimeImmutable::createFromFormat('!Ymd', $van);
+            $eind  = DateTimeImmutable::createFromFormat('!Ymd', $tot);
+            if ($begin && $eind && $eind > $begin->modify('+1 year')) return sprintf(__('%s: een periode duurt maximaal een jaar. Controleer de datum bij "Tot en met".', 'mk'), $naam);
             if (($rij['field_mkbase_ot_afw_status'] ?? '') === 'afwijkend') {
                 $fout = mkbase_ot_controleer_vakken($rij, '', 'field_mkbase_ot_afw', $naam);
                 if ($fout) return $fout;

@@ -71,7 +71,7 @@ Het thema heeft een ingebouwde auto-updater (`updater/updater.php`) die `mkbase-
    - Klik **Publish release**
 
 5. **GitHub Action doet de rest automatisch:**
-   - Bouwt de thema-zip (geen build-stap nodig, mkbase heeft geen eigen SCSS/JS-compilatie) en voegt hem toe aan de Release.
+   - Bouwt de thema-zip (geen build-stap nodig, mkbase heeft geen eigen SCSS/JS-compilatie) en voegt hem toe aan de Release. Niet in de zip: `.github/`, `bin/`, `.gitignore` en `DEVELOPMENT.md`. De handleiding Mobiel testen (`mobile-testing-guide.html`) staat buiten git (`.gitignore`) en alleen lokaal.
    - Werkt `mkbase-update.json` op `main` bij (nieuwe versie + download-URL).
    - Archiveert elke `CHANGELOG.md`-sectie naar `changelog-archive/v{versie}.md` met de releasedatum, en reset `CHANGELOG.md`.
 

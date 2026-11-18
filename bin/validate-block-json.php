@@ -4,6 +4,7 @@
      * bevat die MKBase erop verwacht, en dat de opgegeven renderTemplate
      * daadwerkelijk bestaat. Bedoeld om vanuit CI aangeroepen te worden.
      */
+    if (PHP_SAPI !== 'cli') exit; // nooit via de website
     $files = glob(__DIR__ . '/../template-parts/blocks/*/block.json');
     $errors = [];
 

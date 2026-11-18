@@ -33,6 +33,7 @@
             'opruimen_veldgroepen_1_5_0' => 'mkbase_remove_disabled_core_field_groups',
             'footercode_samenvoegen_1_6_0' => 'mkbase_merge_footer_code',
             'tijdzone_stad_1_7_0'        => 'mkbase_set_timezone_city',
+            'autoload_opties_1_7_4'      => 'mkbase_autoload_acf_options',
         ];
 
         $changed = false;
@@ -142,6 +143,24 @@
         // zodat gecachte pagina's de nieuwe tijdzone meekrijgen
         wp_clear_scheduled_hook('mkbase_ot_dagelijks');
         if (function_exists('rocket_clean_domain')) rocket_clean_domain();
+    }
+
+    // 1.7.4: de optiepagina's laden hun waarden voortaan in één keer ('autoload' => true in
+    // inc/acf/acf.php). ACF zet dat alleen bij een waarde die opnieuw wordt opgeslagen, dus de bestaande
+    // opties (options_*, en ACF's veldverwijzingen _options_*) gaan hier één keer om. Ook die van eigen
+    // optiepagina's in het child theme: die gebruiken dezelfde opslag en worden meestal ook op elke pagina
+    // gelezen. Grote waarden (vanaf 100 kB) blijven apart, zodat ze niet bij elke pagina meeladen.
+    function mkbase_autoload_acf_options() {
+        global $wpdb;
+        $aan   = wp_autoload_values_to_autoload();
+        $in    = implode(',', array_fill(0, count($aan), '%s'));
+        $namen = $wpdb->get_col($wpdb->prepare(
+            "SELECT option_name FROM {$wpdb->options}
+             WHERE (option_name LIKE %s OR option_name LIKE %s)
+               AND LENGTH(option_value) < 102400 AND autoload NOT IN ($in)",
+            array_merge([$wpdb->esc_like('options_') . '%', $wpdb->esc_like('_options_') . '%'], $aan)
+        ));
+        if ($namen) wp_set_option_autoload_values(array_fill_keys($namen, true));
     }
 
     // Actieve kopieën van core-veldgroepen: in de database of als JSON in het child theme.

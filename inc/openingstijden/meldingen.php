@@ -35,6 +35,7 @@
         static $cache = null;
         if ($cache !== null) return $cache;
         $cache = [];
+        if (function_exists('mkbase_prime_acf_repeater')) mkbase_prime_acf_repeater('meldingen', 'field_mk_meldingen');
         foreach ((array) (function_exists('get_field') ? get_field('meldingen', 'option') : []) as $i => $row) {
             if (!is_array($row) || empty($row['melding_ot_koppelen']) || empty($row['melding_ot_bron'])) continue;
             $cache[$row['melding_ot_bron']] = ['index' => $i, 'naam' => $row['melding_naam'] ?: __('Naamloze melding', 'mk'), 'row' => $row];
@@ -119,8 +120,9 @@
         return $uit;
     }
 
-    // Keuzelijst "Volgt" in een melding: afwijkingen en feestdagen, in groepen
-    add_filter('acf/load_field/key=field_mk_melding_ot_bron', function ($field) {
+    // Keuzelijst "Volgt" in een melding: afwijkingen en feestdagen, in groepen. Deze drie met prepare_field:
+    // alleen als het formulier getoond wordt, niet bij elke get_field() op de website.
+    add_filter('acf/prepare_field/key=field_mk_melding_ot_bron', function ($field) {
         if (!mkbase_ot_actief()) return $field;
         $groepen = [__('Afwijkingen', 'mk') => [], __('Feestdagen', 'mk') => []];
         foreach (mkbase_ot_bronnen_admin() as $sleutel => $b) {
@@ -132,12 +134,12 @@
         return $field;
     });
 
-    add_filter('acf/load_field/key=field_mk_melding_ot_roosters', function ($field) {
+    add_filter('acf/prepare_field/key=field_mk_melding_ot_roosters', function ($field) {
         if (function_exists('mkbase_ot_rooster_keuzes')) $field['choices'] = mkbase_ot_rooster_keuzes();
         return $field;
     });
 
-    add_filter('acf/load_field/key=field_mk_melding_ot_vooraf', function ($field) {
+    add_filter('acf/prepare_field/key=field_mk_melding_ot_vooraf', function ($field) {
         if (mkbase_ot_actief()) $field['placeholder'] = (string) mkbase_ot_vooruit();
         return $field;
     });

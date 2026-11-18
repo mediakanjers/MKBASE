@@ -1,7 +1,14 @@
 <?php
     // Het dashboard-welkomstblok staat sinds 1.6.0 in inc/admin/dashboard.php
 
+    // De handleiding Mobiel testen staat sinds 1.7.4 niet meer in het thema (en dus niet op live
+    // websites): alleen lokaal, als mobile-testing-guide.html in de thema-map staat (zie .gitignore)
+    function mkbase_mobiel_testen_lokaal() {
+        return file_exists(get_template_directory() . '/mobile-testing-guide.html');
+    }
+
     add_action('admin_menu', function() {
+        if (!mkbase_mobiel_testen_lokaal()) return;
         add_submenu_page(null, 'Mobiel testen', 'Mobiel testen', 'manage_options', 'mkbase-mobile-guide', function() {
             if (!current_user_can('manage_options')) {
                 wp_die('Geen toegang.');
@@ -213,8 +220,9 @@
                 'stijlgids'        => 'Stijlgids',
                 'dev-afbeeldingen' => 'Afbeeldingen',
                 'lightbox'      => 'Lightbox',
-                'mobiel-testen' => 'Mobiel testen',
+                'dev-snelheid'  => 'Snelheid en beveiliging',
             ];
+            if (mkbase_mobiel_testen_lokaal()) $groups['Developer']['mobiel-testen'] = 'Mobiel testen';
         }
 
         // Zijbalk
@@ -486,7 +494,7 @@
             ]);
 
             $html .= mkbase_docs_section('ot-afwijkend', 'Afwijkende dagen', 'dashicons-warning', [
-                ['label' => 'Wat is het?', 'desc' => 'Eenmalige dagen of periodes: een bedrijfsvakantie, een kortere dag, een inventarisatie. Vul een datum in, en bij een periode ook <strong>Tot en met</strong> (leeg bij één dag).'],
+                ['label' => 'Wat is het?', 'desc' => 'Eenmalige dagen of periodes: een bedrijfsvakantie, een kortere dag, een inventarisatie. Vul een datum in, en bij een periode ook <strong>Tot en met</strong> (leeg bij één dag). Een periode duurt maximaal een jaar; bij een langere periode (bijvoorbeeld door een typfout in het jaar) zie je een melding bij Opslaan.'],
                 ['label' => 'Kaarten', 'desc' => 'Elke afwijking is een kaart. In de kop staan de naam, de datum, vanaf wanneer hij op de website staat, en of er een melding bij is. Met de prullenbak verwijder je hem (definitief na Opslaan). Een voorbije afwijking is ingeklapt; open hem met <strong>Bekijken</strong>.'],
                 ['label' => 'Komende 120 dagen', 'desc' => 'Rechts naast de kaarten staan alle feestdagen en afwijkingen van de komende 120 dagen op volgorde. Wat al op de website staat, is groen. De lijst wordt bijgewerkt na Opslaan.'],
                 ['label' => 'Status', 'desc' => '<strong>Gesloten</strong>, <strong>Andere tijden</strong>, <strong>Op afspraak</strong> of <strong>Gewoon open</strong> (de vaste week, ook op een feestdag). Met een toelichting komt er een korte zin bij, zoals hoe men je dan wel bereikt.'],
@@ -915,6 +923,27 @@
             $html .= '</div>';
         }
 
+        /* ── SNELHEID EN BEVEILIGING (developer only) ────── */
+        if (current_user_can('manage_options')) {
+            $html .= '<div class="mkbase-docs-panel" data-panel="dev-snelheid">';
+            $html .= '<p class="mkbase-docs-intro">Wat de core doet om de website snel en veilig te houden, en waar je in een child theme op let.</p>';
+            $html .= mkbase_docs_section('dev-snel-opties', 'Opties in één keer laden', 'dashicons-performance', [
+                ['label' => 'Wat doet de core?', 'desc' => 'De Mediakanjers-pagina\'s (Website instellingen, Geavanceerd, Meldingen, Openingstijden, 404) laden hun waarden in één keer met de rest van de WordPress-instellingen (<code>\'autoload\' => true</code> in <code>inc/acf/acf.php</code>). Zonder dat kost elk veld, ook elk subveld van een herhalende lijst, een eigen databasequery: zo\'n 250 per pagina. Bij de update naar 1.7.4 zijn de bestaande opties eenmalig omgezet.'],
+                ['label' => 'Eigen optiepagina in het child theme', 'desc' => 'Geef een eigen optiepagina die op elke pagina gelezen wordt (bijv. footer-instellingen) ook autoload:' . mkbase_docs_code("acf_add_options_sub_page([\n    'page_title'  => 'Footer',\n    'parent_slug' => 'Mediakanjers',\n    'autoload'    => true,\n]);") . 'Bestaande waarden gaan pas mee na opnieuw opslaan; bij de update naar 1.7.4 zijn ze al omgezet.'],
+                ['label' => 'Keuzes vullen met PHP', 'desc' => 'Vul de keuzes van een veld met <code>acf/prepare_field</code>, niet met <code>acf/load_field</code>. <code>load_field</code> draait bij elke <code>get_field()</code>, ook op de website; <code>prepare_field</code> alleen als het formulier getoond wordt. De opgeslagen waarde (de sleutel) heeft de keuzes niet nodig.'],
+            ], true);
+            $html .= mkbase_docs_section('dev-snel-gebruikers', 'Gebruikersnamen afgeschermd', 'dashicons-lock', [
+                ['label' => 'Wat doet de core?', 'desc' => 'WordPress laat standaard zien welke gebruikers er zijn: <code>/?author=1</code> stuurt door naar <code>/author/&lt;naam&gt;/</code> (meestal de inlognaam), en <code>/wp-json/wp/v2/users</code> en de sitemap van WordPress tonen de lijst. Voor wie niet is ingelogd, stuurt de core <code>?author=</code> door naar de voorpagina en verbergt hij de lijst in de REST API en de sitemap. Ingelogd (ook in de blokeditor) werkt alles zoals altijd. Het inlogscherm verandert niet.'],
+                ['label' => 'Uitzetten', 'desc' => 'Heeft een website de gebruikers publiek nodig (bijv. een koppeling via de REST API), zet het dan uit in het child theme:' . mkbase_docs_code("add_filter('mkbase_gebruikers_afschermen', '__return_false');")],
+            ], true);
+            $html .= mkbase_docs_section('dev-snel-updates', 'Updates van de core', 'dashicons-update', [
+                ['label' => 'Hoe vaak kijkt de website?', 'desc' => 'De website vraagt <code>mkbase-update.json</code> op GitHub hoogstens één keer per 6 uur op (na een mislukte poging na 30 minuten opnieuw), met een timeout van 10 seconden. Een nieuwe release meteen zien: <strong>Dashboard → Updates → Opnieuw controleren</strong>.'],
+                ['label' => 'Alleen eigen downloads', 'desc' => 'Een update wordt alleen aangeboden als de download uit de eigen GitHub-releases komt (<code>https://github.com/mediakanjers/MKBASE/releases/download/</code>), ook als het manifest ooit iets anders zou bevatten.'],
+                ['label' => 'Wat zit er niet in de zip?', 'desc' => 'De release-zip bevat geen <code>bin/</code> (scripts voor GitHub Actions), <code>.github/</code>, <code>DEVELOPMENT.md</code> en de handleiding Mobiel testen. Die laatste staat alleen lokaal (<code>mobile-testing-guide.html</code> in de thema-map, buiten git); staat hij er, dan verschijnt hij hier onder Developer.'],
+            ], true);
+            $html .= '</div>';
+        }
+
         /* ── LIGHTBOX (developer only) ───────────────────── */
         if (current_user_can('manage_options')) {
             $html .= '<div class="mkbase-docs-panel" data-panel="lightbox">';
@@ -955,8 +984,8 @@
             $html .= '</div>';
         }
 
-        /* ── MOBIEL TESTEN (developer only) ──────────────── */
-        if (current_user_can('manage_options')) {
+        /* ── MOBIEL TESTEN (developer only, alleen lokaal) ── */
+        if (current_user_can('manage_options') && mkbase_mobiel_testen_lokaal()) {
             $guide_url = admin_url('admin.php?page=mkbase-mobile-guide');
             $html .= '<div class="mkbase-docs-panel" data-panel="mobiel-testen">';
             $html .= '<p class="mkbase-docs-intro">Handleiding voor het testen van een lokale WordPress-omgeving op een fysiek mobiel apparaat via ngrok. Inclusief installatie, Apache-configuratie en wp-config.php snippet.</p>';

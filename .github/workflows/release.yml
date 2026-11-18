@@ -25,6 +25,8 @@ jobs:
           rsync -a \
             --exclude='.git/' \
             --exclude='.github/' \
+            --exclude='.gitignore' \
+            --exclude='bin/' \
             --exclude='DEVELOPMENT.md' \
             ./ /tmp/build/mkbase/
           cd /tmp/build

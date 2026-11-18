@@ -1509,7 +1509,8 @@
 
     });
 
-    add_filter('acf/load_field/key=field_mkbase_extra_zichtbare_blokken', function($field) {
+    // prepare_field: alleen als het formulier getoond wordt, niet bij elke get_field()
+    add_filter('acf/prepare_field/key=field_mkbase_extra_zichtbare_blokken', function($field) {
         $theme_blocks = function_exists('mkbase_theme_block_names') ? mkbase_theme_block_names() : [];
         $choices = [];
         foreach (WP_Block_Type_Registry::get_instance()->get_all_registered() as $name => $block_type) {

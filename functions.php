@@ -6,6 +6,7 @@
     require_once get_template_directory() . '/inc/helpers/image.php';
     require_once get_template_directory() . '/inc/helpers/blocks.php';
     require_once get_template_directory() . '/inc/helpers/video.php';
+    require_once get_template_directory() . '/inc/helpers/opties.php';
 
     require_once get_template_directory() . '/inc/enqueue/scripts.php';
     require_once get_template_directory() . '/inc/enqueue/styles.php';
@@ -30,6 +31,7 @@
     require_once get_template_directory() . '/inc/docs.php';
     require_once get_template_directory() . '/inc/diagnostics.php';
     require_once get_template_directory() . '/inc/setup.php';
+    require_once get_template_directory() . '/inc/beveiliging.php';
     require_once get_template_directory() . '/inc/admin/ui.php';
     require_once get_template_directory() . '/inc/admin/help.php';
     require_once get_template_directory() . '/inc/admin/dashboard.php';

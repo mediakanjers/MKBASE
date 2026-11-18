@@ -97,6 +97,7 @@
         $cache = [];
         if (!function_exists('get_field')) return $cache;
 
+        mkbase_prime_acf_repeater('mkbase_ot_roosters', 'field_mkbase_ot_roosters');
         foreach ((array) get_field('mkbase_ot_roosters', 'option') as $i => $rij) {
             if (!is_array($rij)) continue;
             $id = sanitize_key($rij['id'] ?? '') ?: 'rooster-' . ($i + 1);
@@ -165,6 +166,7 @@
         if (get_option('options_mkbase_ot_feestdagen', null) === null) {
             return array_map(function ($soort) { return ['feestdag' => $soort, 'status' => 'gesloten']; }, mkbase_ot_feestdagen_standaard());
         }
+        mkbase_prime_acf_repeater('mkbase_ot_feestdagen', 'field_mkbase_ot_feestdagen');
         return array_filter((array) get_field('mkbase_ot_feestdagen', 'option'), 'is_array');
     }
 
@@ -239,6 +241,7 @@
         static $cache = null;
         if ($cache !== null) return $cache;
         $cache = [];
+        mkbase_prime_acf_repeater('mkbase_ot_afwijkingen', 'field_mkbase_ot_afwijkingen');
         foreach ((array) get_field('mkbase_ot_afwijkingen', 'option') as $i => $rij) {
             if (!is_array($rij) || empty($rij['van'])) continue;
             try {
@@ -428,7 +431,10 @@
 
         foreach (mkbase_ot_afwijkingen_alle() as $a) {
             if (!mkbase_ot_geldt($a['voor'], $rooster['id'])) continue;
-            for ($d = $a['van']; $d <= $a['tot']; $d = $d->modify('+1 day')) $bezet[$d->format('Y-m-d')] = true;
+            // Alleen de dagen binnen de lijst: een lange periode (bijv. een typfout in het jaar) kost anders
+            // een loop over duizenden dagen bij elke weergave
+            $tot = $a['tot'] < $grens ? $a['tot'] : $grens;
+            for ($d = $a['van'] > $vanaf ? $a['van'] : $vanaf; $d <= $tot; $d = $d->modify('+1 day')) $bezet[$d->format('Y-m-d')] = true;
             if ($a['tot'] < $vanaf || $a['van'] > $grens || ($na && $a['tot'] <= $na)) continue;
             $item = $a + ['soort' => 'afwijking'];
             if ($a['status'] === 'open' && $a['van'] == $a['tot']) {
